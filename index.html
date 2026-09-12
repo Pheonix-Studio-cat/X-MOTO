@@ -1,0 +1,891 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0a0c10">
+<title>X-MOTO — Motocross Simulator</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;background:#0a0c10;color:#e8ecf2;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  touch-action:none;overscroll-behavior:none}
+canvas{display:block;width:100%;height:100%;position:absolute;inset:0}
+#hud{position:absolute;inset:0;pointer-events:none;z-index:5}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<canvas id="hud2d"></canvas>
+<div id="hud"></div>
+<script>
+"use strict";
+/* =========================================================================
+   X-MOTO — a motocross simulator that runs from a single file.
+   No build step, no CDN, no dependencies: it must work on an iPad opened
+   straight from GitHub Pages.
+   ========================================================================= */
+
+/* ---------------------------------------------------------------- math ---
+   Right-handed frame. X = right, Y = up, Z = backward, so "forward" is -Z.
+   Body-frame positions are written with BP(right, up, forward).
+   -------------------------------------------------------------------- */
+const BP = (r, u, f) => [r, u, -f];
+
+const V = {
+  add: (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]],
+  sub: (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]],
+  mul: (a, s) => [a[0] * s, a[1] * s, a[2] * s],
+  dot: (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2],
+  cross: (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]],
+  len: (a) => Math.hypot(a[0], a[1], a[2]),
+  len2: (a) => a[0] * a[0] + a[1] * a[1] + a[2] * a[2],
+  copy: (a) => [a[0], a[1], a[2]],
+  set: (o, a) => { o[0] = a[0]; o[1] = a[1]; o[2] = a[2]; return o; },
+  addTo: (o, a) => { o[0] += a[0]; o[1] += a[1]; o[2] += a[2]; return o; },
+  mad: (o, a, s) => { o[0] += a[0] * s; o[1] += a[1] * s; o[2] += a[2] * s; return o; },
+  norm: (a) => { const l = Math.hypot(a[0], a[1], a[2]); return l > 1e-12 ? [a[0] / l, a[1] / l, a[2] / l] : [0, 0, 0]; },
+  lerp: (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t],
+};
+
+const Q = {
+  ident: () => [0, 0, 0, 1],
+  mul: (a, b) => [
+    a[3] * b[0] + a[0] * b[3] + a[1] * b[2] - a[2] * b[1],
+    a[3] * b[1] - a[0] * b[2] + a[1] * b[3] + a[2] * b[0],
+    a[3] * b[2] + a[0] * b[1] - a[1] * b[0] + a[2] * b[3],
+    a[3] * b[3] - a[0] * b[0] - a[1] * b[1] - a[2] * b[2],
+  ],
+  norm: (q) => { const l = Math.hypot(q[0], q[1], q[2], q[3]) || 1; return [q[0] / l, q[1] / l, q[2] / l, q[3] / l]; },
+  conj: (q) => [-q[0], -q[1], -q[2], q[3]],
+  axisAngle: (ax, a) => { const h = a * 0.5, s = Math.sin(h); return [ax[0] * s, ax[1] * s, ax[2] * s, Math.cos(h)]; },
+  // rotate a vector from body frame into world frame
+  rot: (q, v) => {
+    const x = q[0], y = q[1], z = q[2], w = q[3];
+    const tx = 2 * (y * v[2] - z * v[1]);
+    const ty = 2 * (z * v[0] - x * v[2]);
+    const tz = 2 * (x * v[1] - y * v[0]);
+    return [v[0] + w * tx + (y * tz - z * ty),
+            v[1] + w * ty + (z * tx - x * tz),
+            v[2] + w * tz + (x * ty - y * tx)];
+  },
+  // rotate a vector from world frame into body frame
+  inv: (q, v) => Q.rot(Q.conj(q), v),
+  // integrate an orientation by a world-frame angular velocity
+  integrate: (q, w, dt) => {
+    const dq = [w[0] * dt * 0.5, w[1] * dt * 0.5, w[2] * dt * 0.5, 0];
+    const m = Q.mul(dq, q);
+    return Q.norm([q[0] + m[0], q[1] + m[1], q[2] + m[2], q[3] + m[3]]);
+  },
+  fromEuler: (yaw, pitch, roll) => {
+    const qy = Q.axisAngle([0, 1, 0], yaw);
+    const qp = Q.axisAngle([1, 0, 0], pitch);
+    const qr = Q.axisAngle([0, 0, 1], roll);
+    return Q.norm(Q.mul(Q.mul(qy, qp), qr));
+  },
+};
+
+const clamp = (v, a, b) => v < a ? a : (v > b ? b : v);
+const lerp = (a, b, t) => a + (b - a) * t;
+const sign = (v) => v < 0 ? -1 : (v > 0 ? 1 : 0);
+const smoothstep = (t) => { t = clamp(t, 0, 1); return t * t * (3 - 2 * t); };
+const TAU = Math.PI * 2;
+const DEG = Math.PI / 180;
+const RPM2RAD = TAU / 60;
+const RAD2RPM = 60 / TAU;
+
+/* deterministic pseudo-random: track generation must be reproducible so a
+   measured lap time means the same thing in the next session */
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/* ------------------------------------------------------------ surfaces ---
+   Every surface differs in grip, rolling drag, how deep it ruts and how
+   much it damps an impact. These are the numbers the tyre model reads.
+   -------------------------------------------------------------------- */
+const SURF = {
+  HARDPACK: 0, SOFT: 1, MUD: 2, SAND: 3, GRASS: 4, GRAVEL: 5, CONCRETE: 6,
+};
+const SURFACES = [
+  { id: 0, key: 'hardpack', name: 'Hard Pack',
+    grip: 0.95, gripWet: 0.52, roll: 0.022, rutRate: 0.020, rutMax: 0.020,
+    hardness: 1.00, dust: 0.55, spray: 0.10, col: [0.44, 0.36, 0.28], rough: 0.012 },
+  { id: 1, key: 'soft', name: 'Soft Dirt',
+    grip: 1.14, gripWet: 0.80, roll: 0.046, rutRate: 0.55, rutMax: 0.115,
+    hardness: 0.55, dust: 1.00, spray: 0.25, col: [0.36, 0.26, 0.18], rough: 0.030 },
+  { id: 2, key: 'mud', name: 'Mud',
+    grip: 0.44, gripWet: 0.34, roll: 0.082, rutRate: 0.80, rutMax: 0.160,
+    hardness: 0.35, dust: 0.05, spray: 1.00, col: [0.24, 0.19, 0.14], rough: 0.038 },
+  { id: 3, key: 'sand',  name: 'Sand',
+    grip: 0.92, gripWet: 0.95, roll: 0.115, rutRate: 0.95, rutMax: 0.175,
+    hardness: 0.28, dust: 0.85, spray: 0.20, col: [0.62, 0.53, 0.38], rough: 0.045 },
+  { id: 4, key: 'grass', name: 'Grass',
+    grip: 0.70, gripWet: 0.40, roll: 0.050, rutRate: 0.14, rutMax: 0.035,
+    hardness: 0.70, dust: 0.15, spray: 0.30, col: [0.27, 0.36, 0.19], rough: 0.020 },
+  { id: 5, key: 'gravel', name: 'Gravel',
+    grip: 0.60, gripWet: 0.50, roll: 0.062, rutRate: 0.22, rutMax: 0.045,
+    hardness: 0.85, dust: 0.60, spray: 0.15, col: [0.50, 0.48, 0.45], rough: 0.055 },
+  { id: 6, key: 'concrete', name: 'Concrete',
+    grip: 1.05, gripWet: 0.62, roll: 0.014, rutRate: 0.0, rutMax: 0.0,
+    hardness: 1.00, dust: 0.05, spray: 0.05, col: [0.55, 0.55, 0.57], rough: 0.004 },
+];
+
+/* ---------------------------------------------------------------- bikes ---
+   Torque curves are crank torque in Nm against engine rpm, interpolated
+   linearly. Gear ratios are OVERALL (engine rad/s per wheel rad/s) so the
+   resulting road speed is readable straight from the table instead of
+   hiding in a product of three numbers.
+   -------------------------------------------------------------------- */
+const BIKES = [
+  {
+    key: '450f', name: 'PHX 450F', cls: '450 4-Stroke', blurb: 'Big torque, hard to hold on to.',
+    massBike: 111, massUnsprungF: 14.0, massUnsprungR: 17.0,
+    inertia: [28, 20, 9],               // pitch(X), yaw(Y), roll(Z) of the bike alone
+    wheelbase: 1.48, rake: 27 * DEG, trail: 0.118,
+    radF: 0.470, radR: 0.475, wheelIF: 0.42, wheelIR: 0.60,
+    axleF: BP(0, -0.130, 0.755), axleR: BP(0, -0.125, -0.725),
+    cogH: 0.600,
+    strokes: 4, idleRpm: 1900, limitRpm: 9800, cutRpm: 10500, stallRpm: 1300,
+    engineI: 0.058, engBrake: 0.0092,   // Nm per rad/s of engine speed, closed throttle
+    torque: [[1500,26],[2500,36],[3500,43],[4500,47],[5500,49.5],[6500,51],[7000,51.2],
+             [7500,50],[8500,46],[9200,41],[9800,34],[10500,14]],
+    gears: [24.5, 19.6, 16.0, 13.3, 11.2],
+    clutchTorque: 260, shiftTime: 0.075,
+    susp: {
+      travelF: 0.310, travelR: 0.315,
+      kF: 11500, kProgF: 1.35, kR: 9600, kProgR: 2.15,     // N/m at the wheel, cubic-ish rise
+      cCompF: 2300, cRebF: 3600, cCompR: 3100, cRebR: 4700,
+      blowoff: 0.55, blowoffScale: 0.42,                   // digressive above this speed
+      bumpK: 260000, bumpC: 5200,                          // bottoming stack
+      tireKF: 152000, tireKR: 131000, tireC: 420,
+    },
+    brakeF: 980, brakeR: 340,
+    cdaSit: 0.62, cdaTuck: 0.44,
+    gripScale: 1.00, tireWidthF: 0.080, tireWidthR: 0.120,
+    plastics: [0.85, 0.12, 0.08],
+  },
+  {
+    key: '250f', name: 'PHX 250F', cls: '250 4-Stroke', blurb: 'Rev it or lose it. Forgiving chassis.',
+    massBike: 105, massUnsprungF: 13.4, massUnsprungR: 16.2,
+    inertia: [26, 18.5, 8.4],
+    wheelbase: 1.472, rake: 27.2 * DEG, trail: 0.116,
+    radF: 0.470, radR: 0.475, wheelIF: 0.40, wheelIR: 0.57,
+    axleF: BP(0, -0.130, 0.750), axleR: BP(0, -0.125, -0.722),
+    cogH: 0.592,
+    strokes: 4, idleRpm: 2100, limitRpm: 13500, cutRpm: 14200, stallRpm: 1500,
+    engineI: 0.036, engBrake: 0.0060,
+    torque: [[2000,15],[3000,19],[4500,23],[6000,26],[7500,28],[9000,29.2],
+             [10500,28.4],[12000,25.5],[13000,22],[13500,19],[14200,7]],
+    gears: [30.0, 24.5, 20.2, 16.8, 14.2],
+    clutchTorque: 175, shiftTime: 0.070,
+    susp: {
+      travelF: 0.310, travelR: 0.312,
+      kF: 10600, kProgF: 1.30, kR: 8900, kProgR: 2.05,
+      cCompF: 2100, cRebF: 3300, cCompR: 2850, cRebR: 4300,
+      blowoff: 0.55, blowoffScale: 0.42,
+      bumpK: 250000, bumpC: 5000,
+      tireKF: 148000, tireKR: 128000, tireC: 400,
+    },
+    brakeF: 900, brakeR: 320,
+    cdaSit: 0.60, cdaTuck: 0.43,
+    gripScale: 1.00, tireWidthF: 0.078, tireWidthR: 0.110,
+    plastics: [0.10, 0.55, 0.95],
+  },
+  {
+    key: '250tc', name: 'PHX 250 TC', cls: '250 2-Stroke', blurb: 'Nothing, nothing, everything.',
+    massBike: 103, massUnsprungF: 13.2, massUnsprungR: 16.0,
+    inertia: [25.5, 18, 8.2],
+    wheelbase: 1.482, rake: 27.5 * DEG, trail: 0.120,
+    radF: 0.470, radR: 0.475, wheelIF: 0.40, wheelIR: 0.57,
+    axleF: BP(0, -0.130, 0.756), axleR: BP(0, -0.125, -0.726),
+    cogH: 0.588,
+    strokes: 2, idleRpm: 1700, limitRpm: 9200, cutRpm: 9900, stallRpm: 1250,
+    engineI: 0.030, engBrake: 0.0026,
+    torque: [[2500,20],[4000,26],[5500,32],[6500,40],[7500,44],[8200,42],
+             [8800,37],[9200,32],[9900,11]],
+    gears: [26.0, 21.0, 17.4, 14.6, 12.4],
+    clutchTorque: 215, shiftTime: 0.068,
+    susp: {
+      travelF: 0.310, travelR: 0.312,
+      kF: 10800, kProgF: 1.32, kR: 9100, kProgR: 2.10,
+      cCompF: 2150, cRebF: 3350, cCompR: 2900, cRebR: 4400,
+      blowoff: 0.55, blowoffScale: 0.42,
+      bumpK: 252000, bumpC: 5000,
+      tireKF: 150000, tireKR: 130000, tireC: 410,
+    },
+    brakeF: 920, brakeR: 325,
+    cdaSit: 0.61, cdaTuck: 0.43,
+    gripScale: 1.00, tireWidthF: 0.078, tireWidthR: 0.115,
+    plastics: [0.95, 0.55, 0.05],
+  },
+  {
+    key: '125tc', name: 'PHX 125 TC', cls: '125 2-Stroke', blurb: 'Momentum is the whole game.',
+    massBike: 98, massUnsprungF: 12.6, massUnsprungR: 15.2,
+    inertia: [23.5, 17, 7.6],
+    wheelbase: 1.455, rake: 27.0 * DEG, trail: 0.113,
+    radF: 0.470, radR: 0.475, wheelIF: 0.38, wheelIR: 0.54,
+    axleF: BP(0, -0.132, 0.742), axleR: BP(0, -0.127, -0.713),
+    cogH: 0.578,
+    strokes: 2, idleRpm: 1800, limitRpm: 12200, cutRpm: 12900, stallRpm: 1500,
+    engineI: 0.020, engBrake: 0.0018,
+    torque: [[3000,8],[5000,12],[7000,16],[8500,21],[9500,25],[10500,26.3],
+             [11200,25],[11800,22],[12200,19],[12900,6]],
+    gears: [34.0, 28.0, 23.5, 20.0, 17.2, 15.0],
+    clutchTorque: 130, shiftTime: 0.062,
+    susp: {
+      travelF: 0.300, travelR: 0.300,
+      kF: 9600, kProgF: 1.28, kR: 8100, kProgR: 2.00,
+      cCompF: 1900, cRebF: 3000, cCompR: 2600, cRebR: 3900,
+      blowoff: 0.55, blowoffScale: 0.42,
+      bumpK: 235000, bumpC: 4700,
+      tireKF: 144000, tireKR: 124000, tireC: 390,
+    },
+    brakeF: 830, brakeR: 300,
+    cdaSit: 0.58, cdaTuck: 0.41,
+    gripScale: 1.00, tireWidthF: 0.075, tireWidthR: 0.105,
+    plastics: [0.95, 0.92, 0.12],
+  },
+  {
+    key: '85tc', name: 'PHX 85 TC', cls: '85 Mini', blurb: 'Small, light, screaming.',
+    massBike: 74, massUnsprungF: 9.4, massUnsprungR: 11.6,
+    inertia: [13.5, 10, 4.6],
+    wheelbase: 1.275, rake: 26.0 * DEG, trail: 0.098,
+    radF: 0.405, radR: 0.372, wheelIF: 0.22, wheelIR: 0.30,
+    axleF: BP(0, -0.118, 0.660), axleR: BP(0, -0.150, -0.615),
+    cogH: 0.523,
+    strokes: 2, idleRpm: 2000, limitRpm: 12800, cutRpm: 13400, stallRpm: 1700,
+    engineI: 0.012, engBrake: 0.0012,
+    torque: [[4000,5],[6000,7.5],[8000,10],[9500,12],[11000,13.5],
+             [11900,12.6],[12500,11],[12800,9.5],[13400,4]],
+    gears: [38.0, 31.5, 26.5, 22.5, 19.4, 17.0],
+    clutchTorque: 70, shiftTime: 0.058,
+    susp: {
+      travelF: 0.255, travelR: 0.270,
+      kF: 6900, kProgF: 1.25, kR: 5900, kProgR: 1.95,
+      cCompF: 1350, cRebF: 2100, cCompR: 1850, cRebR: 2800,
+      blowoff: 0.52, blowoffScale: 0.42,
+      bumpK: 170000, bumpC: 3400,
+      tireKF: 112000, tireKR: 98000, tireC: 300,
+    },
+    brakeF: 520, brakeR: 195,
+    cdaSit: 0.46, cdaTuck: 0.33,
+    gripScale: 0.97, tireWidthF: 0.066, tireWidthR: 0.090,
+    plastics: [0.15, 0.75, 0.35],
+  },
+];
+const BIKE_BY_KEY = {};
+for (const b of BIKES) BIKE_BY_KEY[b.key] = b;
+
+/* --------------------------------------------------------------- rider ---
+   The rider is a mass on the end of a spring, not a decal. Where the mass
+   sits decides what the bike does; the player moves the target, the spring
+   and the bike's reaction do the rest.
+   -------------------------------------------------------------------- */
+const RIDER = {
+  mass: 78,                     // kg including boots, helmet, gear
+  inertia: [5.5, 4.2, 3.0],     // pitch, yaw, roll — small, rigidly coupled
+  neutral: BP(0, 0.450, -0.055),
+  rangeFwd: 0.325, rangeBack: 0.300,
+  rangeUp: 0.105, rangeDown: 0.175,
+  rangeSide: 0.290,
+  stiffness: 2400,              // N/m of the rider "holding on"
+  damping: 210,
+  maxForce: 3400,               // arms and legs give up past this
+  gripLimit: 5800,              // above this the rider comes off
+};
+
+const WORLD = {
+  g: 9.81,
+  rhoAir: 1.225,
+  DT: 1 / 500,                  // physics step
+};
+
+/* ================================================================ TERRAIN
+   A height field the bikes can actually change. Four parallel grids:
+
+     h    base height, written once when the track is built
+     rut  signed deformation, written by every wheel that passes
+     pack how often the ground here has been driven on (a line goes slick)
+     surf which material this cell is made of
+
+   Physics reads it through bilinear interpolation; the renderer reads the
+   same numbers so what you see is what you hit.
+   ======================================================================= */
+
+/* piecewise longitudinal profile: [length, heightAtEnd, shape] */
+function shapeFn(shape, t) {
+  t = clamp(t, 0, 1);
+  switch (shape) {
+    case 'lin': return t;
+    case 'convex': return 1 - (1 - t) * (1 - t);          // quick rise, flattening
+    case 'concave': return t * t;                          // lazy start, steepening
+    case 'kick': return t * t * (1.9 - 0.9 * t);           // jump face that kicks at the lip
+    case 'knuckle': return Math.pow(t, 1.55);
+    default: return smoothstep(t);
+  }
+}
+function profileEval(segs, d) {
+  let h0 = 0, x = 0;
+  for (let i = 0; i < segs.length; i++) {
+    const len = segs[i][0], hEnd = segs[i][1], shape = segs[i][2] || 'smooth';
+    if (d <= x + len) {
+      const t = len > 1e-6 ? (d - x) / len : 1;
+      return h0 + (hEnd - h0) * shapeFn(shape, t);
+    }
+    x += len; h0 = hEnd;
+  }
+  return h0;
+}
+function profileLen(segs) { let L = 0; for (const s of segs) L += s[0]; return L; }
+
+/* ---- the feature catalogue: what a motocross track is actually made of -- */
+const FEAT = {
+  table: (h, face, top, land) => [
+    [2.2, h * 0.10, 'concave'], [face, h, 'kick'], [top, h, 'lin'],
+    [land, h * 0.06, 'smooth'], [2.5, 0, 'smooth'],
+  ],
+  // takeoff lip, then nothing, then a knuckle and a down ramp
+  gapJump: (h, face, gap, landH, landRun) => [
+    [1.8, h * 0.09, 'concave'], [face, h, 'kick'], [1.1, h * 0.97, 'lin'],
+    [2.0, h * 0.35, 'lin'], [gap, 0, 'lin'],
+    [3.2, landH, 'knuckle'], [landRun, 0.05, 'smooth'], [2.5, 0, 'smooth'],
+  ],
+  /* A feature is a local bump on top of the track elevation, so it MUST
+     come back to zero. A profile that ends high leaves a cliff where it
+     stops — see tests/test_terrain.js, which refuses any profile that does
+     not close. Long elevation change belongs in the track's `elev` keys. */
+  stepUp: (h, face, top) => [
+    [2.0, h * 0.10, 'concave'], [face, h, 'kick'], [top, h * 0.96, 'lin'],
+    [14.0, 0, 'smooth'], [2.5, 0, 'lin'],
+  ],
+  stepDown: (h, run, land) => [
+    [11.0, h, 'smooth'], [run, h, 'lin'], [1.0, h * 0.55, 'lin'],
+    [land, 0, 'convex'], [2.5, 0, 'lin'],
+  ],
+  roller: (h, len) => [[len * 0.5, h, 'smooth'], [len * 0.5, 0, 'smooth']],
+};
+function whoopProfile(n, amp, wave) {
+  const segs = [];
+  for (let i = 0; i < n; i++) {
+    const taper = clamp(Math.min(i + 1, n - i) / 1.6, 0.45, 1);
+    const a = amp * taper;
+    segs.push([wave * 0.5, a, 'smooth']);
+    segs.push([wave * 0.5, 0, 'smooth']);
+  }
+  return segs;
+}
+function seriesProfile(list) {   // concatenate several features with flat gaps
+  const out = [];
+  for (const it of list) {
+    if (typeof it === 'number') { out.push([it, 0, 'lin']); }
+    else for (const s of it) out.push(s);
+  }
+  return out;
+}
+
+/* ------------------------------------------------------- centre line ---- */
+function catmull(p0, p1, p2, p3, t) {
+  const t2 = t * t, t3 = t2 * t;
+  return [
+    0.5 * ((2 * p1[0]) + (-p0[0] + p2[0]) * t + (2 * p0[0] - 5 * p1[0] + 4 * p2[0] - p3[0]) * t2 + (-p0[0] + 3 * p1[0] - 3 * p2[0] + p3[0]) * t3),
+    0.5 * ((2 * p1[1]) + (-p0[1] + p2[1]) * t + (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * t2 + (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * t3),
+  ];
+}
+
+/* Resample a closed waypoint loop into an evenly spaced polyline with
+   tangents, normals, curvature and cumulative length. Everything else on
+   the track is placed against this arc length. */
+function buildPath(way, step) {
+  const raw = [];
+  const n = way.length;
+  for (let i = 0; i < n; i++) {
+    const p0 = way[(i - 1 + n) % n], p1 = way[i], p2 = way[(i + 1) % n], p3 = way[(i + 2) % n];
+    const seg = Math.max(2, Math.ceil(Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) / step) * 3);
+    for (let k = 0; k < seg; k++) raw.push(catmull(p0, p1, p2, p3, k / seg));
+  }
+  // Walk the dense curve emitting a point every `step` metres. The leftover
+  // distance at the end of each dense segment has to be carried into the
+  // next one, otherwise nothing ever accumulates and the whole loop
+  // collapses to a single sample.
+  const pts = [raw[0].slice()];
+  let carry = 0;
+  for (let i = 1; i <= raw.length; i++) {
+    const a = raw[i - 1], b = raw[i % raw.length];
+    const segLen = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    if (segLen < 1e-12) continue;
+    let t = 0;
+    while (carry + (segLen - t) >= step) {
+      t += step - carry;
+      const f = t / segLen;
+      pts.push([a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f]);
+      carry = 0;
+    }
+    carry += segLen - t;
+  }
+  // the last emitted point may sit almost on top of the first; drop it so the
+  // wrap-around spacing stays close to one step
+  if (pts.length > 2) {
+    const dl = Math.hypot(pts[pts.length - 1][0] - pts[0][0], pts[pts.length - 1][1] - pts[0][1]);
+    if (dl < step * 0.5) pts.pop();
+  }
+  const m = pts.length;
+  const tan = new Array(m), nor = new Array(m), curv = new Float32Array(m);
+  for (let i = 0; i < m; i++) {
+    const a = pts[(i - 1 + m) % m], b = pts[(i + 1) % m];
+    let tx = b[0] - a[0], tz = b[1] - a[1];
+    const l = Math.hypot(tx, tz) || 1; tx /= l; tz /= l;
+    tan[i] = [tx, tz];
+    nor[i] = [-tz, tx];             // left of travel
+  }
+  for (let i = 0; i < m; i++) {
+    const a = tan[(i - 1 + m) % m], b = tan[(i + 1) % m];
+    const cross = a[0] * b[1] - a[1] * b[0];
+    const dot = clamp(a[0] * b[0] + a[1] * b[1], -1, 1);
+    curv[i] = Math.atan2(cross, dot) / (2 * step);   // signed 1/m, positive = left
+  }
+  // light smoothing so a berm does not flicker between samples
+  const cs = new Float32Array(m);
+  for (let i = 0; i < m; i++) {
+    let s = 0, w = 0;
+    for (let k = -6; k <= 6; k++) { const ww = 1 - Math.abs(k) / 7; s += curv[(i + k + m) % m] * ww; w += ww; }
+    cs[i] = s / w;
+  }
+  return { pts, tan, nor, curv: cs, step, total: m * step, n: m };
+}
+
+/* ------------------------------------------------------- the height field */
+const TERR = {
+  CS: 0.30,            // cell size in metres — a rut is ~0.5 m wide, so this
+                       // is about as coarse as the ground can be and still
+                       // hold one.
+  nx: 0, nz: 0, x0: 0, z0: 0,
+  h: null, rut: null, pack: null, surf: null, pond: null,
+  wetGlobal: 0,        // rain soaks the whole track; puddles are `pond`
+  path: null, buckets: null, bCS: 6, bnx: 0, bnz: 0,
+  built: false, seed: 1,
+  dirty: null, dirtyAny: false, chunk: 32, cx: 0, cz: 0,
+
+  alloc(minX, minZ, maxX, maxZ) {
+    const m = 18;
+    this.x0 = Math.floor((minX - m) / this.CS) * this.CS;
+    this.z0 = Math.floor((minZ - m) / this.CS) * this.CS;
+    this.nx = Math.ceil((maxX + m - this.x0) / this.CS) + 1;
+    this.nz = Math.ceil((maxZ + m - this.z0) / this.CS) + 1;
+    const n = this.nx * this.nz;
+    this.h = new Float32Array(n);
+    this.rut = new Float32Array(n);
+    this.pack = new Uint8Array(n);
+    this.pond = new Uint8Array(n);
+    this.surf = new Uint8Array(n);
+    this.wetGlobal = 0;
+    this.cx = Math.ceil(this.nx / this.chunk); this.cz = Math.ceil(this.nz / this.chunk);
+    this.dirty = new Uint8Array(this.cx * this.cz);
+  },
+  bytes() {
+    return this.h ? this.h.byteLength + this.rut.byteLength + this.pack.byteLength
+                  + this.pond.byteLength + this.surf.byteLength : 0;
+  },
+
+  /* --- reading ---------------------------------------------------------- */
+  gh(ix, iz) {
+    if (ix < 0) ix = 0; else if (ix >= this.nx) ix = this.nx - 1;
+    if (iz < 0) iz = 0; else if (iz >= this.nz) iz = this.nz - 1;
+    const i = iz * this.nx + ix;
+    return this.h[i] + this.rut[i];
+  },
+  height(x, z) {
+    const fx = (x - this.x0) / this.CS, fz = (z - this.z0) / this.CS;
+    const ix = Math.floor(fx), iz = Math.floor(fz);
+    const tx = fx - ix, tz = fz - iz;
+    const h00 = this.gh(ix, iz), h10 = this.gh(ix + 1, iz);
+    const h01 = this.gh(ix, iz + 1), h11 = this.gh(ix + 1, iz + 1);
+    return (h00 * (1 - tx) + h10 * tx) * (1 - tz) + (h01 * (1 - tx) + h11 * tx) * tz;
+  },
+  normal(x, z) {
+    const d = this.CS;
+    const hx = this.height(x + d, z) - this.height(x - d, z);
+    const hz = this.height(x, z + d) - this.height(x, z - d);
+    return V.norm([-hx, 2 * d, -hz]);
+  },
+  cellAt(x, z) {
+    const ix = clamp(Math.round((x - this.x0) / this.CS), 0, this.nx - 1);
+    const iz = clamp(Math.round((z - this.z0) / this.CS), 0, this.nz - 1);
+    return iz * this.nx + ix;
+  },
+  wetAt(i) {
+    return clamp(this.wetGlobal * (1 + (this.pond[i] / 255) * 2.2), 0, 1.6);
+  },
+  /* everything the tyre model needs about one spot, in one lookup */
+  info(x, z) {
+    const i = this.cellAt(x, z);
+    const base = SURFACES[this.surf[i]];
+    const pk = this.pack[i] / 255, wt = this.wetAt(i);
+    const hp = SURFACES[SURF.HARDPACK];
+    // a driven-in line polishes towards hard pack — sand never does
+    const polish = base.id === SURF.SAND ? 0 : pk * 0.75;
+    let grip = lerp(base.grip, hp.grip, polish);
+    let roll = lerp(base.roll, hp.roll, pk * 0.6);
+    if (wt > 0) {
+      const soak = clamp(wt, 0, 1);
+      const wetGrip = lerp(base.gripWet, SURFACES[SURF.MUD].grip, clamp(wt - 0.75, 0, 1) * 0.8);
+      grip = lerp(grip, wetGrip, soak);
+      roll = lerp(roll, roll * 1.55, soak);
+    }
+    return { surf: base, grip, roll, pack: pk, wet: wt,
+             hardness: lerp(base.hardness, 1.0, pk * 0.5), i };
+  },
+
+  /* --- where am I on the lap? ------------------------------------------ */
+  buildBuckets() {
+    const p = this.path;
+    const minX = this.x0, minZ = this.z0;
+    this.bnx = Math.ceil((this.nx * this.CS) / this.bCS) + 1;
+    this.bnz = Math.ceil((this.nz * this.CS) / this.bCS) + 1;
+    const cells = new Array(this.bnx * this.bnz);
+    for (let i = 0; i < p.n; i++) {
+      const bx = Math.floor((p.pts[i][0] - minX) / this.bCS);
+      const bz = Math.floor((p.pts[i][1] - minZ) / this.bCS);
+      for (let dz = -1; dz <= 1; dz++) for (let dx = -1; dx <= 1; dx++) {
+        const cx = bx + dx, cz = bz + dz;
+        if (cx < 0 || cz < 0 || cx >= this.bnx || cz >= this.bnz) continue;
+        const k = cz * this.bnx + cx;
+        (cells[k] || (cells[k] = [])).push(i);
+      }
+    }
+    this.buckets = cells;
+  },
+  /* nearest point on the centre line: arc length, signed lateral offset
+     (positive = left of travel) and the sample index */
+  locate(x, z, hint) {
+    const p = this.path;
+    if (!p) return null;
+    let best = -1, bd = 1e18;
+    if (hint >= 0) {                       // cheap path: search around last frame
+      for (let k = -28; k <= 28; k++) {
+        const i = ((hint + k) % p.n + p.n) % p.n;
+        const dx = p.pts[i][0] - x, dz = p.pts[i][1] - z;
+        const d = dx * dx + dz * dz;
+        if (d < bd) { bd = d; best = i; }
+      }
+      if (bd < 36) return this.finishLocate(x, z, best);
+    }
+    const bx = Math.floor((x - this.x0) / this.bCS), bz = Math.floor((z - this.z0) / this.bCS);
+    if (bx >= 0 && bz >= 0 && bx < this.bnx && bz < this.bnz) {
+      const list = this.buckets[bz * this.bnx + bx];
+      if (list) for (const i of list) {
+        const dx = p.pts[i][0] - x, dz = p.pts[i][1] - z;
+        const d = dx * dx + dz * dz;
+        if (d < bd) { bd = d; best = i; }
+      }
+    }
+    if (best < 0) {                        // far off track: brute force, rare
+      for (let i = 0; i < p.n; i += 3) {
+        const dx = p.pts[i][0] - x, dz = p.pts[i][1] - z;
+        const d = dx * dx + dz * dz;
+        if (d < bd) { bd = d; best = i; }
+      }
+    }
+    return this.finishLocate(x, z, best);
+  },
+  finishLocate(x, z, i) {
+    const p = this.path;
+    const dx = x - p.pts[i][0], dz = z - p.pts[i][1];
+    const along = dx * p.tan[i][0] + dz * p.tan[i][1];
+    const lat = dx * p.nor[i][0] + dz * p.nor[i][1];
+    return { i, s: i * p.step + along, lat, dist: Math.hypot(dx, dz) };
+  },
+
+  /* --- writing: the ground remembers ------------------------------------ */
+  markDirty(ix, iz) {
+    const c = Math.floor(iz / this.chunk) * this.cx + Math.floor(ix / this.chunk);
+    if (c >= 0 && c < this.dirty.length) { this.dirty[c] = 1; this.dirtyAny = true; }
+  },
+  /* Cut a rut and push the spoil to the shoulders. Material is roughly
+     conserved: what comes out of the groove piles up beside it, which is
+     how a berm builds itself over a race. */
+  dig(x, z, depth, halfWidth, packAmt) {
+    if (depth <= 0 && packAmt <= 0) return 0;
+    const CS = this.CS;
+    // A rut does not stay tyre-wide: the walls slump as it deepens, so the
+    // groove widens with use. This is also what lets the height field hold
+    // one at all — a groove narrower than a cell cannot be represented.
+    const here = this.cellAt(x, z);
+    const Smax = SURFACES[this.surf[here]].rutMax;
+    const depthFrac = Smax > 0 ? clamp(-this.rut[here] / Smax, 0, 1) : 0;
+    halfWidth = Math.max(halfWidth * (1 + 1.5 * depthFrac), CS * 1.25);
+    const outer = halfWidth * 2.6;
+    const r = Math.max(1, Math.ceil(outer / CS));
+    const cix = Math.round((x - this.x0) / CS), ciz = Math.round((z - this.z0) / CS);
+    let removed = 0, shoulderW = 0;
+    for (let dz = -r; dz <= r; dz++) {
+      for (let dx = -r; dx <= r; dx++) {
+        const ix = cix + dx, iz = ciz + dz;
+        if (ix < 0 || iz < 0 || ix >= this.nx || iz >= this.nz) continue;
+        const d = Math.hypot(dx, dz) * CS;
+        const i = iz * this.nx + ix;
+        const S = SURFACES[this.surf[i]];
+        if (d <= halfWidth) {
+          if (packAmt > 0) {
+            const w = 1 - 0.6 * (d / halfWidth);
+            this.pack[i] = Math.min(255, this.pack[i] + packAmt * w * 255);
+          }
+          if (S.rutMax > 0 && depth > 0) {
+            const w = 1 - 0.75 * (d / halfWidth) * (d / halfWidth);
+            const cut = depth * w * S.rutRate;
+            const room = Math.max(0, S.rutMax + this.rut[i]);
+            const take = Math.min(cut, room);
+            if (take > 0) { this.rut[i] -= take; removed += take; this.markDirty(ix, iz); }
+          }
+        } else if (d <= outer) {
+          shoulderW += 1 - (d - halfWidth) / (outer - halfWidth);
+        }
+      }
+    }
+    if (removed > 0 && shoulderW > 0) {
+      const per = (removed * 0.70) / shoulderW;
+      for (let dz = -r; dz <= r; dz++) {
+        for (let dx = -r; dx <= r; dx++) {
+          const ix = cix + dx, iz = ciz + dz;
+          if (ix < 0 || iz < 0 || ix >= this.nx || iz >= this.nz) continue;
+          const d = Math.hypot(dx, dz) * CS;
+          if (d > halfWidth && d <= outer) {
+            const i = iz * this.nx + ix;
+            const w = 1 - (d - halfWidth) / (outer - halfWidth);
+            this.rut[i] += per * w; this.markDirty(ix, iz);
+          }
+        }
+      }
+    }
+    return removed;
+  },
+  /* rain soaks in, sun dries it out — one number, no grid walk per frame */
+  soak(dt, rainRate, dryRate) {
+    this.wetGlobal = clamp(this.wetGlobal + (rainRate - dryRate) * dt, 0, 1);
+  },
+};
+
+/* ------------------------------------------------------------- tracks ---- */
+const TRACKS = [
+  {
+    key: 'pine_ridge', name: 'Pine Ridge', country: 'Outdoor National',
+    blurb: 'Loam, long rollers, and a hill that never ends.',
+    laps: 3, gateSpots: 12, scale: 1.5,
+    way: [
+      [   0,    0], [  62,   -2], [ 108,    4], [ 136,   24], [ 143,   52],
+      [ 126,   73], [  96,   78], [  68,   70], [  46,   78], [  36,  102],
+      [  50,  122], [  80,  128], [ 108,  126], [ 132,  138], [ 138,  162],
+      [ 116,  178], [  84,  178], [  54,  171], [  26,  162], [  -2,  154],
+      [ -28,  141], [ -46,  120], [ -52,   96], [ -50,   72], [ -44,   50],
+      [ -54,   28], [ -74,   14], [ -74,  -10], [ -52,  -24], [ -22,  -22],
+    ],
+    width: [[0, 11.5], [0.04, 10.0], [0.30, 9.0], [0.55, 9.5], [0.80, 8.5], [1, 11.5]],
+    elev:  [[0, 0], [0.10, 1.2], [0.22, 4.5], [0.34, 6.5], [0.46, 3.0],
+            [0.58, -1.5], [0.70, -3.0], [0.82, -1.0], [0.92, 1.0], [1, 0]],
+    regions: [
+      { from: 0.000, to: 0.012, surf: SURF.CONCRETE },
+      { from: 0.560, to: 0.660, surf: SURF.SAND },
+      { from: 0.300, to: 0.345, surf: SURF.HARDPACK },
+    ],
+    /* Positions are fractions of the lap, so moving a waypoint does not
+       silently drop a jump into a corner. */
+    features: [
+      { atF: 0.070, prof: () => FEAT.table(2.35, 12.0, 6.5, 13.5), name: 'Table' },
+      { atF: 0.145, prof: () => whoopProfile(8, 0.55, 5.6), name: 'Whoops' },
+      { atF: 0.236, prof: () => FEAT.gapJump(2.9, 11.0, 9.5, 1.85, 12.0), name: 'Double' },
+      { atF: 0.296, prof: () => FEAT.stepUp(3.2, 12.0, 9.0), name: 'Step-Up' },
+      { atF: 0.372, prof: () => seriesProfile([FEAT.roller(0.80, 8.5), 3.5, FEAT.roller(0.95, 9),
+                                               3.5, FEAT.roller(0.80, 8.5)]), name: 'Rhythm' },
+      { atF: 0.450, prof: () => FEAT.gapJump(3.45, 13.5, 18.5, 2.35, 15.0), name: 'Triple' },
+      { atF: 0.568, prof: () => FEAT.table(2.0, 10.0, 4.0, 11.0), name: 'Sand Table' },
+      { atF: 0.658, prof: () => whoopProfile(10, 0.48, 5.0), name: 'Sand Whoops' },
+      { atF: 0.776, prof: () => FEAT.stepDown(3.0, 5.0, 10.0), name: 'Step-Down' },
+      { atF: 0.855, prof: () => FEAT.gapJump(2.6, 10.0, 8.0, 1.7, 11.0), name: 'Finish Double' },
+    ],
+    /* 0 kills the automatic berm: an off-camber turn with nothing to lean on */
+    bermScale: [{ from: 0.30, to: 0.345, scale: 0.0 }],
+    preRuts: [{ from: 0.08, to: 0.14, n: 3 }, { from: 0.42, to: 0.50, n: 2 },
+              { from: 0.72, to: 0.80, n: 3 }],
+  },
+];
+const TRACK_BY_KEY = {};
+for (const t of TRACKS) TRACK_BY_KEY[t.key] = t;
+
+/* ------------------------------------------------------------- builder --- */
+function keyLerp(keys, t) {
+  if (t <= keys[0][0]) return keys[0][1];
+  for (let i = 1; i < keys.length; i++) {
+    if (t <= keys[i][0]) {
+      const a = keys[i - 1], b = keys[i];
+      const f = (t - a[0]) / Math.max(1e-9, b[0] - a[0]);
+      return a[1] + (b[1] - a[1]) * smoothstep(f);
+    }
+  }
+  return keys[keys.length - 1][1];
+}
+function valueNoise2(seed) {
+  const rnd = mulberry32(seed);
+  const P = new Float32Array(256 * 256);
+  for (let i = 0; i < P.length; i++) P[i] = rnd();
+  return (x, y) => {
+    const xi = Math.floor(x), yi = Math.floor(y);
+    const tx = smoothstep(x - xi), ty = smoothstep(y - yi);
+    const g = (a, b) => P[(((a & 255) * 256) + (b & 255))];
+    const a = g(xi, yi), b = g(xi + 1, yi), c = g(xi, yi + 1), d = g(xi + 1, yi + 1);
+    return (a * (1 - tx) + b * tx) * (1 - ty) + (c * (1 - tx) + d * tx) * ty;
+  };
+}
+
+function buildTrack(def, seed) {
+  seed = seed || 12345;
+  TERR.seed = seed;
+  const sc = def.scale || 1;
+  const way = def.way.map(p => [p[0] * sc, p[1] * sc]);
+  const path = buildPath(way, 0.25);
+  const total = path.total;
+
+  let minX = 1e9, maxX = -1e9, minZ = 1e9, maxZ = -1e9;
+  for (const p of path.pts) {
+    if (p[0] < minX) minX = p[0]; if (p[0] > maxX) maxX = p[0];
+    if (p[1] < minZ) minZ = p[1]; if (p[1] > maxZ) maxZ = p[1];
+  }
+  TERR.alloc(minX - 22, minZ - 22, maxX + 22, maxZ + 22);
+  TERR.path = path;
+  TERR.buildBuckets();
+
+  // ---- ambient ground: rolling grass, before the track cuts into it
+  const nz1 = valueNoise2(seed), nz2 = valueNoise2(seed + 977);
+  const amb = (x, z) => (nz1(x / 52, z / 52) - 0.5) * 8.5 + (nz2(x / 15, z / 15) - 0.5) * 1.2
+                      + (nz1(x / 6, z / 6) - 0.5) * 0.24;
+  for (let iz = 0; iz < TERR.nz; iz++) {
+    for (let ix = 0; ix < TERR.nx; ix++) {
+      const x = TERR.x0 + ix * TERR.CS, z = TERR.z0 + iz * TERR.CS;
+      const i = iz * TERR.nx + ix;
+      TERR.h[i] = amb(x, z);
+      TERR.surf[i] = SURF.GRASS;
+    }
+  }
+
+  // ---- per-sample track data
+  const m = path.n;
+  const sElev = new Float32Array(m), sWidth = new Float32Array(m);
+  const sFeat = new Float32Array(m), sSurf = new Uint8Array(m), sBerm = new Float32Array(m);
+  for (let i = 0; i < m; i++) {
+    const f = (i * path.step) / total;
+    sElev[i] = keyLerp(def.elev, f);
+    sWidth[i] = keyLerp(def.width, f) * 0.5;
+    sSurf[i] = SURF.SOFT;
+    sBerm[i] = 1;
+  }
+  for (const r of (def.regions || [])) {
+    for (let i = 0; i < m; i++) { const f = (i * path.step) / total; if (f >= r.from && f < r.to) sSurf[i] = r.surf; }
+  }
+  for (const r of (def.bermScale || [])) {
+    for (let i = 0; i < m; i++) { const f = (i * path.step) / total; if (f >= r.from && f < r.to) sBerm[i] = r.scale; }
+  }
+  // features: stamp their longitudinal profile onto the sample elevation
+  const featSpans = [];
+  for (const ft of (def.features || [])) {
+    const segs = ft.prof();
+    const L = profileLen(segs);
+    const s0 = ft.atF !== undefined ? ft.atF * total : ft.at;
+    featSpans.push({ name: ft.name, s0, s1: s0 + L, len: L });
+    const i0 = Math.floor(s0 / path.step), i1 = Math.ceil((s0 + L) / path.step);
+    for (let i = i0; i <= i1; i++) {
+      const ii = ((i % m) + m) % m;
+      const d = i * path.step - s0;
+      if (d < 0 || d > L) continue;
+      sFeat[ii] += profileEval(segs, d);
+    }
+  }
+
+  // ---- stamp the track into the ambient ground
+  const ST = TERR.CS * 0.5;
+  const rnd = mulberry32(seed + 5551);
+  const micro = valueNoise2(seed + 31);
+  for (let i = 0; i < m; i++) {
+    const c = path.pts[i], nrm = path.nor[i];
+    const w = sWidth[i];
+    const f = (i * path.step) / total;
+    const curv = path.curv[i];
+    const outSign = curv > 0 ? -1 : 1;           // outside of the turn
+    const bermH = Math.min(1.15, Math.abs(curv) * 34) * sBerm[i];
+    const bermW = clamp(w * 0.55, 1.6, 4.2);
+    let rutN = 0;
+    for (const r of (def.preRuts || [])) if (f >= r.from && f < r.to) rutN = r.n;
+    const ext = 5.5;
+    for (let lat = -(w + ext); lat <= w + ext; lat += ST) {
+      const x = c[0] + nrm[0] * lat, z = c[1] + nrm[1] * lat;
+      const ix = Math.round((x - TERR.x0) / TERR.CS), iz = Math.round((z - TERR.z0) / TERR.CS);
+      if (ix < 0 || iz < 0 || ix >= TERR.nx || iz >= TERR.nz) continue;
+      const gi = iz * TERR.nx + ix;
+      const al = Math.abs(lat);
+      const inside = al <= w;
+      const weight = inside ? 1 : 1 - smoothstep((al - w) / ext);
+      if (weight <= 0.001) continue;
+
+      let hh = sElev[i] + sFeat[i];
+      if (bermH > 0 && lat * outSign > 0) {
+        const t = clamp((al - (w - bermW)) / bermW, 0, 1.35);
+        hh += bermH * t * t * (1 + 0.25 * (t > 1 ? t - 1 : 0));
+      }
+      hh += 0.10 * smoothstep((al - (w - 0.9)) / 1.1);
+      if (rutN > 0 && inside) {
+        const lane = (lat / (w * 0.72)) * rutN * Math.PI;
+        hh += -0.085 * Math.pow(Math.max(0, Math.cos(lane)), 6);
+      }
+      hh += (micro(x / 2.4, z / 2.4) - 0.5) * 0.055 * weight;
+
+      TERR.h[gi] = TERR.h[gi] * (1 - weight) + hh * weight;
+      if (weight > 0.5) TERR.surf[gi] = sSurf[i];
+      else if (weight > 0.12 && TERR.surf[gi] === SURF.GRASS && rnd() < 0.4) TERR.surf[gi] = SURF.GRAVEL;
+      if (inside) TERR.pack[gi] = Math.max(TERR.pack[gi], Math.round(90 * (1 - al / w)));
+    }
+  }
+
+  // ---- where water will stand: a cell lower than everything around it
+  for (let iz = 1; iz < TERR.nz - 1; iz++) {
+    for (let ix = 1; ix < TERR.nx - 1; ix++) {
+      const i = iz * TERR.nx + ix;
+      const h0 = TERR.h[i];
+      let higher = 0, sum = 0;
+      for (let k = 0; k < 8; k++) {
+        const dx = [1, -1, 0, 0, 1, 1, -1, -1][k], dz = [0, 0, 1, -1, 1, -1, 1, -1][k];
+        const hn = TERR.h[i + dz * TERR.nx + dx];
+        sum += hn - h0;
+        if (hn > h0 + 0.012) higher++;
+      }
+      if (higher >= 6) TERR.pond[i] = Math.min(255, Math.round((sum / 8) * 900));
+    }
+  }
+
+  TERR.built = true;
+  TERR.dirty.fill(1); TERR.dirtyAny = true;
+  return { path, total, featSpans, def, scale: sc };
+}
+
+/* __TAIL__ (new code is inserted above this line) */
+
+/* ---------------------------------------------------------- test hook ----
+   Everything the test suites touch hangs off T. In a browser it is
+   window.T; under node the same object is the module export, so the
+   physics can be measured without launching anything.
+   ------------------------------------------------------------------- */
+const T = {
+  V, Q, WORLD, RIDER, SURF, SURFACES, BIKES, BIKE_BY_KEY, TRACKS, TRACK_BY_KEY,
+  TERR, buildTrack, buildPath, profileEval, profileLen, FEAT, whoopProfile,
+  seriesProfile, keyLerp, clamp, lerp, smoothstep, mulberry32,
+};
+if (typeof window !== 'undefined') window.T = T;
+if (typeof module !== 'undefined' && module.exports) module.exports = T;
+</script>
+</body>
+</html>
