@@ -173,7 +173,7 @@ for (const f of built.featSpans) {
   const sumRut = () => { let s = 0; for (let dz = -R; dz <= R; dz++) for (let dx = -R; dx <= R; dx++)
     s += T.TERR.rut[(ciz + dz) * T.TERR.nx + (cix + dx)]; return s; };
   const before = sumRut();
-  for (let k = 0; k < 30; k++) T.TERR.dig(x, z, 0.010, 0.16, 0.02);
+  for (let k = 0; k < 30; k++) T.TERR.dig(x, z, 1, 0, 0.010, 0.16, 0.02);
   const h1 = T.TERR.height(x, z);
   // how much went down, how much came back up
   let down = 0, up = 0, rose = 0;
@@ -190,7 +190,7 @@ for (const f of built.featSpans) {
   A(Math.abs(sumRut() - before) < down * 0.45, 'the ground does not simply delete material');
 
   // and it stops: loam has a maximum rut depth
-  for (let k = 0; k < 4000; k++) T.TERR.dig(x, z, 0.010, 0.16, 0.0);
+  for (let k = 0; k < 4000; k++) T.TERR.dig(x, z, 1, 0, 0.010, 0.16, 0.0);
   const h2 = T.TERR.height(x, z);
   const cell = T.TERR.cellAt(x, z);
   const S = T.SURFACES[T.SURF.SOFT];
@@ -207,7 +207,7 @@ for (const f of built.featSpans) {
   const x = path.pts[i][0], z = path.pts[i][1];
   const si = T.TERR.info(x, z);
   const h0 = T.TERR.height(x, z);
-  for (let k = 0; k < 500; k++) T.TERR.dig(x, z, 0.02, 0.20, 0.0);
+  for (let k = 0; k < 500; k++) T.TERR.dig(x, z, 1, 0, 0.02, 0.20, 0.0);
   const h1 = T.TERR.height(x, z);
   A(si.surf.key === 'concrete', 'the start pad is concrete  [' + si.surf.key + ']');
   A(Math.abs(h1 - h0) < 1e-6, 'concrete does not rut  [' + (h1 - h0).toFixed(6) + ' m]');
