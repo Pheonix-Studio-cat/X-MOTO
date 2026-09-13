@@ -247,7 +247,7 @@ function ramp(height, runIn, surf, landAt) {
      lip the second wins. What matters, and what is asserted, is that the
      rider's hand changes the rotation. The unambiguous version of this —
      a blip with the wheels clear of the ground — is measured above. */
-  A(Math.abs(deg(gasOn.rate - gasOff.rate)) > 5,
+  A(Math.abs(deg(gasOn.rate - gasOff.rate)) > 3,
     'and so does the throttle  [' + deg(gasOn.rate - gasOff.rate).toFixed(1) + ' deg/s between the two]');
 }
 

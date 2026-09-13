@@ -133,10 +133,10 @@ const SURFACES = [
     hardness: 0.70, dust: 0.15, spray: 0.30, col: [0.27, 0.36, 0.19], rough: 0.020 },
   { id: 5, key: 'gravel', name: 'Gravel',
     grip: 0.60, gripWet: 0.50, gripPacked: 0.68, roll: 0.062, rutRate: 0.22, rutMax: 0.045,
-    hardness: 0.85, dust: 0.60, spray: 0.15, col: [0.50, 0.48, 0.45], rough: 0.055 },
+    hardness: 0.85, dust: 0.60, spray: 0.15, col: [0.40, 0.38, 0.35], rough: 0.055 },
   { id: 6, key: 'concrete', name: 'Concrete',
     grip: 1.05, gripWet: 0.62, gripPacked: 1.05, roll: 0.014, rutRate: 0.0, rutMax: 0.0,
-    hardness: 1.00, dust: 0.05, spray: 0.05, col: [0.55, 0.55, 0.57], rough: 0.004 },
+    hardness: 1.00, dust: 0.05, spray: 0.05, col: [0.44, 0.44, 0.46], rough: 0.004 },
 ];
 
 /* ---------------------------------------------------------------- bikes ---
@@ -151,14 +151,14 @@ const BIKES = [
     massBike: 111, massUnsprungF: 14.0, massUnsprungR: 17.0,
     inertia: [28, 20, 9],               // pitch(X), yaw(Y), roll(Z) of the bike alone
     wheelbase: 1.48, rake: 27 * DEG, trail: 0.118,
-    radF: 0.470, radR: 0.475, wheelIF: 0.42, wheelIR: 0.60,
-    axleF: BP(0, -0.130, 0.755), axleR: BP(0, -0.125, -0.725),
+    radF: 0.350, radR: 0.337, wheelIF: 0.55, wheelIR: 0.78,
+    axleF: BP(0, -0.250, 0.755), axleR: BP(0, -0.263, -0.725),
     cogH: 0.600,
     strokes: 4, idleRpm: 1900, limitRpm: 9800, cutRpm: 10500, stallRpm: 1300,
     engineI: 0.058, engBrake: 0.0092,   // Nm per rad/s of engine speed, closed throttle
     torque: [[1500,26],[2500,36],[3500,43],[4500,47],[5500,49.5],[6500,51],[7000,51.2],
              [7500,50],[8500,46],[9200,41],[9800,34],[10500,14]],
-    gears: [24.5, 19.6, 16.0, 13.3, 11.2],
+    gears: [18.3, 14.6, 11.9, 9.9, 8.3],
     clutchTorque: 130, shiftTime: 0.075,
     susp: {
       travelF: 0.310, travelR: 0.315,
@@ -168,7 +168,7 @@ const BIKES = [
       bumpK: 260000, bumpC: 5200,                          // bottoming stack
       tireKF: 152000, tireKR: 131000, tireC: 420,
     },
-    brakeF: 980, brakeR: 340,
+    brakeF: 730, brakeR: 253,
     cdaSit: 0.62, cdaTuck: 0.44,
     gripScale: 1.00, tireWidthF: 0.080, tireWidthR: 0.120,
     plastics: [0.85, 0.12, 0.08],
@@ -178,14 +178,14 @@ const BIKES = [
     massBike: 105, massUnsprungF: 13.4, massUnsprungR: 16.2,
     inertia: [26, 18.5, 8.4],
     wheelbase: 1.472, rake: 27.2 * DEG, trail: 0.116,
-    radF: 0.470, radR: 0.475, wheelIF: 0.40, wheelIR: 0.57,
-    axleF: BP(0, -0.130, 0.750), axleR: BP(0, -0.125, -0.722),
+    radF: 0.350, radR: 0.337, wheelIF: 0.53, wheelIR: 0.74,
+    axleF: BP(0, -0.242, 0.750), axleR: BP(0, -0.255, -0.722),
     cogH: 0.592,
     strokes: 4, idleRpm: 2100, limitRpm: 13500, cutRpm: 14200, stallRpm: 1500,
     engineI: 0.036, engBrake: 0.0060,
     torque: [[2000,15],[3000,19],[4500,23],[6000,26],[7500,28],[9000,29.2],
              [10500,28.4],[12000,25.5],[13000,22],[13500,19],[14200,7]],
-    gears: [30.0, 24.5, 20.2, 16.8, 14.2],
+    gears: [22.4, 18.3, 15.0, 12.5, 10.6],
     clutchTorque: 78, shiftTime: 0.070,
     susp: {
       travelF: 0.310, travelR: 0.312,
@@ -195,7 +195,7 @@ const BIKES = [
       bumpK: 250000, bumpC: 5000,
       tireKF: 148000, tireKR: 128000, tireC: 400,
     },
-    brakeF: 900, brakeR: 320,
+    brakeF: 670, brakeR: 238,
     cdaSit: 0.60, cdaTuck: 0.43,
     gripScale: 1.00, tireWidthF: 0.078, tireWidthR: 0.110,
     plastics: [0.10, 0.55, 0.95],
@@ -205,14 +205,14 @@ const BIKES = [
     massBike: 103, massUnsprungF: 13.2, massUnsprungR: 16.0,
     inertia: [25.5, 18, 8.2],
     wheelbase: 1.482, rake: 27.5 * DEG, trail: 0.120,
-    radF: 0.470, radR: 0.475, wheelIF: 0.40, wheelIR: 0.57,
-    axleF: BP(0, -0.130, 0.756), axleR: BP(0, -0.125, -0.726),
+    radF: 0.350, radR: 0.337, wheelIF: 0.53, wheelIR: 0.74,
+    axleF: BP(0, -0.238, 0.756), axleR: BP(0, -0.251, -0.726),
     cogH: 0.588,
     strokes: 2, idleRpm: 1700, limitRpm: 9200, cutRpm: 9900, stallRpm: 1250,
     engineI: 0.030, engBrake: 0.0026,
     torque: [[2500,20],[4000,26],[5500,32],[6500,40],[7500,44],[8200,42],
              [8800,37],[9200,32],[9900,11]],
-    gears: [26.0, 21.0, 17.4, 14.6, 12.4],
+    gears: [19.4, 15.6, 13.0, 10.9, 9.2],
     clutchTorque: 108, shiftTime: 0.068,
     susp: {
       travelF: 0.310, travelR: 0.312,
@@ -222,7 +222,7 @@ const BIKES = [
       bumpK: 252000, bumpC: 5000,
       tireKF: 150000, tireKR: 130000, tireC: 410,
     },
-    brakeF: 920, brakeR: 325,
+    brakeF: 685, brakeR: 242,
     cdaSit: 0.61, cdaTuck: 0.43,
     gripScale: 1.00, tireWidthF: 0.078, tireWidthR: 0.115,
     plastics: [0.95, 0.55, 0.05],
@@ -232,14 +232,14 @@ const BIKES = [
     massBike: 98, massUnsprungF: 12.6, massUnsprungR: 15.2,
     inertia: [23.5, 17, 7.6],
     wheelbase: 1.455, rake: 27.0 * DEG, trail: 0.113,
-    radF: 0.470, radR: 0.475, wheelIF: 0.38, wheelIR: 0.54,
-    axleF: BP(0, -0.132, 0.742), axleR: BP(0, -0.127, -0.713),
+    radF: 0.350, radR: 0.337, wheelIF: 0.50, wheelIR: 0.70,
+    axleF: BP(0, -0.228, 0.742), axleR: BP(0, -0.241, -0.713),
     cogH: 0.578,
     strokes: 2, idleRpm: 1800, limitRpm: 12200, cutRpm: 12900, stallRpm: 1500,
     engineI: 0.020, engBrake: 0.0018,
     torque: [[3000,8],[5000,12],[7000,16],[8500,21],[9500,25],[10500,26.3],
              [11200,25],[11800,22],[12200,19],[12900,6]],
-    gears: [34.0, 28.0, 23.5, 20.0, 17.2, 15.0],
+    gears: [25.3, 20.9, 17.5, 14.9, 12.8, 11.2],
     clutchTorque: 64, shiftTime: 0.062,
     susp: {
       travelF: 0.300, travelR: 0.300,
@@ -249,7 +249,7 @@ const BIKES = [
       bumpK: 235000, bumpC: 4700,
       tireKF: 144000, tireKR: 124000, tireC: 390,
     },
-    brakeF: 830, brakeR: 300,
+    brakeF: 618, brakeR: 224,
     cdaSit: 0.58, cdaTuck: 0.41,
     gripScale: 1.00, tireWidthF: 0.075, tireWidthR: 0.105,
     plastics: [0.95, 0.92, 0.12],
@@ -259,14 +259,14 @@ const BIKES = [
     massBike: 74, massUnsprungF: 9.4, massUnsprungR: 11.6,
     inertia: [13.5, 10, 4.6],
     wheelbase: 1.275, rake: 26.0 * DEG, trail: 0.098,
-    radF: 0.405, radR: 0.372, wheelIF: 0.22, wheelIR: 0.30,
-    axleF: BP(0, -0.118, 0.660), axleR: BP(0, -0.150, -0.615),
+    radF: 0.310, radR: 0.278, wheelIF: 0.28, wheelIR: 0.38,
+    axleF: BP(0, -0.213, 0.660), axleR: BP(0, -0.245, -0.615),
     cogH: 0.523,
     strokes: 2, idleRpm: 2000, limitRpm: 12800, cutRpm: 13400, stallRpm: 1700,
     engineI: 0.012, engBrake: 0.0012,
     torque: [[4000,5],[6000,7.5],[8000,10],[9500,12],[11000,13.5],
              [11900,12.6],[12500,11],[12800,9.5],[13400,4]],
-    gears: [38.0, 31.5, 26.5, 22.5, 19.4, 17.0],
+    gears: [28.4, 23.5, 19.8, 16.8, 14.5, 12.7],
     clutchTorque: 34, shiftTime: 0.058,
     susp: {
       travelF: 0.255, travelR: 0.270,
@@ -276,7 +276,7 @@ const BIKES = [
       bumpK: 170000, bumpC: 3400,
       tireKF: 112000, tireKR: 98000, tireC: 300,
     },
-    brakeF: 520, brakeR: 195,
+    brakeF: 398, brakeR: 146,
     cdaSit: 0.46, cdaTuck: 0.33,
     gripScale: 0.97, tireWidthF: 0.066, tireWidthR: 0.090,
     plastics: [0.15, 0.75, 0.35],
@@ -865,7 +865,7 @@ function buildTrack(def, seed) {
 
       TERR.h[gi] = TERR.h[gi] * (1 - weight) + hh * weight;
       if (weight > 0.5) TERR.surf[gi] = sSurf[i];
-      else if (weight > 0.12 && TERR.surf[gi] === SURF.GRASS && rnd() < 0.4) TERR.surf[gi] = SURF.GRAVEL;
+      else if (weight > 0.35 && TERR.surf[gi] === SURF.GRASS && rnd() < 0.22) TERR.surf[gi] = SURF.GRAVEL;
       if (inside) TERR.pack[gi] = Math.max(TERR.pack[gi], Math.round(90 * (1 - al / w)));
     }
   }
@@ -1644,6 +1644,7 @@ function physStep(b, dt) {
       else { TbApplied = Tb * sign(spinNext); spinNext -= sign(spinNext) * Tb * dt / W.I; w.lockT = 0; }
     } else w.lockT = 0;
     w.spin = spinNext;
+    w.ang = ((w.ang || 0) + spinNext * dt) % TAU;
     w.TbLast = TbApplied;
     // reaction of drive and brake torque on the frame
     addT(V.mul(W.spinAxis, Tdrive - TbApplied));
@@ -1872,6 +1873,2409 @@ function riderBrake(b, wantF, wantR, level) {
           clamp(wantR * (1 - 0.8 * Math.max(easeR, lockR) * L), 0, 1)];
 }
 
+
+/* ==================================================================== 4x4
+   Column-major, the way WebGL wants them.
+   ======================================================================= */
+const M4 = {
+  ident: () => new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]),
+  mul(a, b, out) {
+    out = out || new Float32Array(16);
+    for (let c = 0; c < 4; c++) {
+      const b0 = b[c*4], b1 = b[c*4+1], b2 = b[c*4+2], b3 = b[c*4+3];
+      out[c*4]   = a[0]*b0 + a[4]*b1 + a[8]*b2  + a[12]*b3;
+      out[c*4+1] = a[1]*b0 + a[5]*b1 + a[9]*b2  + a[13]*b3;
+      out[c*4+2] = a[2]*b0 + a[6]*b1 + a[10]*b2 + a[14]*b3;
+      out[c*4+3] = a[3]*b0 + a[7]*b1 + a[11]*b2 + a[15]*b3;
+    }
+    return out;
+  },
+  persp(fovY, aspect, near, far, out) {
+    out = out || new Float32Array(16);
+    const f = 1 / Math.tan(fovY / 2), nf = 1 / (near - far);
+    out.fill(0);
+    out[0] = f / aspect; out[5] = f; out[10] = (far + near) * nf;
+    out[11] = -1; out[14] = 2 * far * near * nf;
+    return out;
+  },
+  ortho(l, r, b2, t, n, f, out) {
+    out = out || new Float32Array(16);
+    out.fill(0);
+    out[0] = 2/(r-l); out[5] = 2/(t-b2); out[10] = -2/(f-n); out[15] = 1;
+    out[12] = -(r+l)/(r-l); out[13] = -(t+b2)/(t-b2); out[14] = -(f+n)/(f-n);
+    return out;
+  },
+  lookAt(eye, at, up, out) {
+    out = out || new Float32Array(16);
+    let z = V.norm(V.sub(eye, at));
+    if (V.len2(z) < 1e-12) z = [0, 0, 1];
+    let x = V.cross(up, z);
+    if (V.len2(x) < 1e-12) x = V.cross([1, 0, 0], z);
+    x = V.norm(x);
+    const y = V.cross(z, x);
+    out[0]=x[0]; out[1]=y[0]; out[2]=z[0]; out[3]=0;
+    out[4]=x[1]; out[5]=y[1]; out[6]=z[1]; out[7]=0;
+    out[8]=x[2]; out[9]=y[2]; out[10]=z[2]; out[11]=0;
+    out[12]=-V.dot(x,eye); out[13]=-V.dot(y,eye); out[14]=-V.dot(z,eye); out[15]=1;
+    return out;
+  },
+  fromQuatPos(q, p, scale, out) {
+    out = out || new Float32Array(16);
+    const s = scale === undefined ? 1 : scale;
+    const x=q[0], y=q[1], z=q[2], w=q[3];
+    const x2=x+x, y2=y+y, z2=z+z;
+    const xx=x*x2, xy=x*y2, xz=x*z2, yy=y*y2, yz=y*z2, zz=z*z2;
+    const wx=w*x2, wy=w*y2, wz=w*z2;
+    out[0]=(1-(yy+zz))*s; out[1]=(xy+wz)*s;     out[2]=(xz-wy)*s;     out[3]=0;
+    out[4]=(xy-wz)*s;     out[5]=(1-(xx+zz))*s; out[6]=(yz+wx)*s;     out[7]=0;
+    out[8]=(xz+wy)*s;     out[9]=(yz-wx)*s;     out[10]=(1-(xx+yy))*s; out[11]=0;
+    out[12]=p[0]; out[13]=p[1]; out[14]=p[2]; out[15]=1;
+    return out;
+  },
+};
+
+/* ================================================================== GL ===
+   One WebGL2 context, three programs: the ground, solid objects, and a
+   shadow pass that both of them feed. No libraries — the whole point of
+   this file is that it opens from a URL on a tablet and runs.
+   ======================================================================= */
+const GL = {
+  gl: null, canvas: null, ok: false, err: '',
+  W: 0, H: 0, dpr: 1,
+  prog: {}, shadow: null,
+  SHADOW_SIZE: 2048,
+};
+
+function compile(gl, type, src, name) {
+  const sh = gl.createShader(type);
+  gl.shaderSource(sh, src); gl.compileShader(sh);
+  if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+    throw new Error(name + ': ' + gl.getShaderInfoLog(sh));
+  }
+  return sh;
+}
+function program(gl, vs, fs, name) {
+  const p = gl.createProgram();
+  gl.attachShader(p, compile(gl, gl.VERTEX_SHADER, vs, name + ' vertex'));
+  gl.attachShader(p, compile(gl, gl.FRAGMENT_SHADER, fs, name + ' fragment'));
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+    throw new Error(name + ' link: ' + gl.getProgramInfoLog(p));
+  }
+  const u = {}, a = {};
+  const nu = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+  for (let i = 0; i < nu; i++) { const n = gl.getActiveUniform(p, i).name.replace('[0]', ''); u[n] = gl.getUniformLocation(p, n); }
+  const na = gl.getProgramParameter(p, gl.ACTIVE_ATTRIBUTES);
+  for (let i = 0; i < na; i++) { const n = gl.getActiveAttrib(p, i).name; a[n] = gl.getAttribLocation(p, n); }
+  return { p, u, a };
+}
+
+/* ---- shared shader pieces ------------------------------------------- */
+const GLSL_COMMON = `
+precision highp float;
+`;
+const GLSL_FOG = `
+vec3 applyFog(vec3 col, float dist, vec3 fogCol, float density, float height) {
+  float f = 1.0 - exp(-pow(dist * density, 1.35));
+  return mix(col, fogCol, clamp(f, 0.0, 1.0) * height);
+}
+`;
+/* Percentage-closer filtering with a 3x3 kernel: cheap, and the edge is
+   soft enough that a shadow on dirt does not look like a decal. */
+const GLSL_SHADOW = `
+float shadowAt(sampler2D smap, vec4 lp, float ndl) {
+  vec3 pc = lp.xyz / lp.w;
+  pc = pc * 0.5 + 0.5;
+  if (pc.z > 1.0 || pc.x < 0.005 || pc.x > 0.995 || pc.y < 0.005 || pc.y > 0.995) return 1.0;
+  float bias = max(0.0016 * (1.0 - ndl), 0.00035);
+  float sum = 0.0;
+  float texel = 1.0 / SHADOW_SIZE;
+  for (int y = -1; y <= 1; y++) {
+    for (int x = -1; x <= 1; x++) {
+      float d = texture(smap, pc.xy + vec2(float(x), float(y)) * texel).r;
+      sum += (pc.z - bias > d) ? 0.0 : 1.0;
+    }
+  }
+  return sum / 9.0;
+}
+`;
+
+
+/* ------------------------------------------------------------ shaders --- */
+const VS_TERRAIN = `#version 300 es
+${GLSL_COMMON}
+in vec3 aPos;
+in vec3 aNrm;
+in vec4 aCol;
+uniform mat4 uVP, uLightVP;
+out vec3 vNrm; out vec4 vCol; out vec3 vWorld; out vec4 vLightPos;
+void main() {
+  vNrm = aNrm; vCol = aCol; vWorld = aPos;
+  vLightPos = uLightVP * vec4(aPos, 1.0);
+  gl_Position = uVP * vec4(aPos, 1.0);
+}`;
+
+const FS_TERRAIN = `#version 300 es
+${GLSL_COMMON}
+#define SHADOW_SIZE SHADOW_SIZE_VALUE
+in vec3 vNrm; in vec4 vCol; in vec3 vWorld; in vec4 vLightPos;
+uniform vec3 uSun, uSunCol, uSkyCol, uFogCol, uEye;
+uniform float uFog, uWet, uNearCut, uTime;
+uniform sampler2D uShadow;
+out vec4 outColor;
+${GLSL_FOG}
+${GLSL_SHADOW}
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float noise(vec2 p){
+  vec2 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hash(i), hash(i + vec2(1,0)), f.x),
+             mix(hash(i + vec2(0,1)), hash(i + vec2(1,1)), f.x), f.y);
+}
+void main() {
+  float dist = length(vWorld - uEye);
+  if (uNearCut > 0.0 && dist < uNearCut) discard;
+  vec3 n = normalize(vNrm);
+  // fine grain so a flat field is not a flat colour
+  float near = 1.0 - smoothstep(18.0, 75.0, dist);
+  float grain = (noise(vWorld.xz * 3.1) * 0.10 + noise(vWorld.xz * 11.0) * 0.05) * near
+              + noise(vWorld.xz * 0.35) * 0.05;
+  vec3 base = vCol.rgb * (0.92 + grain);
+  // water darkens the ground and takes the life out of it
+  float wet = clamp(uWet * vCol.a, 0.0, 1.0);
+  base = mix(base, base * 0.55 + vec3(0.02, 0.02, 0.03), wet * 0.8);
+  float ndl = max(dot(n, uSun), 0.0);
+  float sh = shadowAt(uShadow, vLightPos, ndl);
+  vec3 amb = uSkyCol * (0.42 + 0.30 * n.y);
+  vec3 col = base * (amb + uSunCol * ndl * sh);
+  // a wet surface catches the sun
+  if (wet > 0.01) {
+    vec3 h = normalize(uSun + normalize(uEye - vWorld));
+    float spec = pow(max(dot(n, h), 0.0), 42.0) * wet * sh;
+    col += uSunCol * spec * 0.55;
+  }
+  col = applyFog(col, dist, uFogCol, uFog, 1.0);
+  outColor = vec4(col, 1.0);
+}`;
+
+const VS_OBJ = `#version 300 es
+${GLSL_COMMON}
+in vec3 aPos; in vec3 aNrm; in vec4 aCol;
+uniform mat4 uVP, uModel, uLightVP;
+out vec3 vNrm; out vec4 vCol; out vec3 vWorld; out vec4 vLightPos;
+void main() {
+  vec4 wp = uModel * vec4(aPos, 1.0);
+  vWorld = wp.xyz;
+  vNrm = mat3(uModel) * aNrm;
+  vCol = aCol;
+  vLightPos = uLightVP * wp;
+  gl_Position = uVP * wp;
+}`;
+
+const FS_OBJ = `#version 300 es
+${GLSL_COMMON}
+#define SHADOW_SIZE SHADOW_SIZE_VALUE
+in vec3 vNrm; in vec4 vCol; in vec3 vWorld; in vec4 vLightPos;
+uniform vec3 uSun, uSunCol, uSkyCol, uFogCol, uEye, uTint;
+uniform float uFog, uMetal, uMud;
+uniform sampler2D uShadow;
+out vec4 outColor;
+${GLSL_FOG}
+${GLSL_SHADOW}
+void main() {
+  vec3 n = normalize(vNrm);
+  vec3 view = normalize(uEye - vWorld);
+  vec3 base = vCol.rgb * uTint;
+  // mud does not care what colour the plastics are
+  base = mix(base, vec3(0.20, 0.16, 0.11), clamp(uMud * vCol.a, 0.0, 0.85));
+  float ndl = max(dot(n, uSun), 0.0);
+  float sh = shadowAt(uShadow, vLightPos, ndl);
+  vec3 amb = uSkyCol * (0.40 + 0.32 * n.y);
+  vec3 col = base * (amb + uSunCol * ndl * sh);
+  float gloss = mix(12.0, 90.0, uMetal);
+  vec3 h = normalize(uSun + view);
+  float spec = pow(max(dot(n, h), 0.0), gloss) * (0.15 + 0.7 * uMetal) * sh;
+  col += uSunCol * spec;
+  // a little rim light so a black frame is not a silhouette
+  col += uSkyCol * pow(1.0 - max(dot(n, view), 0.0), 3.0) * 0.18;
+  col = applyFog(col, length(vWorld - uEye), uFogCol, uFog, 1.0);
+  outColor = vec4(col, 1.0);
+}`;
+
+const VS_DEPTH = `#version 300 es
+${GLSL_COMMON}
+in vec3 aPos;
+uniform mat4 uLightVP, uModel;
+void main() { gl_Position = uLightVP * uModel * vec4(aPos, 1.0); }`;
+const FS_DEPTH = `#version 300 es
+${GLSL_COMMON}
+void main() {}`;
+
+const VS_SKY = `#version 300 es
+${GLSL_COMMON}
+in vec2 aPos;
+uniform mat4 uInvVP;
+uniform vec3 uEye;
+out vec3 vRay;
+void main() {
+  vec4 far = uInvVP * vec4(aPos, 1.0, 1.0);
+  vRay = far.xyz / far.w - uEye;
+  gl_Position = vec4(aPos, 0.9999, 1.0);
+}`;
+const FS_SKY = `#version 300 es
+${GLSL_COMMON}
+in vec3 vRay;
+uniform vec3 uSun, uSunCol, uSkyCol, uFogCol;
+uniform float uCloud, uTime, uHaze;
+out vec4 outColor;
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float noise(vec2 p){
+  vec2 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hash(i), hash(i + vec2(1,0)), f.x),
+             mix(hash(i + vec2(0,1)), hash(i + vec2(1,1)), f.x), f.y);
+}
+float fbm(vec2 p){
+  float v = 0.0, a = 0.5;
+  for (int i = 0; i < 5; i++) { v += a * noise(p); p *= 2.03; a *= 0.5; }
+  return v;
+}
+void main() {
+  vec3 d = normalize(vRay);
+  float up = clamp(d.y, -1.0, 1.0);
+  vec3 zenith = uSkyCol * 0.85;
+  vec3 horizon = mix(uFogCol, uSkyCol, 0.25);
+  vec3 col = mix(horizon, zenith, pow(clamp(up, 0.0, 1.0), 0.55));
+  if (up < 0.0) col = mix(horizon, uFogCol * 0.75, clamp(-up * 3.0, 0.0, 1.0));
+  // sun, and the glow around it
+  float s = max(dot(d, uSun), 0.0);
+  col += uSunCol * pow(s, 900.0) * 4.5;
+  col += uSunCol * pow(s, 8.0) * 0.22 * (0.4 + uHaze);
+  // cloud deck
+  if (up > 0.01 && uCloud > 0.01) {
+    vec2 uv = d.xz / max(up, 0.06) * 0.055 + vec2(uTime * 0.0035, uTime * 0.0012);
+    float c = fbm(uv * 1.6);
+    float cover = smoothstep(0.62 - uCloud * 0.42, 0.92 - uCloud * 0.30, c);
+    float shade = 0.55 + 0.45 * smoothstep(0.4, 0.9, fbm(uv * 3.1 + 4.0));
+    vec3 cloudCol = mix(uFogCol * 0.55, vec3(1.0), shade) * (0.55 + 0.45 * uSunCol);
+    col = mix(col, cloudCol, cover * clamp(up * 3.5, 0.0, 1.0));
+  }
+  outColor = vec4(col, 1.0);
+}`;
+
+
+/* ------------------------------------------------------------- GL init -- */
+function initGL(canvas) {
+  const gl = canvas.getContext('webgl2', {
+    antialias: true, alpha: false, depth: true, stencil: false,
+    powerPreference: 'high-performance', preserveDrawingBuffer: false,
+  });
+  if (!gl) { GL.err = 'This game needs WebGL 2.'; return false; }
+  GL.gl = gl; GL.canvas = canvas;
+  const SS = GL.SHADOW_SIZE.toFixed(1);
+  const sub = (src) => src.split('SHADOW_SIZE_VALUE').join(SS);
+  try {
+    GL.prog.terrain = program(gl, sub(VS_TERRAIN), sub(FS_TERRAIN), 'terrain');
+    GL.prog.obj = program(gl, sub(VS_OBJ), sub(FS_OBJ), 'object');
+    GL.prog.depth = program(gl, sub(VS_DEPTH), sub(FS_DEPTH), 'depth');
+    GL.prog.sky = program(gl, sub(VS_SKY), sub(FS_SKY), 'sky');
+  } catch (e) { GL.err = String(e.message || e); return false; }
+
+  // shadow map: a depth texture the size of a small sky
+  const tex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT24, GL.SHADOW_SIZE, GL.SHADOW_SIZE,
+                0, gl.DEPTH_COMPONENT, gl.UNSIGNED_INT, null);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  const fb = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, tex, 0);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  GL.shadow = { tex, fb };
+
+  // full-screen triangle for the sky
+  const quad = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+  GL.skyQuad = quad;
+
+  gl.enable(gl.DEPTH_TEST);
+  gl.enable(gl.CULL_FACE);
+  gl.cullFace(gl.BACK);
+  GL.ok = true;
+  return true;
+}
+
+function resizeGL() {
+  const c = GL.canvas, gl = GL.gl;
+  if (!c || !gl) return;
+  const dpr = Math.min(window.devicePixelRatio || 1, SETTINGS.maxDpr);
+  const w = Math.max(2, Math.round(c.clientWidth * dpr));
+  const h = Math.max(2, Math.round(c.clientHeight * dpr));
+  if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+  GL.W = w; GL.H = h; GL.dpr = dpr;
+}
+
+/* =========================================================== the ground ==
+   Chunked meshes with three levels of detail plus one coarse mesh for
+   everything beyond. The coarse mesh discards anything inside the near
+   radius in the fragment shader, so the two never fight over the same
+   pixels.
+   ======================================================================= */
+const TR = {
+  CH: 64,                       // cells per chunk (19.2 m)
+  cache: new Map(),
+  idx: [],                      // shared index buffer per LOD
+  far: null,
+  nearR: 168, chunkR: 190,
+  built: 0, budget: 6, msBudget: 7,
+  tris: 0, drawn: 0,
+
+  reset() {
+    const gl = GL.gl;
+    for (const m of this.cache.values()) { gl.deleteBuffer(m.vb); if (m.vao) gl.deleteVertexArray(m.vao); }
+    this.cache.clear();
+    if (this.far) { gl.deleteBuffer(this.far.vb); gl.deleteBuffer(this.far.ib); this.far = null; }
+    for (const i of this.idx) if (i) gl.deleteBuffer(i.buf);
+    this.idx = [];
+  },
+
+  indexFor(lod) {
+    if (this.idx[lod]) return this.idx[lod];
+    const gl = GL.gl;
+    gl.bindVertexArray(null);
+    const n = this.CH / (1 << lod);            // quads per side
+    const w = n + 1;
+    const arr = new Uint16Array(n * n * 6);
+    let k = 0;
+    for (let z = 0; z < n; z++) {
+      for (let x = 0; x < n; x++) {
+        const a = z * w + x, b = a + 1, c = a + w, d = c + 1;
+        arr[k++] = a; arr[k++] = c; arr[k++] = b;
+        arr[k++] = b; arr[k++] = c; arr[k++] = d;
+      }
+    }
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, arr, gl.STATIC_DRAW);
+    this.idx[lod] = { buf, count: arr.length };
+    return this.idx[lod];
+  },
+
+  vertexColour(i, out, o) {
+    const S = SURFACES[TERR.surf[i]];
+    const pk = TERR.pack[i] / 255;
+    // a driven-in line looks driven-in: darker, greyer, smoother
+    const r = S.col[0] * (1 - pk * 0.22), g = S.col[1] * (1 - pk * 0.20), b = S.col[2] * (1 - pk * 0.16);
+    const pond = TERR.pond[i] / 255;
+    out[o] = Math.round(clamp(r, 0, 1) * 255);
+    out[o + 1] = Math.round(clamp(g, 0, 1) * 255);
+    out[o + 2] = Math.round(clamp(b, 0, 1) * 255);
+    out[o + 3] = Math.round(clamp((1 - S.hardness * 0.35) * (0.65 + pond), 0, 1) * 255);
+  },
+
+  buildChunk(cx, cz, lod) {
+    const gl = GL.gl;
+    gl.bindVertexArray(null);
+    const step = 1 << lod;
+    const n = this.CH / step, w = n + 1;
+    const stride = 28;
+    const buf = new ArrayBuffer(w * w * stride);
+    const f32 = new Float32Array(buf), u8 = new Uint8Array(buf);
+    const x0 = cx * this.CH, z0 = cz * this.CH;
+    let k = 0;
+    for (let j = 0; j <= n; j++) {
+      for (let i = 0; i <= n; i++) {
+        const ix = Math.min(x0 + i * step, TERR.nx - 1);
+        const iz = Math.min(z0 + j * step, TERR.nz - 1);
+        const wx = TERR.x0 + ix * TERR.CS, wz = TERR.z0 + iz * TERR.CS;
+        const gi = iz * TERR.nx + ix;
+        const h = TERR.h[gi] + TERR.rut[gi];
+        const o = k * 7;
+        f32[o] = wx; f32[o + 1] = h; f32[o + 2] = wz;
+        // normal from the grid, at the same step as the mesh
+        const s2 = step;
+        const hl = TERR.gh(ix - s2, iz), hr = TERR.gh(ix + s2, iz);
+        const hd = TERR.gh(ix, iz - s2), hu = TERR.gh(ix, iz + s2);
+        const d = 2 * s2 * TERR.CS;
+        let nx = -(hr - hl), ny = d, nz = -(hu - hd);
+        const nl = Math.hypot(nx, ny, nz) || 1;
+        f32[o + 3] = nx / nl; f32[o + 4] = ny / nl; f32[o + 5] = nz / nl;
+        this.vertexColour(gi, u8, k * stride + 24);
+        k++;
+      }
+    }
+    const vb = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vb);
+    gl.bufferData(gl.ARRAY_BUFFER, buf, gl.STATIC_DRAW);
+    const ib = this.indexFor(lod);
+    const a = GL.prog.terrain.a;
+    const vao = gl.createVertexArray();
+    gl.bindVertexArray(vao);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vb);
+    gl.enableVertexAttribArray(a.aPos); gl.vertexAttribPointer(a.aPos, 3, gl.FLOAT, false, stride, 0);
+    gl.enableVertexAttribArray(a.aNrm); gl.vertexAttribPointer(a.aNrm, 3, gl.FLOAT, false, stride, 12);
+    gl.enableVertexAttribArray(a.aCol); gl.vertexAttribPointer(a.aCol, 4, gl.UNSIGNED_BYTE, true, stride, 24);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib.buf);
+    gl.bindVertexArray(null);
+    return { vb, vao, count: ib.count, lod };
+  },
+
+  buildFar() {
+    const gl = GL.gl;
+    gl.bindVertexArray(null);
+    const step = 8;
+    const nx = Math.floor((TERR.nx - 1) / step) + 1;
+    const nz = Math.floor((TERR.nz - 1) / step) + 1;
+    const stride = 28;
+    const buf = new ArrayBuffer(nx * nz * stride);
+    const f32 = new Float32Array(buf), u8 = new Uint8Array(buf);
+    let k = 0;
+    for (let j = 0; j < nz; j++) {
+      for (let i = 0; i < nx; i++) {
+        const ix = Math.min(i * step, TERR.nx - 1), iz = Math.min(j * step, TERR.nz - 1);
+        const gi = iz * TERR.nx + ix;
+        const o = k * 7;
+        f32[o] = TERR.x0 + ix * TERR.CS; f32[o + 1] = TERR.h[gi]; f32[o + 2] = TERR.z0 + iz * TERR.CS;
+        const hl = TERR.gh(ix - step, iz), hr = TERR.gh(ix + step, iz);
+        const hd = TERR.gh(ix, iz - step), hu = TERR.gh(ix, iz + step);
+        const d = 2 * step * TERR.CS;
+        let ax = -(hr - hl), ay = d, az = -(hu - hd);
+        const al = Math.hypot(ax, ay, az) || 1;
+        f32[o + 3] = ax / al; f32[o + 4] = ay / al; f32[o + 5] = az / al;
+        this.vertexColour(gi, u8, k * stride + 24);
+        k++;
+      }
+    }
+    const tri = new Uint32Array((nx - 1) * (nz - 1) * 6);
+    let t = 0;
+    for (let j = 0; j < nz - 1; j++) {
+      for (let i = 0; i < nx - 1; i++) {
+        const a = j * nx + i, b = a + 1, c = a + nx, d = c + 1;
+        tri[t++] = a; tri[t++] = c; tri[t++] = b;
+        tri[t++] = b; tri[t++] = c; tri[t++] = d;
+      }
+    }
+    const vb = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vb);
+    gl.bufferData(gl.ARRAY_BUFFER, buf, gl.STATIC_DRAW);
+    const ib = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, tri, gl.STATIC_DRAW);
+    const a2 = GL.prog.terrain.a;
+    const vao = gl.createVertexArray();
+    gl.bindVertexArray(vao);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vb);
+    gl.enableVertexAttribArray(a2.aPos); gl.vertexAttribPointer(a2.aPos, 3, gl.FLOAT, false, stride, 0);
+    gl.enableVertexAttribArray(a2.aNrm); gl.vertexAttribPointer(a2.aNrm, 3, gl.FLOAT, false, stride, 12);
+    gl.enableVertexAttribArray(a2.aCol); gl.vertexAttribPointer(a2.aCol, 4, gl.UNSIGNED_BYTE, true, stride, 24);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib);
+    gl.bindVertexArray(null);
+    this.far = { vb, ib, vao, count: tri.length };
+  },
+
+  /* which chunks matter this frame, and at what detail */
+  visible(eye, fwd, radius) {
+    const out = [];
+    const cs = this.CH * TERR.CS;
+    const cxMax = Math.ceil(TERR.nx / this.CH), czMax = Math.ceil(TERR.nz / this.CH);
+    const c0x = Math.floor((eye[0] - radius - TERR.x0) / cs);
+    const c1x = Math.ceil((eye[0] + radius - TERR.x0) / cs);
+    const c0z = Math.floor((eye[2] - radius - TERR.z0) / cs);
+    const c1z = Math.ceil((eye[2] + radius - TERR.z0) / cs);
+    for (let cz = Math.max(0, c0z); cz < Math.min(czMax, c1z); cz++) {
+      for (let cx = Math.max(0, c0x); cx < Math.min(cxMax, c1x); cx++) {
+        const mx = TERR.x0 + (cx + 0.5) * cs, mz = TERR.z0 + (cz + 0.5) * cs;
+        const dx = mx - eye[0], dz = mz - eye[2];
+        const d = Math.hypot(dx, dz);
+        if (d > radius + cs) continue;
+        // behind the camera and far enough away to be certain
+        if (d > cs * 1.6 && (dx * fwd[0] + dz * fwd[2]) / d < -0.35) continue;
+        const lod = d < 24 ? 0 : (d < 52 ? 1 : (d < 92 ? 2 : (d < 140 ? 3 : 4)));
+        out.push({ cx, cz, lod, d });
+      }
+    }
+    out.sort((a, b) => a.d - b.d);
+    return out;
+  },
+
+  get(cx, cz, lod) {
+    const key = cx + ',' + cz + ',' + lod;
+    let m = this.cache.get(key);
+    if (m) return m;
+    // Build as much as the frame can afford. A fixed handful per frame
+    // meant that at ten frames a second the ground around the bike simply
+    // was not there yet, and the player looked at open sky.
+    if (this.built >= this.budget && performance.now() - this.t0 > this.msBudget) return null;
+    m = this.buildChunk(cx, cz, lod);
+    this.cache.set(key, m);
+    this.built++;
+    return m;
+  },
+
+  /* the ground changed here — throw away what was cached for it */
+  invalidate() {
+    if (!TERR.dirtyAny) return;
+    const gl = GL.gl;
+    const per = this.CH / TERR.chunk;
+    const dead = [];
+    for (const [key, m] of this.cache) {
+      const parts = key.split(',');
+      const cx = +parts[0], cz = +parts[1];
+      let hit = false;
+      for (let j = 0; j < Math.max(1, per) && !hit; j++) {
+        for (let i = 0; i < Math.max(1, per) && !hit; i++) {
+          const dcx = Math.floor((cx * this.CH + i * TERR.chunk) / TERR.chunk);
+          const dcz = Math.floor((cz * this.CH + j * TERR.chunk) / TERR.chunk);
+          const di = dcz * TERR.cx + dcx;
+          if (di >= 0 && di < TERR.dirty.length && TERR.dirty[di]) hit = true;
+        }
+      }
+      if (hit) dead.push(key);
+    }
+    for (const key of dead) {
+      const m = this.cache.get(key);
+      gl.deleteBuffer(m.vb); gl.deleteVertexArray(m.vao);
+      this.cache.delete(key);
+    }
+    TERR.dirty.fill(0); TERR.dirtyAny = false;
+  },
+};
+
+
+/* ============================================================== meshes ===
+   Everything is built from boxes, tubes and discs in code. No model files
+   to load, which is the whole reason this runs from a single URL.
+   ======================================================================= */
+function Mesh() {
+  this.pos = []; this.nrm = []; this.col = []; this.idx = [];
+  this.vb = null; this.ib = null; this.vao = null; this.count = 0;
+}
+Mesh.prototype.vert = function (p, n, c) {
+  this.pos.push(p[0], p[1], p[2]);
+  this.nrm.push(n[0], n[1], n[2]);
+  this.col.push(c[0], c[1], c[2], c.length > 3 ? c[3] : 1);
+  return this.pos.length / 3 - 1;
+};
+Mesh.prototype.tri = function (a, b, c) { this.idx.push(a, b, c); };
+Mesh.prototype.quad = function (a, b, c, d) { this.idx.push(a, b, c, a, c, d); };
+
+/* an axis-aligned box in the part's own space, then transformed */
+Mesh.prototype.box = function (c, s, col, xf) {
+  const P = [
+    [-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],
+    [-1,-1, 1],[1,-1, 1],[1,1, 1],[-1,1, 1]];
+  const F = [
+    [[4,5,6,7],[0,0,1]], [[1,0,3,2],[0,0,-1]],
+    [[5,1,2,6],[1,0,0]], [[0,4,7,3],[-1,0,0]],
+    [[3,7,6,2],[0,1,0]], [[0,1,5,4],[0,-1,0]]];
+  for (const f of F) {
+    const n = xf ? xf.dir(f[1]) : f[1];
+    const ids = f[0].map(i => {
+      const p = [c[0] + P[i][0] * s[0], c[1] + P[i][1] * s[1], c[2] + P[i][2] * s[2]];
+      return this.vert(xf ? xf.pt(p) : p, n, col);
+    });
+    this.quad(ids[0], ids[1], ids[2], ids[3]);
+  }
+};
+/* a tube from a to b; caps optional */
+Mesh.prototype.tube = function (a, b, r1, r2, seg, col, caps) {
+  const ax = V.sub(b, a);
+  const L = V.len(ax);
+  if (L < 1e-6) return;
+  const zA = V.mul(ax, 1 / L);
+  let up = Math.abs(zA[1]) > 0.9 ? [1, 0, 0] : [0, 1, 0];
+  const xA = V.norm(V.cross(up, zA)), yA = V.cross(zA, xA);
+  const ringA = [], ringB = [];
+  for (let i = 0; i < seg; i++) {
+    const t = (i / seg) * TAU, cs = Math.cos(t), sn = Math.sin(t);
+    const dir = [xA[0]*cs + yA[0]*sn, xA[1]*cs + yA[1]*sn, xA[2]*cs + yA[2]*sn];
+    ringA.push(this.vert(V.add(a, V.mul(dir, r1)), dir, col));
+    ringB.push(this.vert(V.add(b, V.mul(dir, r2)), dir, col));
+  }
+  for (let i = 0; i < seg; i++) {
+    const j = (i + 1) % seg;
+    this.quad(ringA[i], ringB[i], ringB[j], ringA[j]);
+  }
+  if (caps) {
+    const ca = this.vert(a, V.mul(zA, -1), col), cb = this.vert(b, zA, col);
+    for (let i = 0; i < seg; i++) {
+      const j = (i + 1) % seg;
+      const a1 = this.vert(V.add(a, V.mul(V.sub(this.ptOf(ringA[i]), a), 1)), V.mul(zA, -1), col);
+      const a2 = this.vert(V.add(a, V.mul(V.sub(this.ptOf(ringA[j]), a), 1)), V.mul(zA, -1), col);
+      this.tri(ca, a2, a1);
+      const b1 = this.vert(this.ptOf(ringB[i]), zA, col);
+      const b2 = this.vert(this.ptOf(ringB[j]), zA, col);
+      this.tri(cb, b1, b2);
+    }
+  }
+};
+Mesh.prototype.ptOf = function (i) { return [this.pos[i*3], this.pos[i*3+1], this.pos[i*3+2]]; };
+
+/* a wheel: tyre, rim, spokes, hub. Axis along X (the bike's lateral axis) */
+Mesh.prototype.wheel = function (centre, R, width, tyreCol, rimCol, spokes) {
+  const seg = 26, cross = 8;
+  const rc = width * 0.5;               // the tyre section is round
+  const Rc = R - rc;
+  const ring = [];
+  for (let i = 0; i < seg; i++) {
+    const a = (i / seg) * TAU;
+    const cy = Math.cos(a), cz = Math.sin(a);
+    const row = [];
+    for (let j = 0; j < cross; j++) {
+      const b = (j / cross) * TAU;
+      const cb = Math.cos(b), sb = Math.sin(b);
+      const p = [centre[0] + rc * sb,
+                 centre[1] + (Rc + rc * cb) * cy,
+                 centre[2] + (Rc + rc * cb) * cz];
+      const n = V.norm([sb, cb * cy, cb * cz]);
+      // knobs: darken every few segments so the tread reads at speed
+      const kn = (i % 3 === 0 && (j % 3 === 0)) ? 1.55 : 1.0;
+      row.push(this.vert(p, n, [tyreCol[0] * kn, tyreCol[1] * kn, tyreCol[2] * kn, 0.35]));
+    }
+    ring.push(row);
+  }
+  for (let i = 0; i < seg; i++) {
+    const i2 = (i + 1) % seg;
+    for (let j = 0; j < cross; j++) {
+      const j2 = (j + 1) % cross;
+      this.quad(ring[i][j], ring[i2][j], ring[i2][j2], ring[i][j2]);
+    }
+  }
+  // rim
+  const rimR = R * 0.62, rimW = width * 0.30;
+  this.tube([centre[0] - rimW, centre[1], centre[2]], [centre[0] + rimW, centre[1], centre[2]],
+            rimR, rimR, 22, rimCol, false);
+  // hub and spokes
+  this.tube([centre[0] - 0.055, centre[1], centre[2]], [centre[0] + 0.055, centre[1], centre[2]],
+            0.055, 0.055, 10, rimCol, true);
+  const ns = spokes || 16;
+  for (let i = 0; i < ns; i++) {
+    const a = (i / ns) * TAU, side = (i % 2 === 0) ? 1 : -1;
+    const outer = [centre[0] + side * rimW * 0.4, centre[1] + Math.cos(a) * rimR, centre[2] + Math.sin(a) * rimR];
+    const inner = [centre[0] + side * 0.05, centre[1], centre[2]];
+    this.tube(inner, outer, 0.006, 0.006, 4, [0.72, 0.74, 0.78, 0.2], false);
+  }
+};
+
+Mesh.prototype.upload = function (prog) {
+  const gl = GL.gl;
+  /* Unbind first. ELEMENT_ARRAY_BUFFER binding is part of the vertex array
+     object, so binding an index buffer while some other VAO is still
+     current silently rewrites THAT object's indices. Uploading meshes one
+     after another therefore gave every mesh the next one's index list:
+     the frame was a bike, and behind it a triangle the size of the sky. */
+  gl.bindVertexArray(null);
+  const n = this.pos.length / 3;
+  // keep the bounds: a single stray vertex turns into a triangle the size
+  // of the sky, and this is how you find it
+  let mn = [1e9, 1e9, 1e9], mx = [-1e9, -1e9, -1e9], bad = 0;
+  for (let i = 0; i < n; i++) {
+    for (let k = 0; k < 3; k++) {
+      const v = this.pos[i * 3 + k];
+      if (!isFinite(v)) { bad++; continue; }
+      if (v < mn[k]) mn[k] = v;
+      if (v > mx[k]) mx[k] = v;
+    }
+  }
+  this.bounds = { mn, mx, bad, n };
+  const stride = 28;
+  const buf = new ArrayBuffer(n * stride);
+  const f32 = new Float32Array(buf), u8 = new Uint8Array(buf);
+  for (let i = 0; i < n; i++) {
+    f32[i*7] = this.pos[i*3]; f32[i*7+1] = this.pos[i*3+1]; f32[i*7+2] = this.pos[i*3+2];
+    f32[i*7+3] = this.nrm[i*3]; f32[i*7+4] = this.nrm[i*3+1]; f32[i*7+5] = this.nrm[i*3+2];
+    for (let k = 0; k < 4; k++) u8[i*stride + 24 + k] = Math.round(clamp(this.col[i*4+k], 0, 1) * 255);
+  }
+  this.vb = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, this.vb);
+  gl.bufferData(gl.ARRAY_BUFFER, buf, gl.STATIC_DRAW);
+  const big = n > 65000;
+  this.ib = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ib);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, big ? new Uint32Array(this.idx) : new Uint16Array(this.idx), gl.STATIC_DRAW);
+  this.itype = big ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT;
+  this.count = this.idx.length;
+  const a = prog.a;
+  this.vao = gl.createVertexArray();
+  gl.bindVertexArray(this.vao);
+  gl.bindBuffer(gl.ARRAY_BUFFER, this.vb);
+  gl.enableVertexAttribArray(a.aPos); gl.vertexAttribPointer(a.aPos, 3, gl.FLOAT, false, stride, 0);
+  gl.enableVertexAttribArray(a.aNrm); gl.vertexAttribPointer(a.aNrm, 3, gl.FLOAT, false, stride, 12);
+  if (a.aCol !== undefined && a.aCol >= 0) {
+    gl.enableVertexAttribArray(a.aCol); gl.vertexAttribPointer(a.aCol, 4, gl.UNSIGNED_BYTE, true, stride, 24);
+  }
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ib);
+  gl.bindVertexArray(null);
+  this.pos = null; this.nrm = null; this.col = null; this.idx = null;
+  return this;
+};
+
+
+
+/* Where the front axle sits in the steering frame: origin on the steering
+   axis at axle height, +Y up the fork tubes. */
+function axleInSteerFrame(cfg) {
+  const piv = steerPivotBody(cfg);
+  const d = V.sub(cfg.axleF, piv);
+  const c = Math.cos(cfg.rake), sn = Math.sin(cfg.rake);
+  return [d[0], d[1] * c + d[2] * sn, -d[1] * sn + d[2] * c];
+}
+/* The swingarm pivot: about a hand's width ahead of the engine cases and
+   a little above the countershaft, which is where every one of them is. */
+function swingPivotBody(cfg) {
+  return BP(0, cfg.axleR[1] + 0.155, -0.055);
+}
+
+/* ---------------------------------------------------------- the bike ---- */
+const COL = {
+  frame: [0.66, 0.68, 0.72, 0.5], frameBlk: [0.13, 0.13, 0.15, 0.5],
+  engine: [0.28, 0.29, 0.31, 0.4], engCase: [0.42, 0.43, 0.45, 0.4],
+  seat: [0.10, 0.10, 0.11, 0.7], tyre: [0.075, 0.075, 0.08, 0.35],
+  rim: [0.82, 0.84, 0.88, 0.3], rimBlk: [0.16, 0.16, 0.18, 0.3],
+  pipe: [0.72, 0.71, 0.68, 0.35], chain: [0.35, 0.33, 0.30, 0.4],
+  disc: [0.78, 0.79, 0.82, 0.25], fork: [0.86, 0.87, 0.90, 0.3],
+  skin: [0.76, 0.58, 0.46, 0.6], boot: [0.10, 0.10, 0.12, 0.9],
+  glove: [0.14, 0.15, 0.18, 0.8],
+};
+
+function buildBikeMeshes(cfg) {
+  const P = cfg.plastics;
+  const plast = [P[0], P[1], P[2], 1.0];
+  const dark = [P[0] * 0.35, P[1] * 0.35, P[2] * 0.35, 1.0];
+  const white = [0.90, 0.91, 0.93, 1.0];
+  const fA = cfg.axleF, rA = cfg.axleR;
+  const fwdF = -fA[2], fwdR = -rA[2];
+  const scale = cfg.wheelbase / 1.48;
+
+  /* ---- main chassis: frame, motor, bodywork, exhaust --------------- */
+  const ch = new Mesh();
+  // twin spar frame
+  const spar = (side) => {
+    const s = side * 0.105 * scale;
+    ch.tube(BP(s, 0.34, 0.44), BP(s, 0.30, 0.10), 0.028, 0.032, 8, COL.frame, true);
+    ch.tube(BP(s, 0.30, 0.10), BP(s, -0.12, -0.06), 0.030, 0.026, 8, COL.frame, true);
+    ch.tube(BP(s, 0.34, 0.44), BP(s, -0.05, 0.30), 0.024, 0.024, 8, COL.frame, true);
+    ch.tube(BP(s, -0.05, 0.30), BP(s, -0.20, 0.02), 0.022, 0.022, 8, COL.frame, true);
+  };
+  spar(1); spar(-1);
+  ch.tube(BP(-0.105 * scale, 0.34, 0.44), BP(0.105 * scale, 0.34, 0.44), 0.030, 0.030, 8, COL.frame, true);
+  // head tube, on the steering axis
+  {
+    const piv = steerPivotBody(cfg);
+    const u = strutAxes(cfg).uF;
+    ch.tube(V.add(piv, V.mul(u, 0.44)), V.add(piv, V.mul(u, 0.60)), 0.042, 0.042, 10, COL.frame, true);
+  }
+  // engine
+  ch.box(BP(0, -0.055, 0.06), [0.115 * scale, 0.135, 0.130], COL.engine);
+  ch.box(BP(0, 0.105, 0.055), [0.075 * scale, 0.080, 0.085], COL.engine);   // cylinder
+  ch.box(BP(0, -0.155, -0.01), [0.135 * scale, 0.070, 0.145], COL.engCase); // cases
+  ch.tube(BP(-0.16 * scale, -0.16, -0.06), BP(0.16 * scale, -0.16, -0.06), 0.045, 0.045, 10, COL.engCase, true);
+  // radiators
+  for (const s of [-1, 1]) ch.box(BP(s * 0.135 * scale, 0.145, 0.235), [0.022, 0.095, 0.070], [0.55, 0.56, 0.58, 0.3]);
+  // shrouds and tank
+  for (const s of [-1, 1]) {
+    ch.box(BP(s * 0.150 * scale, 0.215, 0.225), [0.020, 0.105, 0.115], plast);
+    ch.box(BP(s * 0.115 * scale, 0.300, 0.140), [0.045, 0.055, 0.130], plast);
+  }
+  ch.box(BP(0, 0.290, 0.170), [0.105 * scale, 0.070, 0.150], white);
+  // seat and subframe
+  ch.box(BP(0, 0.345, -0.115), [0.085 * scale, 0.045, 0.255], COL.seat);
+  ch.box(BP(0, 0.320, -0.360), [0.070 * scale, 0.035, 0.100], COL.seat);
+  for (const s of [-1, 1]) ch.tube(BP(s * 0.09 * scale, 0.30, -0.02), BP(s * 0.075 * scale, 0.31, -0.44), 0.016, 0.014, 6, COL.frameBlk, true);
+  // rear fender and side panels
+  ch.box(BP(0, 0.355, -0.510), [0.075 * scale, 0.022, 0.130], plast);
+  for (const s of [-1, 1]) ch.box(BP(s * 0.095 * scale, 0.255, -0.330), [0.016, 0.075, 0.135], plast);
+  // exhaust
+  if (cfg.strokes === 4) {
+    ch.tube(BP(0.05, 0.145, 0.14), BP(0.115 * scale, 0.10, -0.05), 0.021, 0.023, 8, COL.pipe, true);
+    ch.tube(BP(0.115 * scale, 0.10, -0.05), BP(0.125 * scale, 0.245, -0.44), 0.030, 0.045, 10, COL.pipe, true);
+    ch.tube(BP(0.125 * scale, 0.245, -0.44), BP(0.125 * scale, 0.255, -0.60), 0.045, 0.040, 10, [0.20,0.20,0.22,0.35], true);
+  } else {
+    ch.tube(BP(0.03, 0.16, 0.18), BP(0.135 * scale, 0.06, -0.02), 0.026, 0.055, 10, COL.pipe, true);
+    ch.tube(BP(0.135 * scale, 0.06, -0.02), BP(0.115 * scale, 0.16, -0.34), 0.055, 0.028, 10, COL.pipe, true);
+    ch.tube(BP(0.115 * scale, 0.16, -0.34), BP(0.105 * scale, 0.21, -0.52), 0.030, 0.028, 8, [0.20,0.20,0.22,0.35], true);
+  }
+  // pegs and levers
+  for (const s of [-1, 1]) ch.box(BP(s * 0.245 * scale, -0.278, -0.045), [0.055, 0.010, 0.030], [0.55,0.56,0.58,0.35]);
+  ch.tube(BP(0.14, -0.20, 0.10), BP(0.20, -0.24, -0.02), 0.008, 0.008, 5, COL.frameBlk, true);
+  // front number plate is on the steering assembly, not here
+
+  /* ---- steering assembly ------------------------------------------
+     Built in the STEERING frame: origin at the point where the steering
+     axis crosses the axle height, +Y straight up the fork tubes. That way
+     the fork lowers slide along +Y and the bars turn about +Y, with no
+     trigonometry at draw time. */
+  const st = new Mesh();
+  const axSF = axleInSteerFrame(cfg);       // where the axle sits in that frame
+  {
+    const topY = axSF[1] + 0.62 * scale;
+    // triple clamps
+    for (const d of [0.40, 0.55]) {
+      st.box([0, axSF[1] + d * scale, axSF[2] * 0.35], [0.115 * scale, 0.018, 0.040], [0.60, 0.62, 0.66, 0.35]);
+    }
+    // upper fork tubes, from inside the lowers up through the clamps
+    for (const sgn of [-1, 1]) {
+      st.tube([sgn * 0.098 * scale, axSF[1] + 0.16 * scale, axSF[2]],
+              [sgn * 0.098 * scale, topY, axSF[2]], 0.026, 0.026, 10, COL.fork, true);
+    }
+    // handlebar with grips and levers
+    const barY = topY + 0.055, barZ = axSF[2] - 0.055;
+    st.tube([-0.345, barY, barZ], [0.345, barY, barZ], 0.014, 0.014, 8, [0.50, 0.14, 0.11, 0.5], true);
+    st.tube([-0.05, barY - 0.02, barZ + 0.02], [-0.05, barY, barZ], 0.016, 0.016, 6, [0.3,0.3,0.32,0.4], true);
+    st.tube([0.05, barY - 0.02, barZ + 0.02], [0.05, barY, barZ], 0.016, 0.016, 6, [0.3,0.3,0.32,0.4], true);
+    for (const sgn of [-1, 1]) {
+      st.tube([sgn * 0.275, barY, barZ], [sgn * 0.350, barY, barZ], 0.017, 0.017, 8, [0.10,0.10,0.12,0.6], true);
+      st.tube([sgn * 0.20, barY - 0.005, barZ], [sgn * 0.29, barY - 0.03, barZ + 0.03], 0.007, 0.006, 5, [0.6,0.6,0.62,0.3], true);
+    }
+    st.box([0, barY - 0.02, barZ + 0.10], [0.090 * scale, 0.080, 0.012], plast);      // number plate
+    st.box([0, axSF[1] + 0.30 * scale, axSF[2] - 0.20], [0.090 * scale, 0.014, 0.185], plast);  // front fender
+  }
+
+  /* ---- fork lowers: same frame, origin AT THE AXLE ------------------ */
+  const fl = new Mesh();
+  for (const sgn of [-1, 1]) {
+    fl.tube([sgn * 0.098 * scale, 0.0, 0], [sgn * 0.098 * scale, 0.30 * scale, 0],
+            0.034, 0.032, 10, [0.18, 0.18, 0.21, 0.4], true);
+    fl.box([sgn * 0.098 * scale, 0.02, 0.01], [0.030, 0.035, 0.030], [0.30,0.30,0.33,0.35]);
+  }
+  fl.box([-0.115 * scale, 0.055, 0.02], [0.020, 0.048, 0.045], [0.55, 0.56, 0.60, 0.3]);
+  fl.tube([-0.058 * scale, 0, 0], [0.058 * scale, 0, 0], 0.026, 0.026, 8, [0.5,0.5,0.52,0.3], true);
+
+  /* ---- swingarm: origin at the pivot, reaching back to the axle ----- */
+  const sw = new Mesh();
+  {
+    const piv = swingPivotBody(cfg);
+    const ax0 = V.sub(cfg.axleR, piv);        // rear axle relative to the pivot
+    const L = V.len(ax0);
+    for (const sgn of [-1, 1]) {
+      sw.tube([sgn * 0.085 * scale, 0, 0],
+              [ax0[0] + sgn * 0.098 * scale, ax0[1], ax0[2]], 0.034, 0.024, 8, COL.frame, true);
+    }
+    sw.box([ax0[0] * 0.45, ax0[1] * 0.45, ax0[2] * 0.45], [0.100 * scale, 0.018, L * 0.22], COL.frame);
+    // shock, from the linkage up to the frame
+    sw.tube([0, ax0[1] * 0.30 + 0.02, ax0[2] * 0.30], [0, 0.42, -0.02], 0.024, 0.019, 8, [0.88, 0.55, 0.10, 0.4], true);
+    sw.tube([0, ax0[1] * 0.30 + 0.02, ax0[2] * 0.30], [0, 0.20, 0.00], 0.038, 0.038, 8, [0.28, 0.28, 0.31, 0.4], false);
+    // chain
+    for (const yy of [0.048, -0.048]) {
+      sw.tube([0.075 * scale, yy, 0], [ax0[0] + 0.075 * scale, ax0[1] + yy, ax0[2]], 0.008, 0.008, 5, COL.chain, false);
+    }
+    // rear brake caliper and disc guard
+    sw.box([ax0[0] - 0.10 * scale, ax0[1] + 0.05, ax0[2]], [0.018, 0.042, 0.040], [0.5,0.5,0.54,0.3]);
+  }
+
+  /* ---- wheels -------------------------------------------------------- */
+  const wf = new Mesh();
+  wf.wheel([0, 0, 0], cfg.radF, cfg.tireWidthF, COL.tyre, COL.rimBlk, 16);
+  wf.tube([-0.012, 0, 0], [0.012, 0, 0], cfg.radF * 0.55, cfg.radF * 0.55, 20, COL.disc, false);
+  const wr = new Mesh();
+  wr.wheel([0, 0, 0], cfg.radR, cfg.tireWidthR, COL.tyre, COL.rimBlk, 18);
+  wr.tube([-0.010, 0, 0], [0.010, 0, 0], cfg.radR * 0.44, cfg.radR * 0.44, 18, COL.disc, false);
+  wr.tube([0.075 * scale - 0.008, 0, 0], [0.075 * scale + 0.008, 0, 0], 0.115, 0.115, 20, [0.55, 0.56, 0.60, 0.3], false);
+
+  const prog = GL.prog.obj;
+  return {
+    chassis: ch.upload(prog), steer: st.upload(prog), forkLow: fl.upload(prog),
+    swing: sw.upload(prog), wheelF: wf.upload(prog), wheelR: wr.upload(prog),
+  };
+}
+
+/* ---------------------------------------------------------- the rider --- */
+function buildRiderMeshes() {
+  const prog = GL.prog.obj;
+  const seg = new Mesh();
+  // a tapered capsule from the origin along +Y, one unit long, unit radius
+  {
+    const S = 12, R = 10;
+    const rows = [];
+    for (let j = 0; j <= R; j++) {
+      const t = j / R;
+      const y = t;
+      const rad = Math.sin(Math.PI * (0.18 + 0.64 * t)) * 1.0;
+      const row = [];
+      for (let i = 0; i < S; i++) {
+        const a = (i / S) * TAU;
+        const p = [Math.cos(a) * rad, y, Math.sin(a) * rad];
+        row.push(seg.vert(p, V.norm([Math.cos(a), 0.25 * (t < 0.5 ? -1 : 1), Math.sin(a)]), [1, 1, 1, 1]));
+      }
+      rows.push(row);
+    }
+    for (let j = 0; j < R; j++) for (let i = 0; i < S; i++) {
+      const i2 = (i + 1) % S;
+      seg.quad(rows[j][i], rows[j + 1][i], rows[j + 1][i2], rows[j][i2]);
+    }
+    const capA = seg.vert([0, -0.06, 0], [0, -1, 0], [1, 1, 1, 1]);
+    const capB = seg.vert([0, 1.06, 0], [0, 1, 0], [1, 1, 1, 1]);
+    for (let i = 0; i < S; i++) {
+      const i2 = (i + 1) % S;
+      seg.tri(capA, rows[0][i2], rows[0][i]);
+      seg.tri(capB, rows[R][i], rows[R][i2]);
+    }
+  }
+  const torso = new Mesh();
+  torso.box([0, 0.24, 0.02], [0.185, 0.245, 0.125], [1, 1, 1, 1]);
+  torso.box([0, 0.47, 0.01], [0.195, 0.055, 0.115], [1, 1, 1, 1]);   // shoulders
+  torso.box([0, 0.02, 0.00], [0.150, 0.075, 0.110], [1, 1, 1, 1]);   // hips
+  const helmet = new Mesh();
+  {
+    const S = 14, R = 10;
+    const rows = [];
+    for (let j = 0; j <= R; j++) {
+      const ph = (j / R) * Math.PI;
+      const row = [];
+      for (let i = 0; i < S; i++) {
+        const th = (i / S) * TAU;
+        const n = [Math.sin(ph) * Math.cos(th), Math.cos(ph), Math.sin(ph) * Math.sin(th)];
+        const p = [n[0] * 0.135, n[1] * 0.150, n[2] * 0.145 + 0.01];
+        row.push(helmet.vert(p, n, [1, 1, 1, 1]));
+      }
+      rows.push(row);
+    }
+    for (let j = 0; j < R; j++) for (let i = 0; i < S; i++) {
+      const i2 = (i + 1) % S;
+      helmet.quad(rows[j][i], rows[j][i2], rows[j + 1][i2], rows[j + 1][i]);
+    }
+    helmet.box([0, -0.01, 0.15], [0.085, 0.055, 0.055], [0.06, 0.07, 0.10, 0.9]);   // visor
+    helmet.box([0, 0.09, 0.17], [0.095, 0.030, 0.075], [1, 1, 1, 1]);               // peak
+  }
+  return { seg: seg.upload(prog), torso: torso.upload(prog), helmet: helmet.upload(prog) };
+}
+
+
+/* ============================================================ settings === */
+const SETTINGS = {
+  maxDpr: 2.0, shadows: true, drawDist: 320, nearDetail: 1.0,
+  camera: 'chase', fov: 68, particles: 1.0, assists: 1, autoShift: true,
+  units: 'metric', invertLean: false, hud: true, sound: 1.0, music: 0,
+};
+try {
+  const saved = JSON.parse(localStorage.getItem('xmoto_settings') || 'null');
+  if (saved) Object.assign(SETTINGS, saved);
+} catch (e) { /* private window, no storage — the defaults are fine */ }
+function saveSettings() {
+  try { localStorage.setItem('xmoto_settings', JSON.stringify(SETTINGS)); } catch (e) {}
+}
+
+/* ============================================================== weather === */
+const WEATHER = [
+  { key: 'sunny', name: 'Sunny', cloud: 0.10, rain: 0, fog: 0.0016, haze: 0.15,
+    sun: [1.30, 1.20, 1.02], sky: [0.46, 0.60, 0.86] },
+  { key: 'cloudy', name: 'Cloudy', cloud: 0.62, rain: 0, fog: 0.0026, haze: 0.35,
+    sun: [0.78, 0.79, 0.82], sky: [0.55, 0.59, 0.66] },
+  { key: 'overcast', name: 'Overcast', cloud: 0.95, rain: 0, fog: 0.0036, haze: 0.55,
+    sun: [0.52, 0.54, 0.58], sky: [0.56, 0.58, 0.62] },
+  { key: 'rain', name: 'Rain', cloud: 0.95, rain: 0.45, fog: 0.0060, haze: 0.75,
+    sun: [0.42, 0.44, 0.50], sky: [0.46, 0.49, 0.54] },
+  { key: 'heavy', name: 'Heavy Rain', cloud: 1.0, rain: 1.0, fog: 0.0105, haze: 0.95,
+    sun: [0.32, 0.34, 0.40], sky: [0.38, 0.40, 0.45] },
+  { key: 'fog', name: 'Fog', cloud: 0.85, rain: 0.05, fog: 0.0175, haze: 1.0,
+    sun: [0.60, 0.60, 0.62], sky: [0.66, 0.68, 0.70] },
+];
+const WEATHER_BY_KEY = {};
+for (const w of WEATHER) WEATHER_BY_KEY[w.key] = w;
+
+const SCENE = {
+  weather: WEATHER[0], target: WEATHER[0], blend: 1,
+  timeOfDay: 13.0,                 // hours; decides where the sun is
+  sun: [0.4, 0.8, 0.3], sunCol: [1.3, 1.2, 1.02], skyCol: [0.46, 0.60, 0.86],
+  fogCol: [0.70, 0.76, 0.86], fog: 0.0016, cloud: 0.1, haze: 0.15,
+  rain: 0, t: 0,
+  setWeather(key, instant) {
+    const w = WEATHER_BY_KEY[key] || WEATHER[0];
+    this.target = w;
+    if (instant) { this.weather = w; this.blend = 1; this.apply(w); }
+    else this.blend = 0;
+  },
+  apply(w) {
+    this.cloud = w.cloud; this.fog = w.fog; this.haze = w.haze; this.rain = w.rain;
+    this.sunCol = w.sun.slice(); this.skyCol = w.sky.slice();
+  },
+  update(dt) {
+    this.t += dt;
+    if (this.blend < 1) {
+      this.blend = Math.min(1, this.blend + dt / 12);
+      const a = this.weather, b = this.target, t = smoothstep(this.blend);
+      this.cloud = lerp(a.cloud, b.cloud, t);
+      this.fog = lerp(a.fog, b.fog, t);
+      this.haze = lerp(a.haze, b.haze, t);
+      this.rain = lerp(a.rain, b.rain, t);
+      for (let i = 0; i < 3; i++) {
+        this.sunCol[i] = lerp(a.sun[i], b.sun[i], t);
+        this.skyCol[i] = lerp(a.sky[i], b.sky[i], t);
+      }
+      if (this.blend >= 1) this.weather = this.target;
+    }
+    // sun position from the clock
+    const h = (this.timeOfDay - 6) / 12;                 // 0 at sunrise, 1 at sunset
+    const el = Math.sin(clamp(h, 0, 1) * Math.PI) * 0.92 + 0.06;
+    const az = (0.25 + h * 0.5) * TAU;
+    const ce = Math.cos(Math.asin(clamp(el, -1, 1)));
+    this.sun = V.norm([Math.cos(az) * ce, el, Math.sin(az) * ce]);
+    // the horizon takes its colour from the sky and the sun
+    for (let i = 0; i < 3; i++) {
+      this.fogCol[i] = lerp(this.skyCol[i], (this.sunCol[i] + 0.6) * 0.55, 0.45) * (0.85 + 0.25 * el);
+    }
+    // rain soaks the track, sun dries it
+    if (TERR.built) TERR.soak(dt, this.rain * 0.030, (1 - this.rain) * 0.0032 * (0.4 + el));
+  },
+};
+
+/* ============================================================== camera === */
+const CAM = {
+  mode: 'chase', pos: [0, 3, 6], at: [0, 1, 0], up: [0, 1, 0],
+  fov: 68, shake: 0, shakeV: [0, 0, 0], yawOff: 0,
+  smoothPos: null, smoothAt: null, roll: 0, headYaw: 0, headPitch: 0,
+  view: M4.ident(), proj: M4.ident(), vp: M4.ident(), invVP: M4.ident(),
+  replayT: 0, replayPick: 0,
+
+  reset(b) { this.smoothPos = null; this.smoothAt = null; this.roll = 0; this.shake = 0; },
+
+  update(b, dt, aspect) {
+    const axF = Q.rot(b.q, [0, 0, -1]), axU = Q.rot(b.q, [0, 1, 0]), axR = Q.rot(b.q, [1, 0, 0]);
+    const speed = V.len(b.v);
+    const flat = V.norm([axF[0], 0, axF[2]]);
+    let pos, at, up = [0, 1, 0], roll = 0, fov = SETTINGS.fov;
+
+    if (this.mode === 'helmet' || this.mode === 'fpv') {
+      // A helmet is bolted to a head, and the head is on a rider being
+      // shaken by a motorcycle. It is not a floating camera.
+      const head = V.add(b.rider.wp, Q.rot(b.q, [0, 0.52, -0.02]));
+      const lookAhead = this.mode === 'fpv' ? 0.55 : 0.72;
+      // riders keep their eyes closer to level than the bike is
+      roll = b.lean * 0.42;
+      // and they look into the corner
+      this.headYaw = lerp(this.headYaw, clamp(-b.inp.steer, -1, 1) * 0.36 + clamp(b.w[1] * 0.30, -0.4, 0.4),
+                          Math.min(1, dt * 5));
+      this.headPitch = lerp(this.headPitch, clamp(-b.pitch * 0.35, -0.4, 0.4), Math.min(1, dt * 4));
+      const dir = rodrigues(rodrigues(axF, axU, this.headYaw), axR, this.headPitch);
+      pos = head;
+      at = V.add(head, V.mul(dir, 12));
+      up = rodrigues(axU, axF, -roll * 0.35);
+      fov = SETTINGS.fov + clamp(speed * 0.42, 0, 14);
+    } else if (this.mode === 'bike') {
+      const back = 3.2, high = 1.15;
+      const want = V.add(b.p, V.add(V.mul(flat, -back), [0, high, 0]));
+      pos = want; at = V.add(b.p, V.add(V.mul(flat, 5.5), [0, 0.4, 0]));
+      fov = SETTINGS.fov + clamp(speed * 0.30, 0, 10);
+      roll = b.lean * 0.16;
+    } else if (this.mode === 'replay') {
+      pos = this.replayCamera(b, dt);
+      at = V.copy(b.p);
+      fov = 34 + clamp(30 - V.len(V.sub(pos, b.p)), 0, 22);
+    } else {
+      // chase: hangs back, swings wide in a corner, and drops as it speeds up
+      const back = 5.4 + clamp(speed * 0.10, 0, 2.4);
+      const high = 2.05 + clamp(speed * 0.022, 0, 0.7);
+      const side = clamp(-b.lean, -1, 1) * 0.9;
+      const want = V.add(b.p, V.add(V.add(V.mul(flat, -back), [0, high, 0]),
+                                    V.mul(V.norm([flat[2], 0, -flat[0]]), side)));
+      const lag = b.airborne ? 4.2 : 6.2;
+      this.smoothPos = this.smoothPos ? V.lerp(this.smoothPos, want, Math.min(1, dt * lag)) : want;
+      // never let the camera end up under the ground
+      const gh = TERR.built ? TERR.height(this.smoothPos[0], this.smoothPos[2]) : 0;
+      if (this.smoothPos[1] < gh + 0.55) this.smoothPos[1] = gh + 0.55;
+      pos = this.smoothPos;
+      const wantAt = V.add(b.p, V.add(V.mul(flat, 4.0), [0, 0.75, 0]));
+      this.smoothAt = this.smoothAt ? V.lerp(this.smoothAt, wantAt, Math.min(1, dt * 7.5)) : wantAt;
+      at = this.smoothAt;
+      roll = b.lean * 0.10;
+      fov = SETTINGS.fov + clamp(speed * 0.36, 0, 16);
+    }
+
+    // impacts shake the camera, and hard ones shake it a lot
+    const hit = clamp((b.peakG - 3.2) / 8, 0, 1);
+    if (hit > this.shake) this.shake = hit;
+    this.shake = Math.max(0, this.shake - dt * 2.6);
+    b.peakG *= Math.pow(0.02, dt);
+    if (this.shake > 0.001) {
+      const s = this.shake * this.shake * (this.mode === 'helmet' || this.mode === 'fpv' ? 0.22 : 0.13);
+      const t = SCENE.t * 47;
+      const j = [Math.sin(t * 1.7) * s, Math.sin(t * 2.3 + 1.1) * s, Math.sin(t * 1.9 + 2.4) * s];
+      pos = V.add(pos, j); at = V.add(at, V.mul(j, 0.5));
+    }
+    this.pos = pos; this.at = at; this.roll = roll; this.fov = fov;
+    const upR = rodrigues(up, V.norm(V.sub(at, pos)), roll);
+    M4.lookAt(pos, at, upR, this.view);
+    M4.persp(fov * DEG, aspect, 0.10, SETTINGS.drawDist * 3.2, this.proj);
+    M4.mul(this.proj, this.view, this.vp);
+    return this;
+  },
+
+  /* trackside cameras for the replay: pick one that can see the bike */
+  replayCamera(b, dt) {
+    this.replayT += dt;
+    if (this.replayT > 4.2 || !this.rcPos) {
+      this.replayT = 0;
+      const ang = (this.replayPick++ * 2.399) % TAU;
+      const dist = 14 + (this.replayPick % 3) * 9;
+      const p = [b.p[0] + Math.cos(ang) * dist, 0, b.p[2] + Math.sin(ang) * dist];
+      p[1] = (TERR.built ? TERR.height(p[0], p[2]) : 0) + 2.2 + (this.replayPick % 4) * 1.6;
+      this.rcPos = p;
+    }
+    return this.rcPos;
+  },
+};
+
+
+/* --------------------------------------------------------- transforms --- */
+M4.trans = (t, out) => { out = out || M4.ident(); out.set(M4.ident()); out[12] = t[0]; out[13] = t[1]; out[14] = t[2]; return out; };
+M4.rotX = (a) => { const c = Math.cos(a), s = Math.sin(a);
+  return new Float32Array([1,0,0,0, 0,c,s,0, 0,-s,c,0, 0,0,0,1]); };
+M4.rotY = (a) => { const c = Math.cos(a), s = Math.sin(a);
+  return new Float32Array([c,0,-s,0, 0,1,0,0, s,0,c,0, 0,0,0,1]); };
+M4.rotZ = (a) => { const c = Math.cos(a), s = Math.sin(a);
+  return new Float32Array([c,s,0,0, -s,c,0,0, 0,0,1,0, 0,0,0,1]); };
+/* a matrix that puts a unit-long +Y segment between two points */
+function segMatrix(a, b, r) {
+  const d = V.sub(b, a), L = V.len(d);
+  const y = L > 1e-6 ? V.mul(d, 1 / L) : [0, 1, 0];
+  let ref = Math.abs(y[1]) > 0.95 ? [1, 0, 0] : [0, 1, 0];
+  const x = V.norm(V.cross(ref, y)), z = V.cross(x, y);
+  return new Float32Array([
+    x[0]*r, x[1]*r, x[2]*r, 0,
+    y[0]*L, y[1]*L, y[2]*L, 0,
+    z[0]*r, z[1]*r, z[2]*r, 0,
+    a[0], a[1], a[2], 1]);
+}
+/* two-bone inverse kinematics: where the elbow or knee ends up */
+function ik2(root, target, a, b, pole) {
+  const d = V.sub(target, root);
+  let L = V.len(d);
+  const lo = Math.abs(a - b) + 1e-3, hi = a + b - 1e-3;
+  L = clamp(L, lo, hi);
+  const dir = V.len(d) > 1e-6 ? V.mul(d, 1 / V.len(d)) : [0, 0, 1];
+  const cosA = clamp((a * a + L * L - b * b) / (2 * a * L), -1, 1);
+  const ang = Math.acos(cosA);
+  let side = V.sub(pole, V.mul(dir, V.dot(pole, dir)));
+  if (V.len2(side) < 1e-8) side = V.cross(dir, [0, 1, 0]);
+  side = V.norm(side);
+  return V.add(root, V.add(V.mul(dir, a * Math.cos(ang)), V.mul(side, a * Math.sin(ang))));
+}
+
+/* =========================================================== rendering === */
+const RENDER = {
+  bikeMesh: null, bikeKey: null, rider: null, ready: false,
+  tmp: M4.ident(), tmp2: M4.ident(),
+
+  ensure(cfg) {
+    if (!this.rider) this.rider = buildRiderMeshes();
+    if (this.bikeKey !== cfg.key) {
+      this.bikeMesh = buildBikeMeshes(cfg);
+      this.bikeKey = cfg.key;
+    }
+    this.ready = true;
+  },
+
+  drawMesh(prog, mesh, model, tint, metal, mud) {
+    const gl = GL.gl;
+    gl.uniformMatrix4fv(prog.u.uModel, false, model);
+    if (prog.u.uTint) gl.uniform3f(prog.u.uTint, tint[0], tint[1], tint[2]);
+    if (prog.u.uMetal) gl.uniform1f(prog.u.uMetal, metal === undefined ? 0.3 : metal);
+    if (prog.u.uMud) gl.uniform1f(prog.u.uMud, mud || 0);
+    gl.bindVertexArray(mesh.vao);
+    gl.drawElements(gl.TRIANGLES, mesh.count, mesh.itype, 0);
+  },
+
+  /* every moving part of the bike, in the order the joints hang off each other */
+  bikeMatrices(b) {
+    const cfg = b.cfg, sag = designSag(cfg), ax = strutAxes(cfg);
+    const chassisM = M4.fromQuatPos(b.q, b.p);
+    const piv = steerPivotBody(cfg);
+    let m = M4.mul(chassisM, M4.trans(piv));
+    m = M4.mul(m, M4.rotX(cfg.rake));
+    const steerM = M4.mul(m, M4.rotY(b.steer.a));
+    const axSF = axleInSteerFrame(cfg);
+    const forkM = M4.mul(steerM, M4.trans([axSF[0], axSF[1] + (b.susp.f.x - sag.f), axSF[2]]));
+    const wheelFM = M4.mul(forkM, M4.rotX(-(b.wf.ang || 0)));
+
+    const pivS = swingPivotBody(cfg);
+    const restR = V.sub(cfg.axleR, V.mul(ax.uR, sag.r));
+    const axleRnow = V.add(restR, V.mul(ax.uR, b.susp.r.x));
+    const d0 = V.sub(cfg.axleR, pivS), d1 = V.sub(axleRnow, pivS);
+    const swAng = Math.atan2(d1[1], d1[2]) - Math.atan2(d0[1], d0[2]);
+    const swingM = M4.mul(M4.mul(chassisM, M4.trans(pivS)), M4.rotX(swAng));
+    const wheelRM = M4.mul(M4.mul(chassisM, M4.trans(axleRnow)), M4.rotX(-(b.wr.ang || 0)));
+    return { chassisM, steerM, forkM, wheelFM, swingM, wheelRM, axleRnow };
+  },
+
+  drawBike(prog, b, mats, depthOnly) {
+    if (this.__hideBike) return;
+    const M = this.bikeMesh;
+    const tint = [1, 1, 1];
+    const mud = depthOnly ? 0 : b.mud;
+    const only = null;
+    const put = (k, mesh, m, met) => { if (!only || only === k) this.drawMesh(prog, mesh, m, tint, met, mud); };
+    put('chassis', M.chassis, mats.chassisM, 0.35);
+    put('steer', M.steer, mats.steerM, 0.45);
+    put('forkLow', M.forkLow, mats.forkM, 0.55);
+    put('swing', M.swing, mats.swingM, 0.45);
+    put('wheelF', M.wheelF, mats.wheelFM, 0.18);
+    put('wheelR', M.wheelR, mats.wheelRM, 0.18);
+  },
+
+  /* The rider is posed from where the physics actually put them: hands on
+     the grips, feet on the pegs, body wherever the spring left it. */
+  riderPose(b, mats) {
+    const cfg = b.cfg, R = this.rider;
+    const axF = Q.rot(b.q, [0, 0, -1]), axU = Q.rot(b.q, [0, 1, 0]), axR = Q.rot(b.q, [1, 0, 0]);
+    // the rider stays a little more upright than the bike, and leans with the offset
+    const upR = V.norm(V.add(axU, V.mul(V.norm([0, 1, 0]), 0.30)));
+    const rt = V.norm(V.cross(axF, upR));
+    const fw = V.cross(upR, rt);
+    const pelvis = b.rider.wp;
+    const lean = clamp(b.rider.p[2] * 1.6, -0.55, 0.55);      // fore-aft crouch
+    const torsoUp = V.norm(V.add(V.mul(upR, Math.cos(lean)), V.mul(fw, Math.sin(lean))));
+    const shoulders = V.add(pelvis, V.mul(torsoUp, 0.40));
+    const head = V.add(shoulders, V.mul(torsoUp, 0.145));
+    // grips and pegs, taken straight from the bike's own transforms
+    const grip = (s) => xform(mats.steerM, [s * 0.310, this.gripY(cfg), this.gripZ(cfg)]);
+    const peg = (s) => xform(mats.chassisM, BP(s * 0.245, cfg.axleR[1] + 0.075, -0.045));
+    return {
+      pelvis, shoulders, head, torsoUp, rt, fw,
+      handL: grip(-1), handR: grip(1),
+      footL: peg(-1), footR: peg(1),
+      shL: V.add(shoulders, V.mul(rt, -0.185)), shR: V.add(shoulders, V.mul(rt, 0.185)),
+      hipL: V.add(pelvis, V.mul(rt, -0.115)), hipR: V.add(pelvis, V.mul(rt, 0.115)),
+    };
+  },
+  gripY(cfg) { const a = axleInSteerFrame(cfg); return a[1] + 0.62 * (cfg.wheelbase / 1.48) + 0.055; },
+  gripZ(cfg) { const a = axleInSteerFrame(cfg); return a[2] - 0.055; },
+
+  drawRider(prog, b, mats, depthOnly) {
+    if (this.__hideRider) return;
+
+    const R = this.rider, P = this.riderPose(b, mats);
+    const gear = b.gearCol || [0.85, 0.15, 0.12];
+    const pants = [gear[0] * 0.3 + 0.06, gear[1] * 0.3 + 0.06, gear[2] * 0.3 + 0.09];
+    const mud = depthOnly ? 0 : b.mud;
+    // torso
+    const tm = new Float32Array([
+      P.rt[0], P.rt[1], P.rt[2], 0,
+      P.torsoUp[0], P.torsoUp[1], P.torsoUp[2], 0,
+      P.fw[0], P.fw[1], P.fw[2], 0,
+      P.pelvis[0], P.pelvis[1], P.pelvis[2], 1]);
+    this.drawMesh(prog, R.torso, tm, gear, 0.05, mud);
+    // helmet
+    const hm = new Float32Array([
+      P.rt[0], P.rt[1], P.rt[2], 0,
+      P.torsoUp[0], P.torsoUp[1], P.torsoUp[2], 0,
+      P.fw[0], P.fw[1], P.fw[2], 0,
+      P.head[0], P.head[1], P.head[2], 1]);
+    this.drawMesh(prog, R.helmet, hm, [0.93, 0.94, 0.96], 0.55, mud * 0.7);
+    // arms and legs, bent by where the hands and feet actually are
+    const poleA = V.mul(P.fw, -1);
+    const poleL = V.add(P.fw, V.mul(P.torsoUp, -0.4));
+    /* Once the rider is off the bike the hands are not on the grips any
+       more, so the limbs hang from the body instead of reaching for them. */
+    if (b.rider.off) {
+      P.handL = V.add(P.shL, V.add(V.mul(P.fw, 0.30), V.mul(P.torsoUp, -0.30)));
+      P.handR = V.add(P.shR, V.add(V.mul(P.fw, 0.30), V.mul(P.torsoUp, -0.28)));
+      P.footL = V.add(P.hipL, V.add(V.mul(P.fw, 0.35), V.mul(P.torsoUp, -0.62)));
+      P.footR = V.add(P.hipR, V.add(V.mul(P.fw, 0.38), V.mul(P.torsoUp, -0.60)));
+    }
+    const arms = [[P.shL, P.handL, -1], [P.shR, P.handR, 1]];
+    for (const [sh, hand, sgn] of arms) {
+      const el = ik2(sh, hand, 0.30, 0.29, V.add(poleA, V.mul(P.rt, sgn * 0.5)));
+      this.drawMesh(prog, R.seg, segMatrix(sh, el, 0.062), gear, 0.05, mud);
+      this.drawMesh(prog, R.seg, segMatrix(el, hand, 0.052), gear, 0.05, mud);
+      this.drawMesh(prog, R.seg, segMatrix(hand, V.add(hand, V.mul(P.fw, 0.09)), 0.048), COL.glove, 0.1, mud);
+    }
+    const legs = [[P.hipL, P.footL, -1], [P.hipR, P.footR, 1]];
+    for (const [hip, foot, sgn] of legs) {
+      const kn = ik2(hip, foot, 0.43, 0.42, V.add(P.fw, V.mul(P.rt, sgn * 0.35)));
+      this.drawMesh(prog, R.seg, segMatrix(hip, kn, 0.085), pants, 0.05, mud);
+      this.drawMesh(prog, R.seg, segMatrix(kn, foot, 0.068), pants, 0.05, mud);
+      this.drawMesh(prog, R.seg, segMatrix(foot, V.add(foot, V.mul(P.fw, 0.16)), 0.058), COL.boot, 0.25, mud);
+    }
+  },
+};
+function xform(m, p) {
+  return [m[0]*p[0] + m[4]*p[1] + m[8]*p[2] + m[12],
+          m[1]*p[0] + m[5]*p[1] + m[9]*p[2] + m[13],
+          m[2]*p[0] + m[6]*p[1] + m[10]*p[2] + m[14]];
+}
+
+
+/* ---------------------------------------------------------- the frame --- */
+const FRAME = { lightVP: M4.ident(), stats: { tris: 0, chunks: 0, ms: 0 } };
+
+function shadowMatrix(centre) {
+  const S = 44;
+  const eye = V.add(centre, V.mul(SCENE.sun, 90));
+  const view = M4.lookAt(eye, centre, Math.abs(SCENE.sun[1]) > 0.98 ? [0, 0, 1] : [0, 1, 0]);
+  const proj = M4.ortho(-S, S, -S, S, 1, 190);
+  return M4.mul(proj, view, FRAME.lightVP);
+}
+
+function renderFrame(bikes, hero, dt) {
+  const gl = GL.gl;
+  if (!gl || !GL.ok) return;
+  const t0 = performance.now();
+  resizeGL();
+  const aspect = GL.W / Math.max(1, GL.H);
+  CAM.update(hero, dt, aspect);
+  RENDER.ensure(hero.cfg);
+  TR.built = 0;
+  TR.invalidate();
+  if (!TR.far) TR.buildFar();
+
+  const eye = CAM.pos;
+  const fwd = V.norm(V.sub(CAM.at, CAM.pos));
+  TR.t0 = performance.now();
+  const list = TR.visible(eye, fwd, Math.min(SETTINGS.drawDist, TR.chunkR));
+
+  // ---- shadow pass
+  const shadowCentre = V.add(hero.p, V.mul(V.norm([fwd[0], 0, fwd[2]]), 14));
+  shadowMatrix(shadowCentre);
+  if (SETTINGS.shadows) {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, GL.shadow.fb);
+    gl.viewport(0, 0, GL.SHADOW_SIZE, GL.SHADOW_SIZE);
+    gl.clear(gl.DEPTH_BUFFER_BIT);
+    gl.enable(gl.DEPTH_TEST);
+    gl.colorMask(false, false, false, false);
+    const dp = GL.prog.depth;
+    gl.useProgram(dp.p);
+    gl.uniformMatrix4fv(dp.u.uLightVP, false, FRAME.lightVP);
+    gl.uniformMatrix4fv(dp.u.uModel, false, M4.ident());
+    gl.cullFace(gl.FRONT);
+    for (const c of list) {
+      if (c.d > 60) continue;
+      const m = TR.get(c.cx, c.cz, Math.max(1, c.lod));
+      if (!m) continue;
+      gl.bindVertexArray(m.vao);
+      gl.drawElements(gl.TRIANGLES, m.count, gl.UNSIGNED_SHORT, 0);
+    }
+    gl.cullFace(gl.BACK);
+    for (const b of bikes) {
+      if (V.len2(V.sub(b.p, shadowCentre)) > 60 * 60) continue;
+      const mats = RENDER.bikeMatrices(b);
+      RENDER.ensure(b.cfg);
+      RENDER.drawBike(dp, b, mats, true);
+      RENDER.drawRider(dp, b, mats, true);
+    }
+    RENDER.ensure(hero.cfg);
+    gl.colorMask(true, true, true, true);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  }
+
+  // ---- main pass
+  gl.viewport(0, 0, GL.W, GL.H);
+  gl.clearColor(SCENE.fogCol[0], SCENE.fogCol[1], SCENE.fogCol[2], 1);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, GL.shadow.tex);
+
+  // sky
+  {
+    const sp = GL.prog.sky;
+    gl.useProgram(sp.p);
+    gl.depthMask(false);
+    const inv = invert44(CAM.vp);
+    gl.uniformMatrix4fv(sp.u.uInvVP, false, inv);
+    gl.uniform3fv(sp.u.uEye, CAM.pos);
+    gl.uniform3fv(sp.u.uSun, SCENE.sun);
+    gl.uniform3fv(sp.u.uSunCol, SCENE.sunCol);
+    gl.uniform3fv(sp.u.uSkyCol, SCENE.skyCol);
+    gl.uniform3fv(sp.u.uFogCol, SCENE.fogCol);
+    gl.uniform1f(sp.u.uCloud, SCENE.cloud);
+    gl.uniform1f(sp.u.uHaze, SCENE.haze);
+    gl.uniform1f(sp.u.uTime, SCENE.t);
+    gl.bindBuffer(gl.ARRAY_BUFFER, GL.skyQuad);
+    gl.enableVertexAttribArray(sp.a.aPos);
+    gl.vertexAttribPointer(sp.a.aPos, 2, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.depthMask(true);
+  }
+
+  // ground
+  {
+    const tp = GL.prog.terrain;
+    gl.useProgram(tp.p);
+    gl.uniformMatrix4fv(tp.u.uVP, false, CAM.vp);
+    gl.uniformMatrix4fv(tp.u.uLightVP, false, FRAME.lightVP);
+    gl.uniform3fv(tp.u.uSun, SCENE.sun);
+    gl.uniform3fv(tp.u.uSunCol, SCENE.sunCol);
+    gl.uniform3fv(tp.u.uSkyCol, SCENE.skyCol);
+    gl.uniform3fv(tp.u.uFogCol, SCENE.fogCol);
+    gl.uniform3fv(tp.u.uEye, CAM.pos);
+    gl.uniform1f(tp.u.uFog, SCENE.fog);
+    gl.uniform1f(tp.u.uWet, TERR.wetGlobal);
+    gl.uniform1f(tp.u.uTime, SCENE.t);
+    gl.uniform1i(tp.u.uShadow, 0);
+    let tris = 0;
+    gl.uniform1f(tp.u.uNearCut, 0);
+    for (const c of list) {
+      const m = TR.get(c.cx, c.cz, c.lod);
+      if (!m) continue;
+      gl.bindVertexArray(m.vao);
+      gl.drawElements(gl.TRIANGLES, m.count, gl.UNSIGNED_SHORT, 0);
+      tris += m.count / 3;
+    }
+    // everything beyond, in one coarse mesh that hides behind the near ones
+    if (TR.far) {
+      gl.uniform1f(tp.u.uNearCut, TR.nearR);
+      gl.bindVertexArray(TR.far.vao);
+      gl.drawElements(gl.TRIANGLES, TR.far.count, gl.UNSIGNED_INT, 0);
+      tris += TR.far.count / 3;
+    }
+    FRAME.stats.tris = tris;
+    FRAME.stats.chunks = list.length;
+  }
+
+  // bikes and riders
+  {
+    const op = GL.prog.obj;
+    gl.useProgram(op.p);
+    gl.uniformMatrix4fv(op.u.uVP, false, CAM.vp);
+    gl.uniformMatrix4fv(op.u.uLightVP, false, FRAME.lightVP);
+    gl.uniform3fv(op.u.uSun, SCENE.sun);
+    gl.uniform3fv(op.u.uSunCol, SCENE.sunCol);
+    gl.uniform3fv(op.u.uSkyCol, SCENE.skyCol);
+    gl.uniform3fv(op.u.uFogCol, SCENE.fogCol);
+    gl.uniform3fv(op.u.uEye, CAM.pos);
+    gl.uniform1f(op.u.uFog, SCENE.fog);
+    gl.uniform1i(op.u.uShadow, 0);
+    for (const b of bikes) {
+      const d = V.len(V.sub(b.p, CAM.pos));
+      if (d > SETTINGS.drawDist) continue;
+      if (b === hero && (CAM.mode === 'fpv')) continue;
+      RENDER.ensure(b.cfg);
+      const mats = RENDER.bikeMatrices(b);
+      RENDER.drawBike(op, b, mats, false);
+      if (!(b === hero && CAM.mode === 'helmet')) RENDER.drawRider(op, b, mats, false);
+    }
+    RENDER.ensure(hero.cfg);
+    PARTICLES.draw(op);
+  }
+  gl.bindVertexArray(null);
+  FRAME.stats.ms = performance.now() - t0;
+}
+
+/* a 4x4 inverse, needed once a frame for the sky ray */
+function invert44(m) {
+  const o = new Float32Array(16);
+  const a00=m[0],a01=m[1],a02=m[2],a03=m[3], a10=m[4],a11=m[5],a12=m[6],a13=m[7],
+        a20=m[8],a21=m[9],a22=m[10],a23=m[11], a30=m[12],a31=m[13],a32=m[14],a33=m[15];
+  const b00=a00*a11-a01*a10, b01=a00*a12-a02*a10, b02=a00*a13-a03*a10,
+        b03=a01*a12-a02*a11, b04=a01*a13-a03*a11, b05=a02*a13-a03*a12,
+        b06=a20*a31-a21*a30, b07=a20*a32-a22*a30, b08=a20*a33-a23*a30,
+        b09=a21*a32-a22*a31, b10=a21*a33-a23*a31, b11=a22*a33-a23*a32;
+  let det = b00*b11-b01*b10+b02*b09+b03*b08-b04*b07+b05*b06;
+  if (!det) return M4.ident();
+  det = 1 / det;
+  o[0]=(a11*b11-a12*b10+a13*b09)*det; o[1]=(a02*b10-a01*b11-a03*b09)*det;
+  o[2]=(a31*b05-a32*b04+a33*b03)*det; o[3]=(a22*b04-a21*b05-a23*b03)*det;
+  o[4]=(a12*b08-a10*b11-a13*b07)*det; o[5]=(a00*b11-a02*b08+a03*b07)*det;
+  o[6]=(a32*b02-a30*b05-a33*b01)*det; o[7]=(a20*b05-a22*b02+a23*b01)*det;
+  o[8]=(a10*b10-a11*b08+a13*b06)*det; o[9]=(a01*b08-a00*b10-a03*b06)*det;
+  o[10]=(a30*b04-a31*b02+a33*b00)*det; o[11]=(a21*b02-a20*b04-a23*b00)*det;
+  o[12]=(a11*b07-a10*b09-a12*b06)*det; o[13]=(a00*b09-a01*b07+a02*b06)*det;
+  o[14]=(a31*b01-a30*b03-a32*b00)*det; o[15]=(a20*b03-a21*b01+a22*b00)*det;
+  return o;
+}
+
+
+/* =========================================================== particles ===
+   Dust, roost, mud and rain. Camera-facing quads in one dynamic buffer:
+   no instancing extensions, no textures, nothing that can fail to load.
+   ======================================================================= */
+const VS_PART = `#version 300 es
+${GLSL_COMMON}
+in vec3 aPos; in vec4 aCol; in vec3 aCorner;   // corner.xy is +/-1, corner.z is the size
+uniform mat4 uVP; uniform vec3 uRight, uUp;
+out vec4 vCol; out vec2 vUV;
+void main() {
+  vec3 w = aPos + uRight * (aCorner.x * aCorner.z) + uUp * (aCorner.y * aCorner.z);
+  vCol = aCol; vUV = aCorner.xy;
+  gl_Position = uVP * vec4(w, 1.0);
+}`;
+const FS_PART = `#version 300 es
+${GLSL_COMMON}
+in vec4 vCol; in vec2 vUV;
+out vec4 outColor;
+void main() {
+  float r = length(vUV) * 0.7071;              // 0 at the centre, 1 at a corner
+  float a = vCol.a * (1.0 - smoothstep(0.16, 0.72, r));
+  if (a < 0.004) discard;
+  outColor = vec4(vCol.rgb, a);
+}`;
+
+const PARTICLES = {
+  P: [], max: 1400, buf: null, vb: null, ib: null, vao: null, prog: null, cap: 0,
+  init() {
+    const gl = GL.gl;
+    gl.bindVertexArray(null);
+    this.prog = program(gl, VS_PART, FS_PART, 'particle');
+    this.cap = this.max;
+    this.buf = new Float32Array(this.cap * 4 * 10);
+    const idx = new Uint32Array(this.cap * 6);
+    for (let i = 0; i < this.cap; i++) {
+      const o = i * 4;
+      idx[i*6] = o; idx[i*6+1] = o+1; idx[i*6+2] = o+2;
+      idx[i*6+3] = o; idx[i*6+4] = o+2; idx[i*6+5] = o+3;
+    }
+    this.vb = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vb);
+    gl.bufferData(gl.ARRAY_BUFFER, this.buf.byteLength, gl.DYNAMIC_DRAW);
+    this.ib = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ib);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idx, gl.STATIC_DRAW);
+    const a = this.prog.a;
+    this.vao = gl.createVertexArray();
+    gl.bindVertexArray(this.vao);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vb);
+    const st = 40;
+    gl.enableVertexAttribArray(a.aPos); gl.vertexAttribPointer(a.aPos, 3, gl.FLOAT, false, st, 0);
+    gl.enableVertexAttribArray(a.aCol); gl.vertexAttribPointer(a.aCol, 4, gl.FLOAT, false, st, 12);
+    gl.enableVertexAttribArray(a.aCorner); gl.vertexAttribPointer(a.aCorner, 3, gl.FLOAT, false, st, 28);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ib);
+    gl.bindVertexArray(null);
+  },
+  clear() { this.P.length = 0; },
+  spawn(p, v, life, size, col, grow, gravity) {
+    if (this.P.length >= this.max) return;
+    this.P.push({ p: V.copy(p), v: V.copy(v), t: 0, life, size, col,
+                  grow: grow === undefined ? 1.9 : grow,
+                  g: gravity === undefined ? -1.2 : gravity });
+  },
+  update(dt) {
+    const P = this.P;
+    for (let i = P.length - 1; i >= 0; i--) {
+      const q = P[i];
+      q.t += dt;
+      if (q.t >= q.life) { P[i] = P[P.length - 1]; P.pop(); continue; }
+      q.v[1] += q.g * dt;
+      const drag = Math.pow(0.12, dt);
+      q.v[0] *= drag; q.v[2] *= drag; q.v[1] *= Math.pow(0.5, dt);
+      V.mad(q.p, q.v, dt);
+    }
+  },
+  draw(objProg) {
+    const gl = GL.gl;
+    if (!this.P.length || !this.prog) return;
+    const right = [CAM.view[0], CAM.view[4], CAM.view[8]];
+    const up = [CAM.view[1], CAM.view[5], CAM.view[9]];
+    const b = this.buf;
+    let n = 0;
+    for (const q of this.P) {
+      if (n >= this.cap) break;
+      const f = q.t / q.life;
+      const s = q.size * (1 + (q.grow - 1) * f);
+      const a = q.col[3] * (1 - f) * (f < 0.12 ? f / 0.12 : 1);
+      const corners = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+      for (let k = 0; k < 4; k++) {
+        const o = (n * 4 + k) * 10;
+        b[o] = q.p[0]; b[o+1] = q.p[1]; b[o+2] = q.p[2];
+        b[o+3] = q.col[0]; b[o+4] = q.col[1]; b[o+5] = q.col[2]; b[o+6] = a;
+        b[o+7] = corners[k][0]; b[o+8] = corners[k][1]; b[o+9] = s;
+      }
+      n++;
+    }
+    if (!n) return;
+    gl.useProgram(this.prog.p);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vb);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, b, 0, n * 4 * 10);
+    gl.uniformMatrix4fv(this.prog.u.uVP, false, CAM.vp);
+    gl.uniform3fv(this.prog.u.uRight, right);
+    gl.uniform3fv(this.prog.u.uUp, up);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.depthMask(false);
+    gl.bindVertexArray(this.vao);
+    gl.drawElements(gl.TRIANGLES, n * 6, gl.UNSIGNED_INT, 0);
+    gl.bindVertexArray(null);
+    gl.depthMask(true);
+    gl.disable(gl.BLEND);
+  },
+};
+
+/* what the tyres throw up, decided by the ground they are on */
+function spawnWheelSpray(b, dt) {
+  if (!TERR.built) return;
+  const rate = SETTINGS.particles;
+  if (rate <= 0) return;
+  for (const w of [b.wf, b.wr]) {
+    if (!w.contact || !w.surf) continue;
+    const S = w.surf;
+    const slip = clamp(w.slipSpeed / 5, 0, 2.2);
+    const speed = V.len(b.v);
+    const wet = w.wet;
+    const dustAmt = S.dust * (1 - clamp(wet * 1.4, 0, 1)) * (0.10 + slip * 0.9 + speed * 0.020);
+    const sprayAmt = S.spray * clamp(wet * 1.5, 0, 1) * (0.15 + slip * 1.1 + speed * 0.03);
+    const back = V.mul(w.fw, -1);
+    const n = Math.min(4, Math.floor((dustAmt + sprayAmt) * rate * dt * 60));
+    for (let i = 0; i < n; i++) {
+      const jitter = [(Math.random() - 0.5) * 0.22, Math.random() * 0.05, (Math.random() - 0.5) * 0.22];
+      const p = V.add(w.cp, jitter);
+      const isMud = sprayAmt > dustAmt;
+      const kick = isMud ? 5.5 : 2.2;
+      const v = V.add(V.mul(back, (0.6 + Math.random()) * kick * (0.4 + slip)),
+                      [(Math.random() - 0.5) * 1.2, 0.8 + Math.random() * 2.4, (Math.random() - 0.5) * 1.2]);
+      if (isMud) {
+        const c = S.col;
+        PARTICLES.spawn(p, v, 0.55 + Math.random() * 0.5, 0.045 + Math.random() * 0.05,
+                        [c[0] * 0.8, c[1] * 0.8, c[2] * 0.8, 0.95], 1.05, -9.0);
+      } else {
+        const c = S.col;
+        PARTICLES.spawn(p, v, 0.9 + Math.random() * 1.1, 0.16 + Math.random() * 0.22,
+                        [c[0] * 1.25 + 0.10, c[1] * 1.25 + 0.09, c[2] * 1.22 + 0.08, 0.30], 3.4, -0.5);
+      }
+    }
+    // stones flicked out of the roost
+    if (slip > 0.7 && Math.random() < rate * dt * 22 * S.dust) {
+      const v = V.add(V.mul(back, 7 + Math.random() * 9), [0, 2 + Math.random() * 3, 0]);
+      PARTICLES.spawn(w.cp, v, 0.9, 0.030, [0.35, 0.31, 0.26, 1.0], 1.0, -9.81);
+    }
+  }
+}
+
+
+/* =============================================================== input === */
+const INPUT = {
+  keys: {}, pad: null, padIdx: -1, touch: null, lastKind: 'keyboard',
+  init() {
+    window.addEventListener('keydown', (e) => {
+      if (e.repeat) return;
+      this.keys[e.code] = 1; this.lastKind = 'keyboard';
+      if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].indexOf(e.code) >= 0) e.preventDefault();
+      GAME.onKey(e.code);
+    });
+    window.addEventListener('keyup', (e) => { this.keys[e.code] = 0; });
+    window.addEventListener('blur', () => { this.keys = {}; });
+    window.addEventListener('gamepadconnected', (e) => { this.padIdx = e.gamepad.index; });
+    window.addEventListener('gamepaddisconnected', () => { this.padIdx = -1; });
+  },
+  poll() {
+    if (navigator.getGamepads) {
+      const pads = navigator.getGamepads();
+      this.pad = this.padIdx >= 0 ? pads[this.padIdx] : (pads[0] || null);
+      if (this.pad && !this.pad.connected) this.pad = null;
+    }
+  },
+  down(...codes) { for (const c of codes) if (this.keys[c]) return 1; return 0; },
+  axis(neg, pos) { return this.down(pos) - this.down(neg); },
+};
+const dz = (v, d) => Math.abs(v) < d ? 0 : (v - sign(v) * d) / (1 - d);
+
+function readControls(b, dt) {
+  const I = INPUT, inp = b.inp;
+  let thr = 0, bf = 0, br = 0, steer = 0, leanZ = 0, leanX = 0, leanY = 0, clutch = 0;
+  // keyboard
+  thr = I.down('ArrowUp', 'KeyW');
+  bf = I.down('ArrowDown', 'KeyS');
+  br = I.down('Space');
+  steer = I.axis('ArrowLeft', 'ArrowRight') || I.axis('KeyA', 'KeyD');
+  leanZ = I.axis('KeyK', 'KeyI');
+  leanX = I.axis('KeyJ', 'KeyL');
+  clutch = I.down('ShiftLeft', 'ShiftRight');
+  // gamepad wins if it is being touched
+  const p = I.pad;
+  if (p) {
+    const a = p.axes, bt = p.buttons;
+    const rt = bt[7] ? bt[7].value : 0, lt = bt[6] ? bt[6].value : 0;
+    const used = rt > 0.02 || lt > 0.02 || Math.abs(a[0] || 0) > 0.12 || Math.abs(a[1] || 0) > 0.12
+              || Math.abs(a[2] || 0) > 0.12 || Math.abs(a[3] || 0) > 0.12
+              || (bt[0] && bt[0].pressed) || (bt[2] && bt[2].pressed);
+    if (used) {
+      I.lastKind = 'gamepad';
+      thr = rt; bf = lt;
+      br = bt[0] && bt[0].pressed ? 1 : 0;
+      steer = dz(a[0] || 0, 0.10);
+      leanZ = -dz(a[1] || 0, 0.14);
+      leanX = dz(a[2] || 0, 0.14);
+      leanY = -dz(a[3] || 0, 0.20);
+      clutch = bt[2] && bt[2].pressed ? 1 : 0;
+    }
+  }
+  // touch
+  if (I.touch) {
+    const t = I.touch;
+    thr = Math.max(thr, t.thr); bf = Math.max(bf, t.bf); br = Math.max(br, t.br);
+    if (Math.abs(t.steer) > 0.02) steer = t.steer;
+    if (Math.abs(t.leanZ) > 0.02) leanZ = t.leanZ;
+    if (Math.abs(t.leanX) > 0.02) leanX = t.leanX;
+  }
+  // smooth the digital inputs so a key press is not a step function
+  const rate = (cur, want, up, dn) => cur + clamp(want - cur, -dn * dt, up * dt);
+  inp.throttle = rate(inp.throttle, clamp(thr, 0, 1), 5.5, 9);
+  inp.brakeF = rate(inp.brakeF, clamp(bf, 0, 1), 6, 10);
+  inp.brakeR = rate(inp.brakeR, clamp(br, 0, 1), 8, 12);
+  inp.clutch = rate(inp.clutch, clamp(clutch, 0, 1), 14, 14);
+  inp.steer = rate(inp.steer, clamp(steer, -1, 1) * (SETTINGS.invertLean ? -1 : 1), 4.5, 4.5);
+  inp.leanZ = rate(inp.leanZ, clamp(leanZ, -1, 1), 5, 5);
+  inp.leanX = rate(inp.leanX, clamp(leanX, -1, 1), 5, 5);
+  inp.leanY = rate(inp.leanY, clamp(leanY, -1, 1), 5, 5);
+  // assists
+  if (SETTINGS.assists > 0) {
+    const lv = SETTINGS.assists >= 2 ? 1 : 0.55;
+    inp.throttle = riderThrottle(b, inp.throttle, lv);
+    const brk = riderBrake(b, inp.brakeF, inp.brakeR, lv);
+    inp.brakeF = brk[0]; inp.brakeR = brk[1];
+  }
+  if (SETTINGS.autoShift) autoGearbox(b, 1);
+}
+
+/* ================================================================ game === */
+const GAME = {
+  state: 'boot', bikes: [], hero: null, track: null, built: null,
+  mode: 'practice', acc: 0, last: 0, running: false, msg: '', msgT: 0,
+  timeScale: 1, frame: 0, fps: 60, fpsAcc: 0, fpsN: 0,
+
+  start(trackKey, bikeKey, opts) {
+    opts = opts || {};
+    const def = TRACK_BY_KEY[trackKey] || TRACKS[0];
+    this.built = buildTrack(def, opts.seed || 20260913);
+    this.track = def;
+    TR.reset();
+    PARTICLES.clear();
+    SCENE.setWeather(opts.weather || 'sunny', true);
+    this.bikes = [];
+    const hero = makeBike(bikeKey || '450f', { id: 0 });
+    hero.gearCol = [0.88, 0.16, 0.12];
+    this.bikes.push(hero);
+    this.hero = hero;
+    this.placeOnGrid();
+    CAM.mode = SETTINGS.camera;
+    CAM.reset(hero);
+    this.state = 'playing';
+    this.acc = 0; this.last = performance.now();
+  },
+
+  placeOnGrid() {
+    const p = this.built.path;
+    for (let i = 0; i < this.bikes.length; i++) {
+      const b = this.bikes[i];
+      const s = -14 - (i % 4) * 3.2;
+      const idx = ((Math.round(s / p.step) % p.n) + p.n) % p.n;
+      const c = p.pts[idx], nrm = p.nor[idx], tan = p.tan[idx];
+      const lat = ((i % 6) - 2.5) * 1.35;
+      const x = c[0] + nrm[0] * lat, z = c[1] + nrm[1] * lat;
+      const head = Math.atan2(-tan[0], -tan[1]);
+      resetBike(b, x, z, head);
+    }
+  },
+
+  onKey(code) {
+    if (code === 'KeyR') { this.placeOnGrid(); CAM.reset(this.hero); }
+    if (code === 'KeyC') {
+      const modes = ['chase', 'bike', 'helmet', 'fpv', 'replay'];
+      CAM.mode = modes[(modes.indexOf(CAM.mode) + 1) % modes.length];
+      SETTINGS.camera = CAM.mode; saveSettings();
+      this.flash('Camera: ' + CAM.mode.toUpperCase());
+    }
+    if (code === 'KeyQ') this.hero.inp.shiftDn = true;
+    if (code === 'KeyE') this.hero.inp.shiftUp = true;
+    if (code === 'Escape' || code === 'KeyP') this.togglePause();
+  },
+  flash(t) { this.msg = t; this.msgT = 1.8; },
+  togglePause() {
+    if (this.state === 'playing') this.state = 'paused';
+    else if (this.state === 'paused') { this.state = 'playing'; this.last = performance.now(); }
+    UI.refresh();
+  },
+
+  step(dt) {
+    const DT = WORLD.DT;
+    this.acc = Math.min(this.acc + dt, 0.25);
+    INPUT.poll();
+    if (this.state === 'playing') {
+      readControls(this.hero, dt);
+      let n = 0;
+      while (this.acc >= DT && n < 400) {
+        for (const b of this.bikes) physStep(b, DT);
+        this.acc -= DT; n++;
+      }
+      for (const b of this.bikes) spawnWheelSpray(b, dt);
+      RACE.update(this.hero, dt);
+      SCENE.update(dt);
+      PARTICLES.update(dt);
+      if (this.msgT > 0) this.msgT -= dt;
+    }
+  },
+};
+
+function loop(now) {
+  requestAnimationFrame(loop);
+  const dt = Math.min(0.1, (now - GAME.last) / 1000) || 0;
+  GAME.last = now;
+  if (GAME.state === 'boot') return;
+  GAME.step(dt);
+  GAME.frame++;
+  GAME.fpsAcc += dt; GAME.fpsN++;
+  if (GAME.fpsAcc > 0.5) { GAME.fps = GAME.fpsN / GAME.fpsAcc; GAME.fpsAcc = 0; GAME.fpsN = 0; }
+  if (GL.ok && GAME.hero) {
+    renderFrame(GAME.bikes, GAME.hero, dt);
+    HUD.draw();
+  }
+}
+
+
+/* ================================================================= HUD ===
+   Drawn on a 2D canvas over the scene. Everything the rider needs and
+   nothing else.
+   ======================================================================= */
+const HUD = {
+  cv: null, ctx: null, W: 0, H: 0, s: 1,
+  init(cv) { this.cv = cv; this.ctx = cv.getContext('2d'); },
+  resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = Math.round(this.cv.clientWidth * dpr), h = Math.round(this.cv.clientHeight * dpr);
+    if (this.cv.width !== w || this.cv.height !== h) { this.cv.width = w; this.cv.height = h; }
+    this.W = w; this.H = h;
+    this.s = Math.max(0.62, Math.min(w, h) / 900) * dpr / Math.max(1, dpr) * dpr;
+    this.s = clamp(Math.min(w, h) / 800, 0.55, 2.0);
+  },
+  draw() {
+    if (!this.ctx || !SETTINGS.hud) { if (this.ctx) this.ctx.clearRect(0, 0, this.W, this.H); return; }
+    this.resize();
+    const c = this.ctx, W = this.W, H = this.H, s = this.s;
+    c.clearRect(0, 0, W, H);
+    const b = GAME.hero;
+    if (!b || GAME.state === 'menu') return;
+    const pad = 26 * s;
+    c.save();
+    c.textBaseline = 'alphabetic';
+
+    /* ---- speed and gear, bottom right ---- */
+    const spd = V.len(b.v) * (SETTINGS.units === 'imperial' ? 2.23694 : 3.6);
+    const unit = SETTINGS.units === 'imperial' ? 'MPH' : 'KM/H';
+    c.textAlign = 'right';
+    c.fillStyle = 'rgba(255,255,255,0.96)';
+    c.font = '700 ' + (74 * s).toFixed(0) + 'px -apple-system, Segoe UI, Roboto, sans-serif';
+    c.fillText(String(Math.round(spd)), W - pad, H - pad - 34 * s);
+    c.font = '600 ' + (17 * s).toFixed(0) + 'px -apple-system, Segoe UI, Roboto, sans-serif';
+    c.fillStyle = 'rgba(255,255,255,0.55)';
+    c.fillText(unit, W - pad, H - pad - 10 * s);
+
+    /* ---- rev bar ---- */
+    const barW = 300 * s, barH = 11 * s;
+    const bx = W - pad - barW, by = H - pad - 118 * s;
+    const rpmF = clamp(b.eng.rpm / b.cfg.cutRpm, 0, 1);
+    const limF = b.cfg.limitRpm / b.cfg.cutRpm;
+    c.fillStyle = 'rgba(0,0,0,0.42)';
+    roundRect(c, bx, by, barW, barH, barH / 2); c.fill();
+    const g = c.createLinearGradient(bx, 0, bx + barW, 0);
+    g.addColorStop(0, '#39d353'); g.addColorStop(limF * 0.82, '#e5c04a'); g.addColorStop(limF, '#f0603a');
+    c.fillStyle = g;
+    roundRect(c, bx, by, Math.max(barH, barW * rpmF), barH, barH / 2); c.fill();
+    c.fillStyle = 'rgba(255,255,255,0.85)';
+    c.fillRect(bx + barW * limF, by - 3 * s, 2 * s, barH + 6 * s);
+    // gear
+    c.textAlign = 'left';
+    c.font = '800 ' + (40 * s).toFixed(0) + 'px -apple-system, Segoe UI, Roboto, sans-serif';
+    c.fillStyle = b.eng.stalled ? '#f0603a' : 'rgba(255,255,255,0.95)';
+    c.fillText(b.eng.stalled ? '—' : String(b.eng.gear + 1), bx - 46 * s, by + barH + 6 * s);
+    c.font = '600 ' + (12 * s).toFixed(0) + 'px -apple-system, Segoe UI, Roboto, sans-serif';
+    c.fillStyle = 'rgba(255,255,255,0.45)';
+    c.fillText('GEAR', bx - 46 * s, by - 8 * s);
+
+    /* ---- timing, top left ---- */
+    const R = RACE;
+    c.textAlign = 'left';
+    let y = pad + 20 * s;
+    c.font = '700 ' + (30 * s).toFixed(0) + 'px ui-monospace, SFMono-Regular, Menlo, monospace';
+    c.fillStyle = 'rgba(255,255,255,0.95)';
+    c.fillText(fmtTime(R.lapTime), pad, y);
+    c.font = '600 ' + (13 * s).toFixed(0) + 'px -apple-system, Segoe UI, Roboto, sans-serif';
+    c.fillStyle = 'rgba(255,255,255,0.5)';
+    c.fillText('LAP ' + (R.lap + 1) + (R.totalLaps ? ' / ' + R.totalLaps : ''), pad, y + 20 * s);
+    if (R.best) {
+      c.fillStyle = 'rgba(120,220,150,0.9)';
+      c.fillText('BEST  ' + fmtTime(R.best), pad, y + 40 * s);
+    }
+    if (R.lastSplit !== null && R.splitT > 0) {
+      c.font = '700 ' + (20 * s).toFixed(0) + 'px ui-monospace, monospace';
+      c.fillStyle = R.lastSplit <= 0 ? '#7ee39a' : '#f0805a';
+      c.fillText((R.lastSplit <= 0 ? '-' : '+') + fmtTime(Math.abs(R.lastSplit)), pad, y + 68 * s);
+    }
+
+    /* ---- damage, bottom left ---- */
+    const d = b.dmg;
+    if (d.total > 0.02) {
+      const rows = [['WHEEL F', d.wheelF], ['WHEEL R', d.wheelR], ['FORK', d.suspF],
+                    ['SHOCK', d.suspR], ['ENGINE', d.engine], ['BRAKES', Math.max(d.brakeF, d.brakeR)]];
+      let yy = H - pad - rows.length * 15 * s;
+      c.font = '600 ' + (11 * s).toFixed(0) + 'px -apple-system, Segoe UI, Roboto, sans-serif';
+      for (const [nm, v] of rows) {
+        if (v < 0.02) { yy += 15 * s; continue; }
+        c.fillStyle = 'rgba(255,255,255,0.5)';
+        c.fillText(nm, pad, yy);
+        c.fillStyle = 'rgba(0,0,0,0.35)';
+        c.fillRect(pad + 62 * s, yy - 8 * s, 70 * s, 6 * s);
+        c.fillStyle = v > 0.6 ? '#f0603a' : (v > 0.3 ? '#e5c04a' : '#7ee39a');
+        c.fillRect(pad + 62 * s, yy - 8 * s, 70 * s * clamp(v, 0, 1), 6 * s);
+        yy += 15 * s;
+      }
+    }
+
+    /* ---- suspension telemetry, right edge, only when it matters ---- */
+    if (SETTINGS.hud === 2) {
+      const tx = W - pad - 8 * s;
+      const drawBar = (yy, frac, bottomed, label) => {
+        c.fillStyle = 'rgba(0,0,0,0.35)';
+        c.fillRect(tx, yy, 7 * s, 90 * s);
+        c.fillStyle = bottomed ? '#f0603a' : 'rgba(160,200,255,0.85)';
+        c.fillRect(tx, yy + 90 * s * (1 - frac), 7 * s, 90 * s * frac);
+        c.font = '600 ' + (9 * s).toFixed(0) + 'px sans-serif';
+        c.fillStyle = 'rgba(255,255,255,0.4)';
+        c.textAlign = 'center';
+        c.fillText(label, tx + 3.5 * s, yy + 102 * s);
+      };
+      drawBar(pad + 40 * s, clamp(b.susp.f.x / b.cfg.susp.travelF, 0, 1), b.susp.f.bottom > 0, 'F');
+      drawBar(pad + 160 * s, clamp(b.susp.r.x / b.cfg.susp.travelR, 0, 1), b.susp.r.bottom > 0, 'R');
+    }
+
+    /* ---- centre messages ---- */
+    if (GAME.msgT > 0) {
+      c.textAlign = 'center';
+      c.globalAlpha = clamp(GAME.msgT / 0.6, 0, 1);
+      c.font = '700 ' + (26 * s).toFixed(0) + 'px -apple-system, Segoe UI, Roboto, sans-serif';
+      c.fillStyle = 'rgba(255,255,255,0.92)';
+      c.fillText(GAME.msg, W / 2, H * 0.22);
+      c.globalAlpha = 1;
+    }
+    if (b.crashed) {
+      c.textAlign = 'center';
+      c.font = '800 ' + (34 * s).toFixed(0) + 'px -apple-system, Segoe UI, Roboto, sans-serif';
+      c.fillStyle = 'rgba(240,96,58,0.95)';
+      c.fillText(b.crashReason || 'DOWN', W / 2, H * 0.42);
+      c.font = '600 ' + (15 * s).toFixed(0) + 'px -apple-system, Segoe UI, Roboto, sans-serif';
+      c.fillStyle = 'rgba(255,255,255,0.75)';
+      c.fillText('R  to remount', W / 2, H * 0.42 + 28 * s);
+    }
+    if (GAME.state === 'paused') {
+      c.fillStyle = 'rgba(6,8,12,0.55)';
+      c.fillRect(0, 0, W, H);
+    }
+    c.restore();
+  },
+};
+function roundRect(c, x, y, w, h, r) {
+  c.beginPath();
+  c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r);
+  c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r);
+  c.arcTo(x, y, x + w, y, r); c.closePath();
+}
+function fmtTime(t) {
+  if (t === null || t === undefined || !isFinite(t)) return '--:--.---';
+  const m = Math.floor(t / 60), s = t - m * 60;
+  return (m > 0 ? m + ':' : '') + (s < 10 && m > 0 ? '0' : '') + s.toFixed(3);
+}
+
+
+/* ================================================================ race ===
+   Laps, sectors and the clock. Sectors also stop the lap counting if the
+   rider cuts the course.
+   ======================================================================= */
+const RACE = {
+  mode: 'practice', totalLaps: 0, lap: 0, lapTime: 0, best: null, lastLap: null,
+  splits: [], bestSplits: [], lastSplit: null, splitT: 0,
+  sectors: 8, seen: [], prevProg: 0, started: false, finished: false,
+  total: 0, raceTime: 0, holeshot: false,
+
+  reset(mode, laps) {
+    this.mode = mode || 'practice';
+    this.totalLaps = laps || 0;
+    this.lap = 0; this.lapTime = 0; this.lastLap = null;
+    this.splits = []; this.lastSplit = null; this.splitT = 0;
+    this.seen = new Array(this.sectors).fill(false);
+    this.prevProg = 0; this.started = false; this.finished = false;
+    this.raceTime = 0;
+    if (mode === 'practice') { this.best = null; this.bestSplits = []; }
+  },
+
+  update(b, dt) {
+    if (!TERR.path || this.finished) return;
+    this.total = TERR.path.total;
+    const prog = clamp(b.loc.s / this.total, 0, 0.9999);
+    const sec = Math.min(this.sectors - 1, Math.floor(prog * this.sectors));
+    if (this.started) {
+      this.lapTime += dt; this.raceTime += dt;
+      if (this.splitT > 0) this.splitT -= dt;
+      if (!this.seen[sec]) {
+        this.seen[sec] = true;
+        this.splits[sec] = this.lapTime;
+        if (this.bestSplits[sec] !== undefined) {
+          this.lastSplit = this.lapTime - this.bestSplits[sec];
+          this.splitT = 2.4;
+        }
+      }
+    }
+    // crossing the line, going the right way
+    if (this.prevProg > 0.72 && prog < 0.22) {
+      const complete = this.seen.every(v => v);
+      if (!this.started) {
+        this.started = true; this.lapTime = 0;
+      } else if (complete) {
+        this.lastLap = this.lapTime;
+        if (this.best === null || this.lapTime < this.best) {
+          this.best = this.lapTime;
+          this.bestSplits = this.splits.slice();
+          GAME.flash('BEST LAP  ' + fmtTime(this.lapTime));
+        } else {
+          GAME.flash('LAP ' + (this.lap + 1) + '  ' + fmtTime(this.lapTime));
+        }
+        this.lap++;
+        this.lapTime = 0;
+        this.splits = [];
+        if (this.totalLaps && this.lap >= this.totalLaps) {
+          this.finished = true;
+          GAME.flash('FINISH');
+        }
+      }
+      this.seen.fill(false);
+      this.seen[0] = true;
+    }
+    if (!this.started && V.len(b.v) > 1.2) { this.started = true; this.lapTime = 0; this.seen.fill(false); this.seen[sec] = true; }
+    this.prevProg = prog;
+  },
+};
+
+/* ================================================================ boot === */
+function boot() {
+  const glCanvas = document.getElementById('gl');
+  const hudCanvas = document.getElementById('hud2d');
+  HUD.init(hudCanvas);
+  if (!initGL(glCanvas)) {
+    document.getElementById('hud').innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;' +
+      'text-align:center;padding:32px;font-size:16px;line-height:1.6">' +
+      '<div><b style="font-size:20px">X-MOTO cannot start</b><br><br>' + GL.err +
+      '<br><br>Try a recent Safari, Chrome, Edge or Firefox.</div></div>';
+    return;
+  }
+  PARTICLES.init();
+  INPUT.init();
+  UI.init();
+  window.addEventListener('resize', () => { resizeGL(); HUD.resize(); });
+  GAME.last = performance.now();
+  requestAnimationFrame(loop);
+  UI.showMenu();
+}
+
+
+/* ================================================================== UI ===
+   Everything the player reads is English. Menus are plain DOM so they
+   stay crisp and usable with a finger on a tablet.
+   ======================================================================= */
+const UI_CSS = `
+#hud{pointer-events:none}
+#hud .pane{pointer-events:auto}
+.pane{position:absolute;inset:0;display:flex;flex-direction:column;
+  background:radial-gradient(120% 90% at 50% 0%,rgba(18,24,34,.92),rgba(6,8,12,.97));
+  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);overflow:auto}
+.wrap{margin:auto;width:min(940px,92vw);padding:32px 0 44px}
+.brand{font-size:clamp(34px,7vw,62px);font-weight:900;letter-spacing:-.03em;line-height:.95}
+.brand span{color:#ff5b2e}
+.tag{color:#8b95a6;font-size:13px;letter-spacing:.22em;text-transform:uppercase;margin-top:8px}
+h2{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#79839a;margin:26px 0 12px;font-weight:700}
+.btns{display:flex;flex-direction:column;gap:10px;margin-top:26px}
+.btn{display:flex;align-items:center;justify-content:space-between;gap:14px;
+  background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);color:#e8ecf2;
+  padding:15px 20px;border-radius:13px;font-size:16px;font-weight:650;cursor:pointer;
+  transition:background .13s,border-color .13s,transform .08s;text-align:left;width:100%}
+.btn:hover{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.2)}
+.btn:active{transform:scale(.985)}
+.btn.primary{background:linear-gradient(180deg,#ff6a38,#e8431a);border-color:#ff8a5e;color:#fff}
+.btn.primary:hover{background:linear-gradient(180deg,#ff7b4d,#f14e23)}
+.btn small{color:#98a2b3;font-weight:500;font-size:13px}
+.btn.primary small{color:rgba(255,255,255,.8)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:11px}
+.card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:13px;
+  padding:14px 15px;cursor:pointer;transition:.13s}
+.card:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.18)}
+.card.sel{border-color:#ff6a38;background:rgba(255,106,56,.13)}
+.card b{display:block;font-size:15px;margin-bottom:3px}
+.card span{color:#8b95a6;font-size:12px;line-height:1.45;display:block}
+.card .stat{display:flex;justify-content:space-between;font-size:11px;color:#79839a;margin-top:7px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:11px 2px;
+  border-bottom:1px solid rgba(255,255,255,.06);font-size:14px}
+.row:last-child{border-bottom:none}
+.row .lab{color:#c3cad6}
+.row .hint{color:#79839a;font-size:12px;margin-top:2px}
+.seg{display:flex;gap:5px;flex-wrap:wrap}
+.seg button{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);color:#c3cad6;
+  padding:7px 13px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer}
+.seg button.on{background:#ff6a38;border-color:#ff8a5e;color:#fff}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:14px;color:#c3cad6}
+.keys kbd{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);border-radius:6px;
+  padding:3px 8px;font:600 12px ui-monospace,monospace;white-space:nowrap}
+.back{color:#8b95a6;font-size:13px;cursor:pointer;margin-bottom:18px;display:inline-block}
+.back:hover{color:#e8ecf2}
+.load{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background:#0a0c10;color:#e8ecf2;font-size:15px;letter-spacing:.1em;z-index:20}
+.touchpad{position:absolute;inset:0;pointer-events:auto;touch-action:none;z-index:4}
+`;
+
+const UI = {
+  root: null, screen: 'menu',
+  sel: { track: 'pine_ridge', bike: '450f', weather: 'sunny', mode: 'practice', laps: 3 },
+
+  init() {
+    const st = document.createElement('style');
+    st.textContent = UI_CSS;
+    document.head.appendChild(st);
+    this.root = document.getElementById('hud');
+    try {
+      const s = JSON.parse(localStorage.getItem('xmoto_sel') || 'null');
+      if (s) Object.assign(this.sel, s);
+    } catch (e) {}
+  },
+  save() { try { localStorage.setItem('xmoto_sel', JSON.stringify(this.sel)); } catch (e) {} },
+  clear() { this.root.innerHTML = ''; },
+  pane(html) {
+    this.clear();
+    const d = document.createElement('div');
+    d.className = 'pane';
+    d.innerHTML = '<div class="wrap">' + html + '</div>';
+    this.root.appendChild(d);
+    return d;
+  },
+  on(sel, fn, root) {
+    (root || this.root).querySelectorAll(sel).forEach(el => el.addEventListener('click', (e) => fn(el, e)));
+  },
+  refresh() {
+    if (GAME.state === 'paused') this.showPause();
+    else if (GAME.state === 'playing') { this.clear(); this.touchControls(); }
+  },
+
+  showMenu() {
+    GAME.state = 'menu';
+    this.screen = 'menu';
+    const d = this.pane(`
+      <div class="brand">X<span>-</span>MOTO</div>
+      <div class="tag">Motocross Simulator</div>
+      <div class="btns">
+        <button class="btn primary" data-go="ride">RIDE<small>Jump straight on</small></button>
+        <button class="btn" data-go="mode">PLAY<small>Practice · Time Trial · Race · Championship</small></button>
+        <button class="btn" data-go="garage">GARAGE<small>Choose a bike</small></button>
+        <button class="btn" data-go="track">TRACK SELECT<small>Pick a circuit and the weather</small></button>
+        <button class="btn" data-go="settings">SETTINGS<small>Graphics, assists, camera</small></button>
+        <button class="btn" data-go="controls">CONTROLS<small>Keyboard, controller, touch</small></button>
+      </div>`);
+    this.on('[data-go]', (el) => {
+      const g = el.getAttribute('data-go');
+      if (g === 'ride') this.launch();
+      else if (g === 'mode') this.showMode();
+      else if (g === 'garage') this.showGarage();
+      else if (g === 'track') this.showTrack();
+      else if (g === 'settings') this.showSettings();
+      else if (g === 'controls') this.showControls();
+    }, d);
+  },
+
+  showMode() {
+    const m = this.sel.mode;
+    const d = this.pane(`
+      <span class="back" data-back>‹ Back</span>
+      <h2>Game Mode</h2>
+      <div class="btns">
+        <button class="btn ${m==='practice'?'primary':''}" data-m="practice">PRACTICE<small>Open track, no clock pressure</small></button>
+        <button class="btn ${m==='time'?'primary':''}" data-m="time">TIME TRIAL<small>Chase your own best lap</small></button>
+        <button class="btn ${m==='race'?'primary':''}" data-m="race">RACE<small>Gate drop, ${this.sel.laps} laps</small></button>
+        <button class="btn ${m==='champ'?'primary':''}" data-m="champ">CHAMPIONSHIP<small>Every track in turn</small></button>
+      </div>
+      <h2>Race Length</h2>
+      <div class="seg" id="laps">
+        ${[2,3,5,8].map(n => `<button data-laps="${n}" class="${this.sel.laps===n?'on':''}">${n} LAPS</button>`).join('')}
+      </div>
+      <div class="btns"><button class="btn primary" data-start>START</button></div>`);
+    this.on('[data-back]', () => this.showMenu(), d);
+    this.on('[data-m]', (el) => { this.sel.mode = el.getAttribute('data-m'); this.save(); this.showMode(); }, d);
+    this.on('[data-laps]', (el) => { this.sel.laps = +el.getAttribute('data-laps'); this.save(); this.showMode(); }, d);
+    this.on('[data-start]', () => this.launch(), d);
+  },
+
+  showGarage() {
+    const cards = BIKES.map(b => `
+      <div class="card ${this.sel.bike===b.key?'sel':''}" data-bike="${b.key}">
+        <b>${b.name}</b><span>${b.cls} — ${b.blurb}</span>
+        <div class="stat"><span>Power</span><span>${Math.round(peakPowerKW(b))} kW</span></div>
+        <div class="stat"><span>Weight</span><span>${b.massBike} kg</span></div>
+        <div class="stat"><span>Gears</span><span>${b.gears.length}</span></div>
+      </div>`).join('');
+    const d = this.pane(`<span class="back" data-back>‹ Back</span><h2>Bike Select</h2>
+      <div class="grid">${cards}</div>
+      <div class="btns"><button class="btn primary" data-start>RIDE</button></div>`);
+    this.on('[data-back]', () => this.showMenu(), d);
+    this.on('[data-bike]', (el) => { this.sel.bike = el.getAttribute('data-bike'); this.save(); this.showGarage(); }, d);
+    this.on('[data-start]', () => this.launch(), d);
+  },
+
+  showTrack() {
+    const tcards = TRACKS.map(t => `
+      <div class="card ${this.sel.track===t.key?'sel':''}" data-track="${t.key}">
+        <b>${t.name}</b><span>${t.country} — ${t.blurb}</span></div>`).join('');
+    const wcards = WEATHER.map(w => `
+      <button data-weather="${w.key}" class="${this.sel.weather===w.key?'on':''}">${w.name.toUpperCase()}</button>`).join('');
+    const d = this.pane(`<span class="back" data-back>‹ Back</span>
+      <h2>Track Select</h2><div class="grid">${tcards}</div>
+      <h2>Weather</h2><div class="seg">${wcards}</div>
+      <div class="btns"><button class="btn primary" data-start>RIDE</button></div>`);
+    this.on('[data-back]', () => this.showMenu(), d);
+    this.on('[data-track]', (el) => { this.sel.track = el.getAttribute('data-track'); this.save(); this.showTrack(); }, d);
+    this.on('[data-weather]', (el) => { this.sel.weather = el.getAttribute('data-weather'); this.save(); this.showTrack(); }, d);
+    this.on('[data-start]', () => this.launch(), d);
+  },
+
+  showSettings() {
+    const seg = (key, opts, cur) => `<div class="seg">` +
+      opts.map(o => `<button data-set="${key}" data-val="${o[0]}" class="${String(cur)===String(o[0])?'on':''}">${o[1]}</button>`).join('') + `</div>`;
+    const d = this.pane(`<span class="back" data-back>‹ Back</span><h2>Settings</h2>
+      <div class="row"><div><div class="lab">Rider Assists</div>
+        <div class="hint">Traction and wheelie control, brake modulation</div></div>
+        ${seg('assists', [[0,'OFF'],[1,'REAL'],[2,'HIGH']], SETTINGS.assists)}</div>
+      <div class="row"><div><div class="lab">Auto Shift</div>
+        <div class="hint">Off means Q and E, or the shoulder buttons</div></div>
+        ${seg('autoShift', [[true,'ON'],[false,'OFF']], SETTINGS.autoShift)}</div>
+      <div class="row"><div class="lab">Camera</div>
+        ${seg('camera', [['chase','CHASE'],['bike','BIKE'],['helmet','HELMET'],['fpv','FIRST PERSON'],['replay','REPLAY']], SETTINGS.camera)}</div>
+      <div class="row"><div class="lab">Field of View</div>
+        ${seg('fov', [[58,'58'],[68,'68'],[78,'78'],[88,'88']], SETTINGS.fov)}</div>
+      <div class="row"><div class="lab">Shadows</div>
+        ${seg('shadows', [[true,'ON'],[false,'OFF']], SETTINGS.shadows)}</div>
+      <div class="row"><div class="lab">Draw Distance</div>
+        ${seg('drawDist', [[180,'NEAR'],[320,'NORMAL'],[460,'FAR']], SETTINGS.drawDist)}</div>
+      <div class="row"><div class="lab">Particles</div>
+        ${seg('particles', [[0,'OFF'],[0.5,'LOW'],[1,'NORMAL'],[1.6,'HIGH']], SETTINGS.particles)}</div>
+      <div class="row"><div class="lab">Resolution</div>
+        ${seg('maxDpr', [[1,'LOW'],[1.5,'MEDIUM'],[2,'HIGH']], SETTINGS.maxDpr)}</div>
+      <div class="row"><div class="lab">Telemetry</div>
+        ${seg('hud', [[1,'NORMAL'],[2,'FULL'],[0,'OFF']], SETTINGS.hud)}</div>
+      <div class="row"><div class="lab">Units</div>
+        ${seg('units', [['metric','KM/H'],['imperial','MPH']], SETTINGS.units)}</div>`);
+    this.on('[data-back]', () => this.showMenu(), d);
+    this.on('[data-set]', (el) => {
+      const k = el.getAttribute('data-set');
+      let v = el.getAttribute('data-val');
+      if (v === 'true') v = true; else if (v === 'false') v = false;
+      else if (!isNaN(parseFloat(v)) && k !== 'camera' && k !== 'units') v = parseFloat(v);
+      SETTINGS[k] = v;
+      if (k === 'camera') CAM.mode = v;
+      saveSettings();
+      this.showSettings();
+    }, d);
+  },
+
+  showControls() {
+    const d = this.pane(`<span class="back" data-back>‹ Back</span>
+      <h2>Keyboard</h2>
+      <div class="keys">
+        <kbd>W</kbd><span>Throttle</span>
+        <kbd>S</kbd><span>Front brake</span>
+        <kbd>Space</kbd><span>Rear brake</span>
+        <kbd>A</kbd> <span>Lean and steer left</span>
+        <kbd>D</kbd> <span>Lean and steer right</span>
+        <kbd>I</kbd> <span>Rider weight forward</span>
+        <kbd>K</kbd> <span>Rider weight back</span>
+        <kbd>J</kbd> <span>Throw the body left — whips and scrubs</span>
+        <kbd>L</kbd> <span>Throw the body right</span>
+        <kbd>Shift</kbd><span>Clutch</span>
+        <kbd>Q</kbd> <span>Shift down</span>
+        <kbd>E</kbd> <span>Shift up</span>
+        <kbd>C</kbd> <span>Change camera</span>
+        <kbd>R</kbd> <span>Remount</span>
+        <kbd>Esc</kbd><span>Pause</span>
+      </div>
+      <h2>Controller</h2>
+      <div class="keys">
+        <kbd>RT</kbd><span>Throttle</span>
+        <kbd>LT</kbd><span>Front brake</span>
+        <kbd>A</kbd><span>Rear brake</span>
+        <kbd>X</kbd><span>Clutch</span>
+        <kbd>Left stick</kbd><span>Steer, and rider weight fore and aft</span>
+        <kbd>Right stick</kbd><span>Throw the body — whips and scrubs</span>
+        <kbd>LB / RB</kbd><span>Shift down and up</span>
+      </div>
+      <h2>Touch</h2>
+      <div class="keys">
+        <kbd>Right side</kbd><span>Throttle above, brake below</span>
+        <kbd>Left side</kbd><span>Drag to steer and to move your weight</span>
+      </div>`);
+    this.on('[data-back]', () => this.showMenu(), d);
+  },
+
+  showPause() {
+    const d = this.pane(`
+      <div class="brand" style="font-size:34px">PAUSED</div>
+      <div class="btns">
+        <button class="btn primary" data-p="resume">RESUME</button>
+        <button class="btn" data-p="restart">RESTART</button>
+        <button class="btn" data-p="settings">SETTINGS</button>
+        <button class="btn" data-p="quit">QUIT TO MENU</button>
+      </div>`);
+    this.on('[data-p]', (el) => {
+      const a = el.getAttribute('data-p');
+      if (a === 'resume') GAME.togglePause();
+      else if (a === 'restart') { GAME.placeOnGrid(); RACE.reset(RACE.mode, RACE.totalLaps); GAME.togglePause(); }
+      else if (a === 'settings') this.showSettings();
+      else if (a === 'quit') { GAME.state = 'menu'; this.showMenu(); }
+    }, d);
+  },
+
+  launch() {
+    this.clear();
+    const l = document.createElement('div');
+    l.className = 'load';
+    l.textContent = 'BUILDING TRACK…';
+    this.root.appendChild(l);
+    setTimeout(() => {
+      GAME.start(this.sel.track, this.sel.bike, { weather: this.sel.weather });
+      const laps = this.sel.mode === 'race' || this.sel.mode === 'champ' ? this.sel.laps : 0;
+      RACE.reset(this.sel.mode, laps);
+      this.clear();
+      this.touchControls();
+    }, 30);
+  },
+
+  /* thumb controls, only if the device actually has a touchscreen */
+  touchControls() {
+    if (!('ontouchstart' in window) && !(navigator.maxTouchPoints > 0)) return;
+    const pad = document.createElement('div');
+    pad.className = 'touchpad';
+    this.root.appendChild(pad);
+    const st = { thr: 0, bf: 0, br: 0, steer: 0, leanZ: 0, leanX: 0 };
+    INPUT.touch = st;
+    let leftId = null, rightId = null, lx0 = 0, ly0 = 0;
+    const handle = (e) => {
+      e.preventDefault();
+      const w = window.innerWidth, h = window.innerHeight;
+      st.thr = 0; st.bf = 0; st.br = 0;
+      let anyLeft = false;
+      for (const t of e.touches) {
+        if (t.clientX > w * 0.5) {
+          const rel = (t.clientY - h * 0.25) / (h * 0.5);
+          if (rel < 0.42) st.thr = 1;
+          else if (rel > 0.58) { st.bf = 1; st.br = 0.7; }
+          if (t.clientX > w * 0.86) st.br = 1;
+        } else {
+          anyLeft = true;
+          if (leftId === null || leftId !== t.identifier) { leftId = t.identifier; lx0 = t.clientX; ly0 = t.clientY; }
+          st.steer = clamp((t.clientX - lx0) / (w * 0.16), -1, 1);
+          st.leanZ = clamp(-(t.clientY - ly0) / (h * 0.18), -1, 1);
+        }
+      }
+      if (!anyLeft) { leftId = null; st.steer = 0; st.leanZ = 0; }
+    };
+    pad.addEventListener('touchstart', handle, { passive: false });
+    pad.addEventListener('touchmove', handle, { passive: false });
+    pad.addEventListener('touchend', handle, { passive: false });
+    pad.addEventListener('touchcancel', handle, { passive: false });
+  },
+};
+
+function peakPowerKW(cfg) {
+  let best = 0;
+  for (let rpm = 1000; rpm <= cfg.limitRpm; rpm += 100) {
+    const p = engineTorque(cfg, rpm) * rpm * RPM2RAD / 1000;
+    if (p > best) best = p;
+  }
+  return best;
+}
+
 /* __TAIL__ (new code is inserted above this line) */
 
 /* ---------------------------------------------------------- test hook ----
@@ -1882,11 +4286,18 @@ function riderBrake(b, wantF, wantR, level) {
 const T = {
   V, Q, WORLD, RIDER, SURF, SURFACES, BIKES, BIKE_BY_KEY, TRACKS, TRACK_BY_KEY,
   TERR, buildTrack, buildPath, profileEval, profileLen, FEAT, whoopProfile,
-  seriesProfile, keyLerp, clamp, lerp, smoothstep, mulberry32,
-  buildFlat, makeBike, resetBike, physStep, autoGearbox, riderThrottle, riderBrake, stepBike, makeInput, engineTorque,
+  seriesProfile, keyLerp, clamp, lerp, smoothstep, mulberry32, Mesh, segMatrix,
+  buildRiderMeshes, buildBikeMeshes,
+  buildFlat, makeBike, resetBike, physStep, autoGearbox, riderThrottle, riderBrake,
+  GAME, RACE, SCENE, CAM, SETTINGS, UI, HUD, GL, TR, RENDER, PARTICLES, WEATHER,
+  steerPivotBody, swingPivotBody, axleInSteerFrame, peakPowerKW, M4, ik2, stepBike, makeInput, engineTorque,
   mfLong, mfLat, loadSens, strutAxes, designSag, suspForce, bikeInertia,
 };
-if (typeof window !== 'undefined') window.T = T;
+if (typeof window !== 'undefined') {
+  window.T = T;
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+}
 if (typeof module !== 'undefined' && module.exports) module.exports = T;
 </script>
 </body>
