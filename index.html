@@ -1958,6 +1958,16 @@ function program(gl, vs, fs, name) {
   const p = gl.createProgram();
   gl.attachShader(p, compile(gl, gl.VERTEX_SHADER, vs, name + ' vertex'));
   gl.attachShader(p, compile(gl, gl.FRAGMENT_SHADER, fs, name + ' fragment'));
+  /* Pin the attribute slots. A vertex array object records which slot each
+     buffer feeds, so a mesh set up for one program only draws correctly
+     under another if they agree. The depth program has just one attribute
+     and would otherwise put it in slot 0, read the object program's
+     normals as positions, and fill the shadow map with nonsense — which
+     looks like a bike parked in permanent shade. */
+  gl.bindAttribLocation(p, 0, 'aPos');
+  gl.bindAttribLocation(p, 1, 'aNrm');
+  gl.bindAttribLocation(p, 2, 'aCol');
+  gl.bindAttribLocation(p, 3, 'aCorner');
   gl.linkProgram(p);
   if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
     throw new Error(name + ' link: ' + gl.getProgramInfoLog(p));
@@ -2627,7 +2637,7 @@ function axleInSteerFrame(cfg) {
 /* The swingarm pivot: about a hand's width ahead of the engine cases and
    a little above the countershaft, which is where every one of them is. */
 function swingPivotBody(cfg) {
-  return BP(0, cfg.axleR[1] + 0.155, -0.055);
+  return BP(0, cfg.axleR[1] + 0.105, -0.050);
 }
 
 /* ---------------------------------------------------------- the bike ---- */
@@ -2647,62 +2657,77 @@ function buildBikeMeshes(cfg) {
   const plast = [P[0], P[1], P[2], 1.0];
   const dark = [P[0] * 0.35, P[1] * 0.35, P[2] * 0.35, 1.0];
   const white = [0.90, 0.91, 0.93, 1.0];
-  const fA = cfg.axleF, rA = cfg.axleR;
-  const fwdF = -fA[2], fwdR = -rA[2];
   const scale = cfg.wheelbase / 1.48;
 
-  /* ---- main chassis: frame, motor, bodywork, exhaust --------------- */
+  /* ---- main chassis: frame, motor, bodywork, exhaust ---------------
+     Everything is given as a HEIGHT ABOVE GROUND through G(), so the
+     numbers can be checked against a real bike instead of against the
+     centre of mass, which moves from model to model. */
+  const G = (h) => h - cfg.cogH;
+  const W = 0.105 * scale;                    // half the frame width
   const ch = new Mesh();
-  // twin spar frame
-  const spar = (side) => {
-    const s = side * 0.105 * scale;
-    ch.tube(BP(s, 0.34, 0.44), BP(s, 0.30, 0.10), 0.028, 0.032, 8, COL.frame, true);
-    ch.tube(BP(s, 0.30, 0.10), BP(s, -0.12, -0.06), 0.030, 0.026, 8, COL.frame, true);
-    ch.tube(BP(s, 0.34, 0.44), BP(s, -0.05, 0.30), 0.024, 0.024, 8, COL.frame, true);
-    ch.tube(BP(s, -0.05, 0.30), BP(s, -0.20, 0.02), 0.022, 0.022, 8, COL.frame, true);
-  };
-  spar(1); spar(-1);
-  ch.tube(BP(-0.105 * scale, 0.34, 0.44), BP(0.105 * scale, 0.34, 0.44), 0.030, 0.030, 8, COL.frame, true);
-  // head tube, on the steering axis
   {
-    const piv = steerPivotBody(cfg);
-    const u = strutAxes(cfg).uF;
-    ch.tube(V.add(piv, V.mul(u, 0.44)), V.add(piv, V.mul(u, 0.60)), 0.042, 0.042, 10, COL.frame, true);
+    const headLo = BP(0, G(0.90), 0.615 * scale), headHi = BP(0, G(1.06), 0.575 * scale);
+    // perimeter frame: head tube, twin spars over the engine, down tubes
+    ch.tube(headLo, headHi, 0.043, 0.041, 10, COL.frame, true);
+    for (const sd of [-1, 1]) {
+      const sp = sd * W;
+      ch.tube(BP(0, G(1.03), 0.60 * scale), BP(sp, G(0.93), 0.40 * scale), 0.028, 0.030, 8, COL.frame, true);
+      ch.tube(BP(sp, G(0.93), 0.40 * scale), BP(sp, G(0.86), -0.04 * scale), 0.030, 0.028, 8, COL.frame, true);
+      ch.tube(BP(sp, G(0.86), -0.04 * scale), BP(sp * 0.85, G(0.47), -0.09 * scale), 0.026, 0.026, 8, COL.frame, true);
+      // down tube and cradle
+      ch.tube(BP(0, G(0.92), 0.60 * scale), BP(sp * 0.75, G(0.56), 0.34 * scale), 0.024, 0.024, 8, COL.frame, true);
+      ch.tube(BP(sp * 0.75, G(0.56), 0.34 * scale), BP(sp * 0.72, G(0.28), 0.10 * scale), 0.021, 0.021, 7, COL.frame, true);
+      ch.tube(BP(sp * 0.72, G(0.28), 0.10 * scale), BP(sp * 0.80, G(0.45), -0.09 * scale), 0.021, 0.021, 7, COL.frame, true);
+      // subframe out to the tail
+      ch.tube(BP(sp * 0.85, G(0.88), -0.06 * scale), BP(sp * 0.78, G(0.94), -0.48 * scale), 0.017, 0.015, 6, COL.frameBlk, true);
+      ch.tube(BP(sp * 0.85, G(0.60), -0.10 * scale), BP(sp * 0.78, G(0.92), -0.40 * scale), 0.015, 0.014, 6, COL.frameBlk, true);
+    }
+
+    // engine: cases low and wide, cylinder leaning forward out of them
+    ch.box(BP(0, G(0.32), 0.02 * scale), [0.125 * scale, 0.115, 0.150], COL.engCase);
+    ch.box(BP(0, G(0.55), 0.10 * scale), [0.085 * scale, 0.125, 0.105], COL.engine);
+    ch.box(BP(0, G(0.72), 0.13 * scale), [0.070 * scale, 0.055, 0.085], COL.engine);
+    ch.tube(BP(-0.17 * scale, G(0.31), -0.03 * scale), BP(0.17 * scale, G(0.31), -0.03 * scale),
+            0.052, 0.052, 10, COL.engCase, true);
+    ch.tube(BP(-0.09 * scale, G(0.435), -0.055 * scale), BP(0.09 * scale, G(0.435), -0.055 * scale),
+            0.062, 0.062, 12, [0.36, 0.36, 0.38, 0.35], true);      // countershaft cover
+    ch.tube(BP(0.085 * scale, G(0.435), -0.055 * scale), BP(0.105 * scale, G(0.435), -0.055 * scale),
+            0.048, 0.048, 12, [0.55, 0.55, 0.58, 0.3], true);       // front sprocket
+
+    // radiators, shrouds, tank, seat
+    for (const sd of [-1, 1]) {
+      ch.box(BP(sd * 0.135 * scale, G(0.78), 0.34 * scale), [0.024, 0.105, 0.075], [0.50, 0.52, 0.55, 0.3]);
+      ch.box(BP(sd * 0.150 * scale, G(0.83), 0.30 * scale), [0.016, 0.115, 0.135], plast);
+      ch.box(BP(sd * 0.105 * scale, G(0.93), 0.20 * scale), [0.032, 0.055, 0.135], plast);
+    }
+    ch.box(BP(0, G(0.925), 0.235 * scale), [0.095 * scale, 0.060, 0.145], white);
+    ch.box(BP(0, G(0.965), 0.04 * scale), [0.085 * scale, 0.030, 0.130], COL.seat);
+    ch.box(BP(0, G(0.955), -0.20 * scale), [0.080 * scale, 0.032, 0.190], COL.seat);
+    ch.box(BP(0, G(0.945), -0.40 * scale), [0.062 * scale, 0.028, 0.100], COL.seat);
+    // side panels and rear fender
+    for (const sd of [-1, 1]) ch.box(BP(sd * 0.098 * scale, G(0.88), -0.31 * scale), [0.012, 0.062, 0.130], plast);
+    ch.box(BP(0, G(0.99), -0.56 * scale), [0.070 * scale, 0.018, 0.135], plast);
+    ch.box(BP(0, G(0.955), -0.66 * scale), [0.050 * scale, 0.048, 0.030], white);   // rear plate
+
+    // exhaust
+    if (cfg.strokes === 4) {
+      ch.tube(BP(0.045, G(0.78), 0.20 * scale), BP(0.10 * scale, G(0.66), 0.02 * scale), 0.020, 0.022, 8, COL.pipe, true);
+      ch.tube(BP(0.10 * scale, G(0.66), 0.02 * scale), BP(0.115 * scale, G(0.86), -0.40 * scale), 0.027, 0.042, 10, COL.pipe, true);
+      ch.tube(BP(0.115 * scale, G(0.86), -0.40 * scale), BP(0.115 * scale, G(0.88), -0.60 * scale), 0.042, 0.038, 10, [0.19, 0.19, 0.21, 0.35], true);
+    } else {
+      ch.tube(BP(0.025, G(0.80), 0.24 * scale), BP(0.125 * scale, G(0.62), 0.04 * scale), 0.025, 0.052, 10, COL.pipe, true);
+      ch.tube(BP(0.125 * scale, G(0.62), 0.04 * scale), BP(0.105 * scale, G(0.78), -0.30 * scale), 0.052, 0.026, 10, COL.pipe, true);
+      ch.tube(BP(0.105 * scale, G(0.78), -0.30 * scale), BP(0.098 * scale, G(0.84), -0.52 * scale), 0.028, 0.026, 8, [0.19, 0.19, 0.21, 0.35], true);
+    }
+    // pegs, brake pedal, kick of the rear brake master
+    for (const sd of [-1, 1]) {
+      ch.box(BP(sd * 0.235 * scale, G(0.335), -0.05 * scale), [0.052, 0.009, 0.028], [0.52, 0.53, 0.56, 0.35]);
+      ch.tube(BP(sd * 0.115 * scale, G(0.40), -0.05 * scale), BP(sd * 0.225 * scale, G(0.345), -0.05 * scale),
+              0.010, 0.010, 5, [0.45, 0.46, 0.50, 0.35], true);
+    }
+    ch.tube(BP(0.13, G(0.42), 0.02 * scale), BP(0.21, G(0.33), 0.20 * scale), 0.008, 0.008, 5, COL.frameBlk, true);
   }
-  // engine
-  ch.box(BP(0, -0.055, 0.06), [0.115 * scale, 0.135, 0.130], COL.engine);
-  ch.box(BP(0, 0.105, 0.055), [0.075 * scale, 0.080, 0.085], COL.engine);   // cylinder
-  ch.box(BP(0, -0.155, -0.01), [0.135 * scale, 0.070, 0.145], COL.engCase); // cases
-  ch.tube(BP(-0.16 * scale, -0.16, -0.06), BP(0.16 * scale, -0.16, -0.06), 0.045, 0.045, 10, COL.engCase, true);
-  // radiators
-  for (const s of [-1, 1]) ch.box(BP(s * 0.135 * scale, 0.145, 0.235), [0.022, 0.095, 0.070], [0.55, 0.56, 0.58, 0.3]);
-  // shrouds and tank
-  for (const s of [-1, 1]) {
-    ch.box(BP(s * 0.150 * scale, 0.215, 0.225), [0.020, 0.105, 0.115], plast);
-    ch.box(BP(s * 0.115 * scale, 0.300, 0.140), [0.045, 0.055, 0.130], plast);
-  }
-  ch.box(BP(0, 0.290, 0.170), [0.105 * scale, 0.070, 0.150], white);
-  // seat and subframe
-  ch.box(BP(0, 0.345, -0.115), [0.085 * scale, 0.045, 0.255], COL.seat);
-  ch.box(BP(0, 0.320, -0.360), [0.070 * scale, 0.035, 0.100], COL.seat);
-  for (const s of [-1, 1]) ch.tube(BP(s * 0.09 * scale, 0.30, -0.02), BP(s * 0.075 * scale, 0.31, -0.44), 0.016, 0.014, 6, COL.frameBlk, true);
-  // rear fender and side panels
-  ch.box(BP(0, 0.355, -0.510), [0.075 * scale, 0.022, 0.130], plast);
-  for (const s of [-1, 1]) ch.box(BP(s * 0.095 * scale, 0.255, -0.330), [0.016, 0.075, 0.135], plast);
-  // exhaust
-  if (cfg.strokes === 4) {
-    ch.tube(BP(0.05, 0.145, 0.14), BP(0.115 * scale, 0.10, -0.05), 0.021, 0.023, 8, COL.pipe, true);
-    ch.tube(BP(0.115 * scale, 0.10, -0.05), BP(0.125 * scale, 0.245, -0.44), 0.030, 0.045, 10, COL.pipe, true);
-    ch.tube(BP(0.125 * scale, 0.245, -0.44), BP(0.125 * scale, 0.255, -0.60), 0.045, 0.040, 10, [0.20,0.20,0.22,0.35], true);
-  } else {
-    ch.tube(BP(0.03, 0.16, 0.18), BP(0.135 * scale, 0.06, -0.02), 0.026, 0.055, 10, COL.pipe, true);
-    ch.tube(BP(0.135 * scale, 0.06, -0.02), BP(0.115 * scale, 0.16, -0.34), 0.055, 0.028, 10, COL.pipe, true);
-    ch.tube(BP(0.115 * scale, 0.16, -0.34), BP(0.105 * scale, 0.21, -0.52), 0.030, 0.028, 8, [0.20,0.20,0.22,0.35], true);
-  }
-  // pegs and levers
-  for (const s of [-1, 1]) ch.box(BP(s * 0.245 * scale, -0.278, -0.045), [0.055, 0.010, 0.030], [0.55,0.56,0.58,0.35]);
-  ch.tube(BP(0.14, -0.20, 0.10), BP(0.20, -0.24, -0.02), 0.008, 0.008, 5, COL.frameBlk, true);
-  // front number plate is on the steering assembly, not here
 
   /* ---- steering assembly ------------------------------------------
      Built in the STEERING frame: origin at the point where the steering
@@ -2712,18 +2737,22 @@ function buildBikeMeshes(cfg) {
   const st = new Mesh();
   const axSF = axleInSteerFrame(cfg);       // where the axle sits in that frame
   {
-    const topY = axSF[1] + 0.62 * scale;
+    const topY = axSF[1] + 0.80 * scale;
     // triple clamps
-    for (const d of [0.40, 0.55]) {
-      st.box([0, axSF[1] + d * scale, axSF[2] * 0.35], [0.115 * scale, 0.018, 0.040], [0.60, 0.62, 0.66, 0.35]);
+    for (const d of [0.55, 0.755]) {
+      st.box([0, axSF[1] + d * scale, axSF[2] * 0.35], [0.115 * scale, 0.019, 0.042], [0.58, 0.60, 0.64, 0.35]);
     }
     // upper fork tubes, from inside the lowers up through the clamps
     for (const sgn of [-1, 1]) {
-      st.tube([sgn * 0.098 * scale, axSF[1] + 0.16 * scale, axSF[2]],
+      st.tube([sgn * 0.098 * scale, axSF[1] + 0.30 * scale, axSF[2]],
               [sgn * 0.098 * scale, topY, axSF[2]], 0.026, 0.026, 10, COL.fork, true);
     }
     // handlebar with grips and levers
-    const barY = topY + 0.055, barZ = axSF[2] - 0.055;
+    const barY = axSF[1] + 0.93 * scale, barZ = axSF[2] - 0.055;
+    for (const sgn of [-1, 1]) {
+      st.tube([sgn * 0.045, axSF[1] + 0.77 * scale, axSF[2] * 0.35],
+              [sgn * 0.045, barY - 0.012, barZ + 0.008], 0.019, 0.017, 7, [0.45, 0.46, 0.50, 0.35], true);
+    }
     st.tube([-0.345, barY, barZ], [0.345, barY, barZ], 0.014, 0.014, 8, [0.50, 0.14, 0.11, 0.5], true);
     st.tube([-0.05, barY - 0.02, barZ + 0.02], [-0.05, barY, barZ], 0.016, 0.016, 6, [0.3,0.3,0.32,0.4], true);
     st.tube([0.05, barY - 0.02, barZ + 0.02], [0.05, barY, barZ], 0.016, 0.016, 6, [0.3,0.3,0.32,0.4], true);
@@ -2732,14 +2761,14 @@ function buildBikeMeshes(cfg) {
       st.tube([sgn * 0.20, barY - 0.005, barZ], [sgn * 0.29, barY - 0.03, barZ + 0.03], 0.007, 0.006, 5, [0.6,0.6,0.62,0.3], true);
     }
     st.box([0, barY - 0.02, barZ + 0.10], [0.090 * scale, 0.080, 0.012], plast);      // number plate
-    st.box([0, axSF[1] + 0.30 * scale, axSF[2] - 0.20], [0.090 * scale, 0.014, 0.185], plast);  // front fender
+    st.box([0, axSF[1] + 0.36 * scale, axSF[2] - 0.19], [0.088 * scale, 0.013, 0.190], plast);  // front fender
   }
 
   /* ---- fork lowers: same frame, origin AT THE AXLE ------------------ */
   const fl = new Mesh();
   for (const sgn of [-1, 1]) {
-    fl.tube([sgn * 0.098 * scale, 0.0, 0], [sgn * 0.098 * scale, 0.30 * scale, 0],
-            0.034, 0.032, 10, [0.18, 0.18, 0.21, 0.4], true);
+    fl.tube([sgn * 0.098 * scale, 0.0, 0], [sgn * 0.098 * scale, 0.34 * scale, 0],
+            0.035, 0.033, 10, [0.18, 0.18, 0.21, 0.4], true);
     fl.box([sgn * 0.098 * scale, 0.02, 0.01], [0.030, 0.035, 0.030], [0.30,0.30,0.33,0.35]);
   }
   fl.box([-0.115 * scale, 0.055, 0.02], [0.020, 0.048, 0.045], [0.55, 0.56, 0.60, 0.3]);
@@ -2787,38 +2816,26 @@ function buildBikeMeshes(cfg) {
 function buildRiderMeshes() {
   const prog = GL.prog.obj;
   const seg = new Mesh();
-  // a tapered capsule from the origin along +Y, one unit long, unit radius
-  {
-    const S = 12, R = 10;
-    const rows = [];
-    for (let j = 0; j <= R; j++) {
-      const t = j / R;
-      const y = t;
-      const rad = Math.sin(Math.PI * (0.18 + 0.64 * t)) * 1.0;
-      const row = [];
-      for (let i = 0; i < S; i++) {
-        const a = (i / S) * TAU;
-        const p = [Math.cos(a) * rad, y, Math.sin(a) * rad];
-        row.push(seg.vert(p, V.norm([Math.cos(a), 0.25 * (t < 0.5 ? -1 : 1), Math.sin(a)]), [1, 1, 1, 1]));
-      }
-      rows.push(row);
-    }
-    for (let j = 0; j < R; j++) for (let i = 0; i < S; i++) {
-      const i2 = (i + 1) % S;
-      seg.quad(rows[j][i], rows[j + 1][i], rows[j + 1][i2], rows[j][i2]);
-    }
-    const capA = seg.vert([0, -0.06, 0], [0, -1, 0], [1, 1, 1, 1]);
-    const capB = seg.vert([0, 1.06, 0], [0, 1, 0], [1, 1, 1, 1]);
-    for (let i = 0; i < S; i++) {
-      const i2 = (i + 1) % S;
-      seg.tri(capA, rows[0][i2], rows[0][i]);
-      seg.tri(capB, rows[R][i], rows[R][i2]);
-    }
-  }
+  /* One unit-long, unit-radius limb along +Y, reused for every arm and leg
+     and squeezed to size by segMatrix. Built from the same tube routine
+     the frame uses: a hand-rolled version of this had its triangles wound
+     the other way round and every limb was quietly culled away, which
+     looks exactly like a rider with no arms. */
+  seg.tube([0, 0.06, 0], [0, 0.94, 0], 0.92, 0.80, 10, [1, 1, 1, 1], true);
+  seg.tube([0, 0.0, 0], [0, 0.10, 0], 0.55, 0.94, 8, [1, 1, 1, 1], true);
+  seg.tube([0, 0.90, 0], [0, 1.0, 0], 0.82, 0.50, 8, [1, 1, 1, 1], true);
+
+  /* Torso: hips to shoulders along +Y, one unit tall, so the same matrix
+     helper places it. Chest protector over the top. */
   const torso = new Mesh();
-  torso.box([0, 0.24, 0.02], [0.185, 0.245, 0.125], [1, 1, 1, 1]);
-  torso.box([0, 0.47, 0.01], [0.195, 0.055, 0.115], [1, 1, 1, 1]);   // shoulders
-  torso.box([0, 0.02, 0.00], [0.150, 0.075, 0.110], [1, 1, 1, 1]);   // hips
+  torso.tube([0, 0.02, 0.01], [0, 0.44, 0.02], 0.165, 0.185, 12, [1, 1, 1, 1], true);
+  torso.tube([0, 0.44, 0.02], [0, 0.62, 0.00], 0.185, 0.150, 12, [1, 1, 1, 1], true);
+  torso.tube([-0.20, 0.56, 0.0], [0.20, 0.56, 0.0], 0.085, 0.085, 10, [1, 1, 1, 1], true);  // shoulders
+  torso.tube([0, 0.60, -0.01], [0, 0.70, -0.01], 0.070, 0.062, 8, [0.85, 0.80, 0.74, 0.5], true); // neck
+  torso.box([0, 0.40, 0.14], [0.135, 0.135, 0.030], [0.92, 0.93, 0.95, 0.9]);   // chest protector
+  torso.box([0, 0.40, -0.14], [0.135, 0.150, 0.028], [0.92, 0.93, 0.95, 0.9]);  // back plate
+  torso.tube([-0.155, 0.06, 0], [0.155, 0.06, 0], 0.085, 0.085, 10, [0.14, 0.14, 0.16, 0.8], true); // belt
+
   const helmet = new Mesh();
   {
     const S = 14, R = 10;
@@ -2829,7 +2846,7 @@ function buildRiderMeshes() {
       for (let i = 0; i < S; i++) {
         const th = (i / S) * TAU;
         const n = [Math.sin(ph) * Math.cos(th), Math.cos(ph), Math.sin(ph) * Math.sin(th)];
-        const p = [n[0] * 0.135, n[1] * 0.150, n[2] * 0.145 + 0.01];
+        const p = [n[0] * 0.135, n[1] * 0.152, n[2] * 0.148 + 0.012];
         row.push(helmet.vert(p, n, [1, 1, 1, 1]));
       }
       rows.push(row);
@@ -2838,8 +2855,9 @@ function buildRiderMeshes() {
       const i2 = (i + 1) % S;
       helmet.quad(rows[j][i], rows[j][i2], rows[j + 1][i2], rows[j + 1][i]);
     }
-    helmet.box([0, -0.01, 0.15], [0.085, 0.055, 0.055], [0.06, 0.07, 0.10, 0.9]);   // visor
-    helmet.box([0, 0.09, 0.17], [0.095, 0.030, 0.075], [1, 1, 1, 1]);               // peak
+    helmet.box([0, -0.020, 0.150], [0.088, 0.052, 0.050], [0.06, 0.07, 0.11, 0.9]);   // visor
+    helmet.box([0, 0.100, 0.165], [0.098, 0.026, 0.080], [1, 1, 1, 1]);               // peak
+    helmet.box([0, -0.105, 0.115], [0.075, 0.048, 0.060], [1, 1, 1, 1]);              // chin bar
   }
   return { seg: seg.upload(prog), torso: torso.upload(prog), helmet: helmet.upload(prog) };
 }
@@ -3132,7 +3150,7 @@ const RENDER = {
     const head = V.add(shoulders, V.mul(torsoUp, 0.145));
     // grips and pegs, taken straight from the bike's own transforms
     const grip = (s) => xform(mats.steerM, [s * 0.310, this.gripY(cfg), this.gripZ(cfg)]);
-    const peg = (s) => xform(mats.chassisM, BP(s * 0.245, cfg.axleR[1] + 0.075, -0.045));
+    const peg = (s) => xform(mats.chassisM, BP(s * 0.235 * (cfg.wheelbase / 1.48), 0.335 - cfg.cogH, -0.05 * (cfg.wheelbase / 1.48)));
     return {
       pelvis, shoulders, head, torsoUp, rt, fw,
       handL: grip(-1), handR: grip(1),
@@ -3141,54 +3159,46 @@ const RENDER = {
       hipL: V.add(pelvis, V.mul(rt, -0.115)), hipR: V.add(pelvis, V.mul(rt, 0.115)),
     };
   },
-  gripY(cfg) { const a = axleInSteerFrame(cfg); return a[1] + 0.62 * (cfg.wheelbase / 1.48) + 0.055; },
+  gripY(cfg) { const a = axleInSteerFrame(cfg); return a[1] + 0.93 * (cfg.wheelbase / 1.48); },
   gripZ(cfg) { const a = axleInSteerFrame(cfg); return a[2] - 0.055; },
 
   drawRider(prog, b, mats, depthOnly) {
     if (this.__hideRider) return;
-
     const R = this.rider, P = this.riderPose(b, mats);
-    const gear = b.gearCol || [0.85, 0.15, 0.12];
-    const pants = [gear[0] * 0.3 + 0.06, gear[1] * 0.3 + 0.06, gear[2] * 0.3 + 0.09];
+    const gear = b.gearCol || [0.86, 0.15, 0.12];
+    const pants = [0.13, 0.13, 0.16];
     const mud = depthOnly ? 0 : b.mud;
-    // torso
-    const tm = new Float32Array([
-      P.rt[0], P.rt[1], P.rt[2], 0,
-      P.torsoUp[0], P.torsoUp[1], P.torsoUp[2], 0,
-      P.fw[0], P.fw[1], P.fw[2], 0,
-      P.pelvis[0], P.pelvis[1], P.pelvis[2], 1]);
-    this.drawMesh(prog, R.torso, tm, gear, 0.05, mud);
-    // helmet
-    const hm = new Float32Array([
-      P.rt[0], P.rt[1], P.rt[2], 0,
-      P.torsoUp[0], P.torsoUp[1], P.torsoUp[2], 0,
-      P.fw[0], P.fw[1], P.fw[2], 0,
-      P.head[0], P.head[1], P.head[2], 1]);
-    this.drawMesh(prog, R.helmet, hm, [0.93, 0.94, 0.96], 0.55, mud * 0.7);
-    // arms and legs, bent by where the hands and feet actually are
-    const poleA = V.mul(P.fw, -1);
-    const poleL = V.add(P.fw, V.mul(P.torsoUp, -0.4));
+    const frame = (org, up, rt, fw, s) => new Float32Array([
+      rt[0]*s, rt[1]*s, rt[2]*s, 0,
+      up[0]*s, up[1]*s, up[2]*s, 0,
+      fw[0]*s, fw[1]*s, fw[2]*s, 0,
+      org[0], org[1], org[2], 1]);
+    this.drawMesh(prog, R.torso, frame(P.pelvis, P.torsoUp, P.rt, P.fw, 1), gear, 0.06, mud);
+    this.drawMesh(prog, R.helmet, frame(P.head, P.torsoUp, P.rt, P.fw, 1), [0.94, 0.95, 0.97], 0.55, mud * 0.7);
+
     /* Once the rider is off the bike the hands are not on the grips any
        more, so the limbs hang from the body instead of reaching for them. */
     if (b.rider.off) {
-      P.handL = V.add(P.shL, V.add(V.mul(P.fw, 0.30), V.mul(P.torsoUp, -0.30)));
-      P.handR = V.add(P.shR, V.add(V.mul(P.fw, 0.30), V.mul(P.torsoUp, -0.28)));
-      P.footL = V.add(P.hipL, V.add(V.mul(P.fw, 0.35), V.mul(P.torsoUp, -0.62)));
-      P.footR = V.add(P.hipR, V.add(V.mul(P.fw, 0.38), V.mul(P.torsoUp, -0.60)));
+      P.handL = V.add(P.shL, V.add(V.mul(P.fw, 0.28), V.mul(P.torsoUp, -0.32)));
+      P.handR = V.add(P.shR, V.add(V.mul(P.fw, 0.30), V.mul(P.torsoUp, -0.30)));
+      P.footL = V.add(P.hipL, V.add(V.mul(P.fw, 0.32), V.mul(P.torsoUp, -0.64)));
+      P.footR = V.add(P.hipR, V.add(V.mul(P.fw, 0.36), V.mul(P.torsoUp, -0.62)));
     }
-    const arms = [[P.shL, P.handL, -1], [P.shR, P.handR, 1]];
-    for (const [sh, hand, sgn] of arms) {
-      const el = ik2(sh, hand, 0.30, 0.29, V.add(poleA, V.mul(P.rt, sgn * 0.5)));
-      this.drawMesh(prog, R.seg, segMatrix(sh, el, 0.062), gear, 0.05, mud);
-      this.drawMesh(prog, R.seg, segMatrix(el, hand, 0.052), gear, 0.05, mud);
-      this.drawMesh(prog, R.seg, segMatrix(hand, V.add(hand, V.mul(P.fw, 0.09)), 0.048), COL.glove, 0.1, mud);
+    // elbows go out and down, knees go forward: that is the attack position
+    for (const [sh, hand, sgn] of [[P.shL, P.handL, -1], [P.shR, P.handR, 1]]) {
+      const pole = V.add(V.mul(P.fw, -0.7), V.add(V.mul(P.rt, sgn * 1.0), V.mul(P.torsoUp, 0.25)));
+      const el = ik2(sh, hand, 0.30, 0.29, pole);
+      this.drawMesh(prog, R.seg, segMatrix(sh, el, 0.072), gear, 0.06, mud);
+      this.drawMesh(prog, R.seg, segMatrix(el, hand, 0.060), gear, 0.06, mud);
+      this.drawMesh(prog, R.seg, segMatrix(hand, V.add(hand, V.mul(P.fw, 0.10)), 0.055), COL.glove, 0.12, mud);
     }
-    const legs = [[P.hipL, P.footL, -1], [P.hipR, P.footR, 1]];
-    for (const [hip, foot, sgn] of legs) {
-      const kn = ik2(hip, foot, 0.43, 0.42, V.add(P.fw, V.mul(P.rt, sgn * 0.35)));
-      this.drawMesh(prog, R.seg, segMatrix(hip, kn, 0.085), pants, 0.05, mud);
-      this.drawMesh(prog, R.seg, segMatrix(kn, foot, 0.068), pants, 0.05, mud);
-      this.drawMesh(prog, R.seg, segMatrix(foot, V.add(foot, V.mul(P.fw, 0.16)), 0.058), COL.boot, 0.25, mud);
+    for (const [hip, foot, sgn] of [[P.hipL, P.footL, -1], [P.hipR, P.footR, 1]]) {
+      const pole = V.add(V.mul(P.fw, 1.0), V.mul(P.rt, sgn * 0.45));
+      const kn = ik2(hip, foot, 0.43, 0.42, pole);
+      this.drawMesh(prog, R.seg, segMatrix(hip, kn, 0.105), pants, 0.05, mud);
+      this.drawMesh(prog, R.seg, segMatrix(kn, foot, 0.082), pants, 0.05, mud);
+      this.drawMesh(prog, R.seg, segMatrix(foot, V.add(V.add(foot, V.mul(P.fw, 0.20)),
+        V.mul(P.torsoUp, -0.02)), 0.072), COL.boot, 0.30, mud);
     }
   },
 };
