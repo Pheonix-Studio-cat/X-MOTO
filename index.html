@@ -117,25 +117,25 @@ const SURF = {
 };
 const SURFACES = [
   { id: 0, key: 'hardpack', name: 'Hard Pack',
-    grip: 0.95, gripWet: 0.52, roll: 0.022, rutRate: 0.020, rutMax: 0.020,
+    grip: 0.95, gripWet: 0.52, gripPacked: 0.95, roll: 0.022, rutRate: 0.020, rutMax: 0.020,
     hardness: 1.00, dust: 0.55, spray: 0.10, col: [0.44, 0.36, 0.28], rough: 0.012 },
   { id: 1, key: 'soft', name: 'Soft Dirt',
-    grip: 1.14, gripWet: 0.80, roll: 0.046, rutRate: 0.55, rutMax: 0.115,
+    grip: 1.14, gripWet: 0.80, gripPacked: 0.96, roll: 0.046, rutRate: 0.55, rutMax: 0.115,
     hardness: 0.55, dust: 1.00, spray: 0.25, col: [0.36, 0.26, 0.18], rough: 0.030 },
   { id: 2, key: 'mud', name: 'Mud',
-    grip: 0.44, gripWet: 0.34, roll: 0.082, rutRate: 0.80, rutMax: 0.160,
+    grip: 0.58, gripWet: 0.42, gripPacked: 0.42, roll: 0.082, rutRate: 0.70, rutMax: 0.130,
     hardness: 0.35, dust: 0.05, spray: 1.00, col: [0.24, 0.19, 0.14], rough: 0.038 },
   { id: 3, key: 'sand',  name: 'Sand',
-    grip: 0.92, gripWet: 0.95, roll: 0.115, rutRate: 0.95, rutMax: 0.175,
+    grip: 0.92, gripWet: 0.95, gripPacked: 0.92, roll: 0.115, rutRate: 0.95, rutMax: 0.175,
     hardness: 0.28, dust: 0.85, spray: 0.20, col: [0.62, 0.53, 0.38], rough: 0.045 },
   { id: 4, key: 'grass', name: 'Grass',
-    grip: 0.70, gripWet: 0.40, roll: 0.050, rutRate: 0.14, rutMax: 0.035,
+    grip: 0.70, gripWet: 0.40, gripPacked: 0.74, roll: 0.050, rutRate: 0.14, rutMax: 0.035,
     hardness: 0.70, dust: 0.15, spray: 0.30, col: [0.27, 0.36, 0.19], rough: 0.020 },
   { id: 5, key: 'gravel', name: 'Gravel',
-    grip: 0.60, gripWet: 0.50, roll: 0.062, rutRate: 0.22, rutMax: 0.045,
+    grip: 0.60, gripWet: 0.50, gripPacked: 0.68, roll: 0.062, rutRate: 0.22, rutMax: 0.045,
     hardness: 0.85, dust: 0.60, spray: 0.15, col: [0.50, 0.48, 0.45], rough: 0.055 },
   { id: 6, key: 'concrete', name: 'Concrete',
-    grip: 1.05, gripWet: 0.62, roll: 0.014, rutRate: 0.0, rutMax: 0.0,
+    grip: 1.05, gripWet: 0.62, gripPacked: 1.05, roll: 0.014, rutRate: 0.0, rutMax: 0.0,
     hardness: 1.00, dust: 0.05, spray: 0.05, col: [0.55, 0.55, 0.57], rough: 0.004 },
 ];
 
@@ -162,7 +162,7 @@ const BIKES = [
     clutchTorque: 130, shiftTime: 0.075,
     susp: {
       travelF: 0.310, travelR: 0.315,
-      kF: 8830, kProgF: 1.35, kR: 6330, kProgR: 2.15,     // N/m at the wheel, cubic-ish rise
+      kF: 9490, kProgF: 1.35, kR: 5915, kProgR: 2.15,     // N/m at the wheel, cubic-ish rise
       cCompF: 2300, cRebF: 3600, cCompR: 3100, cRebR: 4700,
       blowoff: 0.55, blowoffScale: 0.42,                   // digressive above this speed
       bumpK: 260000, bumpC: 5200,                          // bottoming stack
@@ -189,7 +189,7 @@ const BIKES = [
     clutchTorque: 78, shiftTime: 0.070,
     susp: {
       travelF: 0.310, travelR: 0.312,
-      kF: 8560, kProgF: 1.30, kR: 6140, kProgR: 2.05,
+      kF: 9115, kProgF: 1.30, kR: 5765, kProgR: 2.05,
       cCompF: 2100, cRebF: 3300, cCompR: 2850, cRebR: 4300,
       blowoff: 0.55, blowoffScale: 0.42,
       bumpK: 250000, bumpC: 5000,
@@ -216,7 +216,7 @@ const BIKES = [
     clutchTorque: 108, shiftTime: 0.068,
     susp: {
       travelF: 0.310, travelR: 0.312,
-      kF: 8420, kProgF: 1.32, kR: 6060, kProgR: 2.10,
+      kF: 8975, kProgF: 1.32, kR: 5685, kProgR: 2.10,
       cCompF: 2150, cRebF: 3350, cCompR: 2900, cRebR: 4400,
       blowoff: 0.55, blowoffScale: 0.42,
       bumpK: 252000, bumpC: 5000,
@@ -243,7 +243,7 @@ const BIKES = [
     clutchTorque: 64, shiftTime: 0.062,
     susp: {
       travelF: 0.300, travelR: 0.300,
-      kF: 8210, kProgF: 1.28, kR: 5940, kProgR: 2.00,
+      kF: 8740, kProgF: 1.28, kR: 5580, kProgR: 2.00,
       cCompF: 1900, cRebF: 3000, cCompR: 2600, cRebR: 3900,
       blowoff: 0.55, blowoffScale: 0.42,
       bumpK: 235000, bumpC: 4700,
@@ -270,7 +270,7 @@ const BIKES = [
     clutchTorque: 34, shiftTime: 0.058,
     susp: {
       travelF: 0.255, travelR: 0.270,
-      kF: 6690, kProgF: 1.25, kR: 4690, kProgR: 1.95,
+      kF: 7150, kProgF: 1.25, kR: 4420, kProgR: 1.95,
       cCompF: 1350, cRebF: 2100, cCompR: 1850, cRebR: 2800,
       blowoff: 0.52, blowoffScale: 0.42,
       bumpK: 170000, bumpC: 3400,
@@ -300,7 +300,7 @@ const RIDER = {
   stiffness: 2400,              // N/m of the rider "holding on"
   damping: 210,
   maxForce: 3400,               // arms and legs give up past this
-  gripLimit: 5800,              // above this the rider comes off
+  gripLimit: 7600,              // sustained; above this the rider comes off
 };
 
 const WORLD = {
@@ -481,6 +481,11 @@ const TERR = {
     this.nx = Math.ceil((maxX + m - this.x0) / this.CS) + 1;
     this.nz = Math.ceil((maxZ + m - this.z0) / this.CS) + 1;
     const n = this.nx * this.nz;
+    /* Fail loudly. A test once asked for a 4 km square of 0.30 m cells:
+       181 million of them, two gigabytes, and no error — just a run that
+       never finished. */
+    if (n > 32e6) throw new Error('terrain grid too large: ' + this.nx + ' x ' + this.nz +
+      ' = ' + (n / 1e6).toFixed(1) + ' M cells');
     this.h = new Float32Array(n);
     this.rut = new Float32Array(n);
     this.pack = new Uint8Array(n);
@@ -530,9 +535,13 @@ const TERR = {
     const base = SURFACES[this.surf[i]];
     const pk = this.pack[i] / 255, wt = this.wetAt(i);
     const hp = SURFACES[SURF.HARDPACK];
-    // a driven-in line polishes towards hard pack — sand never does
-    const polish = base.id === SURF.SAND ? 0 : pk * 0.75;
-    let grip = lerp(base.grip, hp.grip, polish);
+    /* A driven-in line polishes towards THIS material's packed value, not
+       towards hard pack. Loam turns into a slick blue groove and mud gets
+       slipperier still; only sand refuses to pack at all. Sending every
+       surface towards hard pack made a muddy track grippier the more it
+       was ridden, and a bike stopped shorter in mud than on hard pack. */
+    const polish = base.id === SURF.SAND ? 0 : pk * 0.80;
+    let grip = lerp(base.grip, base.gripPacked, polish);
     let roll = lerp(base.roll, hp.roll, pk * 0.6);
     if (wt > 0) {
       const soak = clamp(wt, 0, 1);
@@ -665,7 +674,12 @@ const TERR = {
     if (removed > 0 && shoulderW > 0) {
       const per = (removed * 0.70) / shoulderW;
       for (const sh of shoulders) {
-        this.rut[sh[0]] += per * sh[3];
+        const i = sh[0];
+        // Spoil compacts and slumps: a ridge cannot grow for ever. Without
+        // a ceiling, a bike circling the same ground builds walls it then
+        // launches itself off.
+        const capUp = SURFACES[this.surf[i]].rutMax * 0.45;
+        this.rut[i] = Math.min(capUp, this.rut[i] + per * sh[3]);
         this.markDirty(sh[1], sh[2]);
       }
     }
@@ -921,12 +935,12 @@ function makeBike(key, opts) {
     accel: [0, 0, 0], accelBody: [0, 0, 0],
     susp: { f: { x: 0, xd: 0, bottom: 0, top: 0 }, r: { x: 0, xd: 0, bottom: 0, top: 0 } },
     wf: wheelState(), wr: wheelState(),
-    steer: { a: 0, ad: 0, riderT: 0 },
+    steer: { a: 0, ad: 0, riderT: 0, i: 0 },
     eng: { w: 0, rpm: 0, gear: 1, clutch: 1, shiftT: 0, shiftTo: -1,
            stalled: false, cutT: 0, thr: 0, torque: 0, load: 0, slip: 0 },
     rider: { p: [0, 0, 0], tgt: [0, 0, 0], wp: [0, 0, 0], wv: [0, 0, 0],
-             force: 0, off: false, offT: 0, worldP: [0, 0, 0] },
-    lean: 0, leanRate: 0, leanCmd: 0, gripAvg: 0.9, gref: [0, 1, 0],
+             force: 0, forceF: 0, off: false, offT: 0, worldP: [0, 0, 0] },
+    lean: 0, leanRate: 0, leanCmd: 0, gripAvg: 0.9, slideSense: 0, pitch: 0, gref: [0, 1, 0],
     airborne: false, airT: 0, groundT: 0, lastAirTime: 0,
     crashed: false, crashT: 0, crashReason: '',
     hitEnergy: 0, peakG: 0,
@@ -960,13 +974,14 @@ function resetBike(b, x, z, headingRad, opts) {
   b.susp.f = { x: sagF, xd: 0, bottom: 0, top: 0 };
   b.susp.r = { x: sagR, xd: 0, bottom: 0, top: 0 };
   b.wf = wheelState(); b.wr = wheelState();
-  b.steer = { a: 0, ad: 0, riderT: 0 };
+  b.steer = { a: 0, ad: 0, riderT: 0, i: 0 };
   b.eng = { w: cfg.idleRpm * RPM2RAD, rpm: cfg.idleRpm, gear: (opts && opts.gear) || 1,
             clutch: 1, shiftT: 0, shiftTo: -1, stalled: false, cutT: 0,
             thr: 0, torque: 0, load: 0, slip: 0 };
   b.rider = { p: [0, 0, 0], tgt: [0, 0, 0], wp: [0, 0, 0], wv: [0, 0, 0],
-              force: 0, off: false, offT: 0, worldP: [0, 0, 0] };
-  b.lean = 0; b.leanRate = 0; b.leanCmd = 0; b.gripAvg = 0.9; b.gref = [0, 1, 0];
+              force: 0, forceF: 0, off: false, offT: 0, worldP: [0, 0, 0] };
+  b.lean = 0; b.leanRate = 0; b.leanCmd = 0; b.gripAvg = 0.9; b.slideSense = 0;
+  b.pitch = 0; b.gref = [0, 1, 0];
   b.airborne = false; b.airT = 0; b.groundT = 0; b.lastAirTime = 0;
   b.crashed = false; b.crashT = 0; b.crashReason = '';
   b.hitEnergy = 0; b.peakG = 0;
@@ -1182,8 +1197,11 @@ function physStep(b, dt) {
 
     const hold = rr.off ? 0.03 : 1;
     // side, up, fore-aft. Legs are far stiffer than arms.
-    const kB = [8200 * rScale * hold, 26000 * rScale * hold, 9400 * rScale * hold];
-    const cB = [1100 * rScale * hold, 2000 * rScale * hold, 1200 * rScale * hold];
+    /* Legs are the first suspension a motocross bike has, and they are
+       softer than the shock. Modelling them as a 26 kN/m strut made the
+       rider take the full eight g of a flat landing and let go. */
+    const kB = [8200 * rScale * hold, 13500 * rScale * hold, 9400 * rScale * hold];
+    const cB = [1100 * rScale * hold, 1750 * rScale * hold, 1200 * rScale * hold];
     const fB = [kB[0] * errB[0] + cB[0] * dvB[0],
                 kB[1] * errB[1] + cB[1] * dvB[1],
                 kB[2] * errB[2] + cB[2] * dvB[2]];
@@ -1203,7 +1221,11 @@ function physStep(b, dt) {
     rr.worldP = rr.wp;
     addF(V.mul(fW, -1), rr.wp);
 
-    if (!rr.off && rr.force > R.gripLimit * rScale) {
+    /* A sharp spike does not throw a rider off — grip fails when the load
+       stays up. Filtered over about a twentieth of a second, which is
+       roughly how long an arm can hold anything. */
+    rr.forceF = lerp(rr.forceF || 0, rr.force, Math.min(1, dt / 0.055));
+    if (!rr.off && rr.forceF > R.gripLimit * rScale) {
       rr.off = true; rr.offT = 0;
       if (!b.crashed) { b.crashed = true; b.crashT = 0; b.crashReason = 'Thrown off'; }
     }
@@ -1231,8 +1253,25 @@ function physStep(b, dt) {
     const gripNow = (b.wf.contact ? b.wf.grip : 0) + (b.wr.contact ? b.wr.grip : 0);
     const nCon = (b.wf.contact ? 1 : 0) + (b.wr.contact ? 1 : 0);
     if (nCon > 0) b.gripAvg = lerp(b.gripAvg || 0.9, gripNow / nCon, Math.min(1, dt * 6));
-    const leanCap = Math.atan((b.gripAvg || 0.9) * 0.93);
-    const maxLean = Math.min(0.92 + 0.22 * smoothstep((speed - 8) / 14), leanCap);
+    /* How much lean the ground will hold RIGHT NOW. Grip already spent on
+       driving or braking is not available for cornering — that is the
+       friction ellipse, and it is what a rider feels through the tyre. */
+    const Ntot = b.wf.N + b.wr.N;
+    const uLong = Ntot > 50 ? Math.abs(b.wf.Fx + b.wr.Fx) / Ntot : 0;
+    const muNow = (b.gripAvg || 0.9) * 0.90;
+    const latAvail = Math.sqrt(Math.max(0.04, muNow * muNow - uLong * uLong));
+    const leanCap = Math.atan(latAvail * 0.80);
+    /* A rider feels the front push and stands the bike up before it goes.
+       Without this the loop happily asks for the last five per cent of
+       grip and lays the bike down on mud and gravel while the rider is
+       doing nothing but holding the bars. The player can still crash: the
+       lean they ask for is still theirs, and grip lost to braking or
+       throttle is not given back here. */
+    const slideF = clamp((Math.abs(b.wf.sa) - 0.12) / 0.13, 0, 1);
+    const slideR = clamp((Math.abs(b.wr.sa) - 0.20) / 0.20, 0, 1);
+    b.slideSense = lerp(b.slideSense || 0, Math.max(slideF, slideR * 0.55), Math.min(1, dt * 9));
+    const maxLean = Math.min(0.92 + 0.22 * smoothstep((speed - 8) / 14), leanCap)
+                  * (1 - 0.42 * b.slideSense);
     const sIn = clamp(inp.steer, -1, 1);
     let dCmd;
     if (b.crashed || b.rider.off) {
@@ -1248,24 +1287,47 @@ function physStep(b, dt) {
       b.leanCmd += clamp(want - b.leanCmd, -dmax, dmax);
       const leanTgt = b.leanCmd;
       const hCg = cfg.cogH, L = cfg.wheelbase;
-      const wn = 3.1, zeta = 0.98;
+      /* Overdamped on purpose. The design assumes the steer angle follows
+         instantly and the tyre answers instantly; neither is true, and the
+         phase those two lose showed up as an eight-degree overshoot. On
+         flat hard pack eight degrees past the target is past atan(mu), so
+         the tyres let go and the bike highsides — from nothing but a
+         steady corner. */
+      const wn = 3.6, zeta = 1.55;
       const vv = Math.max(Math.abs(fwdSpeed), 3.2);
       const Kp = L * (g + wn * wn * hCg) / (vv * vv);
       const Kd = 2 * zeta * wn * hCg * L / (vv * vv);
       // desired steer to the RIGHT, then converted to the steer-axis angle
-      /* Feedforward first: the steer angle that HOLDS the wanted lean.
-         Without it the loop only ever reacts to error, and since a
-         proportional loop asks for zero steer once it is on target, the
-         bike simply keeps falling into the corner at the target angle. It
-         held 36 degrees for half a second and then lay down, every time. */
-      const ff = L * g * Math.tan(clamp(leanTgt, -1.3, 1.3)) / (vv * vv);
-      const dRight = ff + Kp * (b.lean - leanTgt) + Kd * b.leanRate;
+      /* Feedforward from the lean the bike is ACTUALLY at: the steer angle
+         that holds this lean, right now. Then the proportional term is
+         free to do nothing but close the gap to the target.
+
+         Taking the feedforward from the TARGET instead looks equally
+         reasonable and is not: the loop then settles wherever the
+         feedforward and the proportional term happen to cancel, which for
+         these gains was 24 degrees no matter what was asked for. With it
+         taken from the current lean the equilibrium is the target, by
+         construction. And it is still stabilising — more steer means a
+         tighter turn, which stands the bike up. */
+      const ff = L * g * Math.tan(clamp(b.lean, -1.3, 1.3)) / (vv * vv);
+      // and if it does get past what the ground will hold, stand it up hard
+      const over = Math.max(0, Math.abs(b.lean) - leanCap) * sign(b.lean);
+      const dRight = ff + Kp * (b.lean - leanTgt) + Kd * b.leanRate + 0.55 * over;
       const balance = -clamp(dRight, -0.55, 0.55) / Math.cos(cfg.rake);
       const direct = -sIn * 0.42;
       dCmd = lerp(direct, balance, vBlend * cont) + (1 - cont) * (-sIn * 0.34);
     }
     dCmd = clamp(dCmd, -0.62, 0.62);
-    let Trider = 220 * (dCmd - st.a) - 24 * st.ad;
+    /* Arms are stiff. At 220 Nm/rad the tyre's own moment held the bars
+       at a third of the angle the rider was asking for, and the bike took
+       four seconds to reach a lean it should reach in one. The integral
+       term takes out what is left, the way a rider adjusts until the bike
+       is doing what they wanted. The clamp is the real limit: how hard a
+       human can push a handlebar. */
+    const dErr = dCmd - st.a;
+    st.i = clamp((st.i || 0) + dErr * dt, -0.09, 0.09);
+    let Trider = 600 * dErr + 900 * st.i - 40 * st.ad;
+    if (Math.abs(Trider) > 95) st.i -= dErr * dt;          // anti-windup
     Trider = clamp(Trider, -95, 95) * (b.rider.off ? 0.05 : 1);
     st.riderT = Trider;
 
@@ -1373,8 +1435,16 @@ function physStep(b, dt) {
     if (w.contact) {
       const penRate = -V.dot(vAxle, n);
       w.penRate = penRate;
-      const tireK = W.tireK * (1 - 0.25 * (W.front ? b.dmg.wheelF : b.dmg.wheelR));
-      const dampF = clamp(S.tireC * penRate, -0.6 * tireK * w.pen - 300, 0.9 * tireK * w.pen + 3000);
+      /* Tyre and ground are two springs in series. On sand or mud the
+         ground is by far the softer of the two and it damps as well —
+         modelling only the tyre leaves a 14 Hz wheel hop that soft ground
+         does not have. */
+      const giPre = TERR.built ? TERR.info(axle[0], axle[2]) : null;
+      const hard = giPre ? giPre.hardness : 1;
+      const tireK = W.tireK * (1 - 0.25 * (W.front ? b.dmg.wheelF : b.dmg.wheelR))
+                  * lerp(0.40, 1.0, hard);
+      const cGround = S.tireC * lerp(3.4, 1.0, hard);
+      const dampF = clamp(cGround * penRate, -0.6 * tireK * w.pen - 300, 0.9 * tireK * w.pen + 3000);
       N = Math.max(0, tireK * w.pen + dampF);
       const cp = w.cpFlat ? w.cpFlat : V.sub(axle, V.mul(n, RR - w.pen));
       w.cp = cp;
@@ -1415,18 +1485,40 @@ function physStep(b, dt) {
 
       const Ftot = V.add(V.mul(n, N), V.add(V.mul(fw, Fx), V.mul(lat, Fy)));
       const Fu = V.dot(Ftot, W.u);
-      addF(perp(Ftot, W.u), cp);
+      const perpF = perp(Ftot, W.u);
+      addF(perpF, cp);
+      /* A wheel is free to turn on its axle, so no moment ABOUT THE SPIN
+         AXIS can reach the frame through the bearing — only through the
+         brake or the chain. Applying the contact force at the contact
+         patch hands the frame that moment anyway, and the brake reaction
+         is then added on top of it: the same torque, counted twice.
+         The bike did a stoppie the instant the front brake was touched,
+         and wheelied permanently under power. Take it back out. */
+      const rSpin = V.sub(cp, axle);
+      w.Tground = -V.dot(V.cross(rSpin, Ftot), W.spinAxis);
+      addT(V.mul(W.spinAxis, -V.dot(V.cross(rSpin, perpF), W.spinAxis)));
 
       // --- unsprung mass rides the strut
       const rMount = V.sub(axle, b.p);
       const aMount = V.add(b.accel, V.cross(b.w, V.cross(b.w, rMount)));
       const sf = suspForce(S, sus.x, sus.xd, W.travel, W.k, W.prog, W.cC, W.cR, W.dmg);
       sus.bottom = sf.bottom;
-      const xdd = (Fu - sf.f) / W.mu_ + V.dot([0, -g, 0], W.u) - V.dot(aMount, W.u);
+      /* Anti-squat. The chain pulls the swingarm against its pivot, so a
+         motocross bike RISES at the back on the gas instead of squatting.
+         It is an internal force pair — chassis up, wheel down — so it adds
+         nothing to the total, only to the attitude. */
+      const antiSq = W.front ? 0 : Fx * 0.80;
+      const xdd = (Fu - sf.f - antiSq) / W.mu_ + V.dot([0, -g, 0], W.u) - V.dot(aMount, W.u);
       sus.xd += xdd * dt;
       sus.x += sus.xd * dt;
-      addF(V.mul(W.u, sf.f), axle);
-      addF(perp([0, -g * W.mu_, 0], W.u), axle);
+      addF(V.mul(W.u, sf.f + antiSq), axle);
+      /* Across the strut the wheel is bolted to the frame, so what it
+         hands over is its weight MINUS its own inertia. Handing over the
+         bare weight is right while the bike is standing still and wrong
+         the moment it is falling: in free fall both are falling together
+         and the wheel presses on nothing. It made the whole machine fall
+         3.5 % slower than gravity. */
+      addF(perp(V.mul(V.sub([0, -g, 0], b.accel), W.mu_), W.u), axle);
     } else {
       w.N = 0; w.Fx = 0; w.Fy = 0; w.penRate = 0; w.slipSpeed = 0;
       w.sk += (0 - w.sk) * Math.min(1, 6 * dt);
@@ -1442,7 +1534,7 @@ function physStep(b, dt) {
       sus.xd += xdd * dt;
       sus.x += sus.xd * dt;
       addF(V.mul(W.u, sf.f), axle);
-      addF(perp([0, -g * W.mu_, 0], W.u), axle);
+      addF(perp(V.mul(V.sub([0, -g, 0], b.accel), W.mu_), W.u), axle);
     }
     if (sus.x > W.travel + 0.02) { sus.x = W.travel + 0.02; sus.xd = Math.min(0, sus.xd); }
     if (sus.x < -0.012) { sus.x = -0.012; sus.xd = Math.max(0, sus.xd); }
@@ -1539,8 +1631,9 @@ function physStep(b, dt) {
   for (const W of wheels) {
     const w = W.w;
     const Tdrive = W.front ? 0 : (b.driveTorque || 0);
-    const Fx = w.Fx;
-    let spinDot = (Tdrive - Fx * W.R) / W.I;
+    // the exact ground torque about the spin axis, from the contact solve
+    const Tg = w.contact ? (w.Tground || 0) : 0;
+    let spinDot = (Tdrive + Tg) / W.I;
     let spinNext = w.spin + spinDot * dt;
     const brakeCmd = W.front ? inp.brakeF : inp.brakeR;
     const Tb = clamp(brakeCmd, 0, 1) * W.brake * (b.rider.off ? 0.25 : 1);
@@ -1567,7 +1660,8 @@ function physStep(b, dt) {
     const vv = V.len(b.v);
     if (vv > 0.1) {
       const d = V.mul(b.v, -0.5 * WORLD.rhoAir * cda * vv);
-      addF(d, V.add(b.p, V.mul(axU, 0.28)));
+      // drag acts around the rider's chest, a little above the combined mass
+      addF(d, V.add(b.p, V.mul(axU, 0.17)));
     }
     V.addTo(F, [0, -mSprung * g, 0]);
   }
@@ -1636,9 +1730,20 @@ function physStep(b, dt) {
       b.airborne = true; b.airT += dt;
     }
     // landing loads: how hard, and what it costs
+    // positive = nose up. The sign was the other way round, which quietly
+    // disabled the wheelie cut in riderThrottle: it was looking for a
+    // positive pitch that a wheelie never produced.
+    b.pitch = Math.asin(clamp(axF[1], -1, 1));
     const gForce = Math.abs(V.dot(b.accel, axU)) / g;
     if (gForce > b.peakG) b.peakG = gForce;
     for (const W of wheels) {
+      // a hit hard enough to bend a rim does not have to bottom the stroke
+      const over = W.w.N / Nref - 4.0;
+      if (over > 0) {
+        const h2 = over * dt * 0.055;
+        if (W.front) b.dmg.wheelF = Math.min(1, b.dmg.wheelF + h2);
+        else b.dmg.wheelR = Math.min(1, b.dmg.wheelR + h2);
+      }
       if (W.sus.bottom > 0) {
         const harm = W.sus.bottom / 60000 * dt;
         if (W.front) { b.dmg.suspF = Math.min(1, b.dmg.suspF + harm * 0.5);
@@ -1659,8 +1764,20 @@ function physStep(b, dt) {
         const w = W.w;
         if (!w.contact || w.N < 40) continue;
         const slipN = clamp(w.slipSpeed / 6, 0, 1.4);
-        const depth = ddt * (0.85 + 2.4 * slipN) * clamp(w.N / Nref, 0, 3) * 0.85;
-        TERR.dig(w.cp[0], w.cp[2], w.fw[0], w.fw[2], depth,
+        /* Cut the rut BEHIND the contact patch. Lowering the ground the
+           tyre is standing on, three millimetres at a time, a hundred
+           times a second, is a broadband shaker bolted to the wheel: it
+           found the 14 Hz wheel-hop mode and the bike bounced itself over
+           on sand every single time. A real tyre leaves the rut behind
+           it. Far enough back that the bilinear stencil under the wheel
+           does not reach it. */
+        /* Ruts form over a race, not over a corner. At three times this
+           rate a single bike cut its own 160 mm trench on mud within two
+           seconds and then tripped over it. */
+        const depth = ddt * (0.85 + 2.4 * slipN) * clamp(w.N / Nref, 0, 3) * 0.30;
+        const back = 0.62;
+        TERR.dig(w.cp[0] - w.fw[0] * back, w.cp[2] - w.fw[2] * back,
+                 w.fw[0], w.fw[2], depth,
                  W.width * 0.5 + 0.055, ddt * 0.30 * clamp(w.N / Nref, 0, 2));
       }
     }
@@ -1693,9 +1810,10 @@ function stepBike(b, seconds) {
 
 /* A featureless plate of one material. Used by the test suites to measure
    one thing at a time, and by the flat-track practice mode. */
-function buildFlat(halfSize, surfId, slopeDeg) {
+function buildFlat(halfX, surfId, slopeDeg, halfZ) {
+  if (halfZ === undefined) halfZ = halfX;
   TERR.path = null; TERR.buckets = null;
-  TERR.alloc(-halfSize, -halfSize, halfSize, halfSize);
+  TERR.alloc(-halfX, -halfZ, halfX, halfZ);
   const sl = Math.tan((slopeDeg || 0) * DEG);
   for (let iz = 0; iz < TERR.nz; iz++) {
     for (let ix = 0; ix < TERR.nx; ix++) {
@@ -1709,6 +1827,51 @@ function buildFlat(halfSize, surfId, slopeDeg) {
   return TERR;
 }
 
+
+/* ------------------------------------------------------- rider skills ---
+   What a rider does without thinking about it: change gear at the right
+   moment, ease off when the rear lights up, and shut it when the front
+   comes up too far. The AI runs on these, the test suites measure through
+   them, and the player can switch them on as assists.
+   ------------------------------------------------------------------- */
+function autoGearbox(b, aggression) {
+  const e = b.eng, cfg = b.cfg;
+  if (e.shiftT > 0 || e.stalled) return;
+  const a = aggression === undefined ? 1 : aggression;
+  const upAt = cfg.limitRpm * (0.90 + 0.07 * a);
+  if (e.rpm > upAt && e.gear < cfg.gears.length - 1 && e.clutch > 0.55) {
+    b.inp.shiftUp = true; return;
+  }
+  if (e.gear > 0) {
+    const rpmDown = Math.abs(b.wr.spin) * cfg.gears[e.gear - 1] * RAD2RPM;
+    const lowAt = cfg.limitRpm * 0.34;
+    if (e.rpm < lowAt && rpmDown < cfg.limitRpm * 0.90) b.inp.shiftDn = true;
+  }
+}
+/* Traction and wheelie control, the way a wrist does it. level 0 = off. */
+function riderThrottle(b, want, level) {
+  const L = level === undefined ? 1 : clamp(level, 0, 1);
+  if (L <= 0) return clamp(want, 0, 1);
+  const spin = clamp((b.wr.sk - 0.16) / 0.28, 0, 1);
+  const air = b.wf.contact ? 0 : 1;
+  const nose = clamp((b.pitch - 0.16) / 0.20, 0, 1);
+  const lift = Math.max(nose, air * 0.55);
+  return clamp(want * (1 - 0.88 * spin * L) * (1 - 0.85 * lift * L), 0, 1);
+}
+/* Brake modulation: hold the tyre near the peak of its slip curve instead
+   of locking it. This is what separates a 25 metre stop from a 40 metre
+   one, and it is a skill, not a device. */
+function riderBrake(b, wantF, wantR, level) {
+  const L = level === undefined ? 1 : clamp(level, 0, 1);
+  if (L <= 0) return [clamp(wantF, 0, 1), clamp(wantR, 0, 1)];
+  const easeF = clamp((-b.wf.sk - 0.14) / 0.16, 0, 1);
+  const easeR = clamp((-b.wr.sk - 0.20) / 0.22, 0, 1);
+  const lockF = b.wf.lockT > 0.02 ? 1 : 0;
+  const lockR = b.wr.lockT > 0.05 ? 1 : 0;
+  return [clamp(wantF * (1 - 0.9 * Math.max(easeF, lockF) * L), 0, 1),
+          clamp(wantR * (1 - 0.8 * Math.max(easeR, lockR) * L), 0, 1)];
+}
+
 /* __TAIL__ (new code is inserted above this line) */
 
 /* ---------------------------------------------------------- test hook ----
@@ -1720,7 +1883,7 @@ const T = {
   V, Q, WORLD, RIDER, SURF, SURFACES, BIKES, BIKE_BY_KEY, TRACKS, TRACK_BY_KEY,
   TERR, buildTrack, buildPath, profileEval, profileLen, FEAT, whoopProfile,
   seriesProfile, keyLerp, clamp, lerp, smoothstep, mulberry32,
-  buildFlat, makeBike, resetBike, physStep, stepBike, makeInput, engineTorque,
+  buildFlat, makeBike, resetBike, physStep, autoGearbox, riderThrottle, riderBrake, stepBike, makeInput, engineTorque,
   mfLong, mfLat, loadSens, strutAxes, designSag, suspForce, bikeInertia,
 };
 if (typeof window !== 'undefined') window.T = T;
