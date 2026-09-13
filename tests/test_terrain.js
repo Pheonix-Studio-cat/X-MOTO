@@ -77,8 +77,17 @@ for (const f of built.featSpans) {
   const before = hAlong(f.s0 - 3);
   const rise = peak - before;
   info(f.name, 'rise', rise.toFixed(2), 'm over', f.len.toFixed(1), 'm');
-  A(Math.abs(rise) > 0.25 || f.name.indexOf('Step-Down') === 0,
-    f.name + ' is visible in the height field  [rise ' + rise.toFixed(2) + ' m]');
+  // measure the feature against the ground it sits on, not against a point
+  // three metres earlier: the land itself rolls, and a rhythm section of
+  // 0.8 m rollers on a slope reads as nothing at all that way
+  let bumpy = 0;
+  for (let s = f.s0 + 1; s <= f.s1 - 1; s += 0.3) {
+    const local = (hAlong(s - 1.2) + hAlong(s + 1.2)) * 0.5;
+    bumpy = Math.max(bumpy, Math.abs(hAlong(s) - local));
+  }
+  info('   ', f.name, 'stands', bumpy.toFixed(2), 'm off the local ground');
+  A(bumpy > 0.18 || Math.abs(rise) > 0.25,
+    f.name + ' is visible in the height field  [' + bumpy.toFixed(2) + ' m off the local ground]');
 }
 // the step-down must have an edge you launch off, not a gentle slope
 {
@@ -147,6 +156,30 @@ for (const f of built.featSpans) {
   const hMid = hAlong(s, 0), hOut = hAlong(s, outSign * 3.5);
   info('off-camber section: middle', hMid.toFixed(2), 'outside', hOut.toFixed(2));
   A(hOut - hMid < 0.35, 'the off-camber turn has no berm to lean on  [' + (hOut - hMid).toFixed(2) + ' m]');
+}
+
+/* --- nowhere on the map is there a wall -------------------------------
+   Two stretches of a circuit that double back near each other at
+   different heights meet in a cliff. One build had a 7.6 m step between
+   neighbouring cells, standing up out of the ground like a shark fin. */
+{
+  const TE = T.TERR;
+  let worst = 0, wx = 0, wz = 0, over = 0;
+  for (let iz = 1; iz < TE.nz - 1; iz++) {
+    for (let ix = 1; ix < TE.nx - 1; ix++) {
+      const i = iz * TE.nx + ix;
+      const h = TE.h[i];
+      const d = Math.max(Math.abs(h - TE.h[i - 1]), Math.abs(h - TE.h[i + 1]),
+                         Math.abs(h - TE.h[i - TE.nx]), Math.abs(h - TE.h[i + TE.nx]));
+      if (d > 0.42) over++;
+      if (d > worst) { worst = d; wx = TE.x0 + ix * TE.CS; wz = TE.z0 + iz * TE.CS; }
+    }
+  }
+  info('steepest step between neighbouring cells:', worst.toFixed(3), 'm at',
+       wx.toFixed(0) + ',' + wz.toFixed(0), '|', over, 'cells steeper than 0.42 m');
+  A(worst < 0.75, 'nothing on the map is a wall  [worst step ' + worst.toFixed(2) + ' m over ' +
+    T.TERR.CS + ' m]');
+  A(over < 200, 'and there are almost no steep cells at all  [' + over + ']');
 }
 
 /* --- surfaces ---------------------------------------------------------- */
