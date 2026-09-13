@@ -2909,11 +2909,11 @@ function buildBikeMeshes(cfg) {
     }
     // front number plate: a dished panel, not a slab
     st.plate([
-      [0, barY + 0.070, barZ + 0.075],
-      [0, barY + 0.005, barZ + 0.100],
-      [0, barY - 0.070, barZ + 0.098],
-      [0, barY - 0.125, barZ + 0.078],
-    ], (t) => (0.062 + 0.030 * Math.sin(t * Math.PI)) * scale, 0.010, -0.028, plast, [1, 0, 0]);
+      [0, barY + 0.055, barZ - 0.085],
+      [0, barY - 0.010, barZ - 0.112],
+      [0, barY - 0.085, barZ - 0.110],
+      [0, barY - 0.145, barZ - 0.088],
+    ], (t) => (0.062 + 0.030 * Math.sin(t * Math.PI)) * scale, 0.010, 0.028, plast, [1, 0, 0]);
 
     /* Front fender: it follows the tyre, so its spine is an arc about the
        axle. Swept across a fixed axis, because the tangent turns vertical
@@ -3408,7 +3408,11 @@ const RENDER = {
       this.drawMesh(prog, R.hand, frame(hand, fwd, rt, V.cross(rt, fwd), 1), COL.glove, 0.12, mud, 'hand');
     }
     for (const [hip, foot, sgn] of [[P.hipL, P.footL, -1], [P.hipR, P.footR, 1]]) {
-      const pole = V.add(V.mul(P.fw, 1.0), V.mul(P.rt, sgn * 0.42));
+      /* The knee goes forward over the shroud and only a little outward.
+         A strong sideways pole threw it out past the footpeg and laid the
+         whole shin flat, which from the front looked like two black pipes
+         sticking out of the bike. */
+      const pole = V.add(V.mul(P.fw, 1.0), V.mul(P.rt, sgn * 0.16));
       const kn = ik2(hip, foot, 0.43, 0.42, pole);
       this.drawMesh(prog, R.ball, joint(hip, 0.098), pants, 0.05, mud, 'leg');
       this.drawMesh(prog, R.limb, segMatrix(hip, kn, 0.098), pants, 0.05, mud, 'leg');
