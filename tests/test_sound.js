@@ -167,4 +167,115 @@ for (const cfg of BIKES) {
   between(hi, 300, 20000, 'the highest cutoff is below half the sample rate');
 }
 
+/* ================================================== everything but the engine */
+const { groundVoice, SURFACES, SURF } = T;
+const gs = (o) => Object.assign({ speed: 15, slip: 0, wet: 0, contact: true,
+                                  suspRate: 0, surf: SURFACES[SURF.HARDPACK] }, o);
+
+/* --- hard ground rumbles, loose ground hisses ------------------------- */
+{
+  const hp = groundVoice(gs({ surf: SURFACES[SURF.HARDPACK] }));
+  const sand = groundVoice(gs({ surf: SURFACES[SURF.SAND] }));
+  const conc = groundVoice(gs({ surf: SURFACES[SURF.CONCRETE] }));
+  info('at 15 m/s — hardpack roll', hp.roll.toFixed(3), 'hiss', hp.hiss.toFixed(3));
+  info('at 15 m/s — sand     roll', sand.roll.toFixed(3), 'hiss', sand.hiss.toFixed(3));
+  A(hp.roll > sand.roll * 2,
+    'hard pack drums and sand does not  [' + hp.roll.toFixed(3) + ' vs ' + sand.roll.toFixed(3) + ']');
+  A(sand.hiss > hp.hiss * 2,
+    'sand hisses and hard pack does not  [' + sand.hiss.toFixed(3) + ' vs ' + hp.hiss.toFixed(3) + ']');
+  A(sand.hissFreq > hp.hissFreq,
+    'and sand hisses higher  [' + sand.hissFreq.toFixed(0) + ' vs ' + hp.hissFreq.toFixed(0) + ' Hz]');
+  A(conc.roll >= hp.roll * 0.95, 'concrete drums at least as hard as hard pack');
+  A(conc.rollFreq < SURFACES[SURF.GRAVEL].rough * 900 * 15 + 500,
+    'and smooth ground drums lower than gravel  [' + conc.rollFreq.toFixed(0) + ' Hz]');
+}
+{
+  // gravel is coarse: the texture goes past faster than on concrete
+  const g = groundVoice(gs({ surf: SURFACES[SURF.GRAVEL] }));
+  const c = groundVoice(gs({ surf: SURFACES[SURF.CONCRETE] }));
+  A(g.rollFreq > c.rollFreq * 1.5,
+    'coarse ground rattles faster than smooth  [' + g.rollFreq.toFixed(0) + ' vs ' + c.rollFreq.toFixed(0) + ' Hz]');
+}
+
+/* --- a sliding tyre is loud on anything ------------------------------- */
+{
+  for (const k of ['hardpack', 'soft', 'sand', 'gravel']) {
+    const S = SURFACES.find(x => x.key === k);
+    const rolling = groundVoice(gs({ surf: S, slip: 0 }));
+    const sliding = groundVoice(gs({ surf: S, slip: 5 }));
+    A(sliding.hiss > rolling.hiss + 0.10,
+      'a tyre sliding on ' + k + ' is much louder than one rolling  ['
+      + rolling.hiss.toFixed(2) + ' → ' + sliding.hiss.toFixed(2) + ']');
+  }
+}
+
+/* --- in the air there is nothing under the wheels --------------------- */
+{
+  const air = groundVoice(gs({ contact: false, speed: 20 }));
+  A(air.roll === 0 && air.hiss === 0, 'off the ground the tyres go silent');
+  A(air.wind > 0.2, 'but the wind does not  [' + air.wind.toFixed(2) + ']');
+  const none = groundVoice(gs({ surf: null }));
+  A(none.roll === 0 && none.hiss === 0, 'and with no surface underneath, likewise');
+}
+
+/* --- wind goes as the cube of speed ----------------------------------- */
+{
+  const a = groundVoice(gs({ speed: 10 })).wind;
+  const b = groundVoice(gs({ speed: 20 })).wind;
+  info('wind at 10 m/s', a.toFixed(3), 'at 20 m/s', b.toFixed(3));
+  near(b / a, 8, 0.6, 'twice the speed is eight times the wind');
+  A(groundVoice(gs({ speed: 0 })).wind === 0, 'standing still there is none');
+  let ok = true;
+  for (let v = 0; v < 60; v += 2) {
+    const w = groundVoice(gs({ speed: v })).wind;
+    if (w > 1.0001) ok = false;
+  }
+  A(ok, 'and it never runs past full scale, however fast the bike goes');
+}
+
+/* --- water changes what the ground sounds like ------------------------ */
+{
+  const dry = groundVoice(gs({ surf: SURFACES[SURF.SOFT], wet: 0, slip: 2 }));
+  const wet = groundVoice(gs({ surf: SURFACES[SURF.SOFT], wet: 1, slip: 2 }));
+  A(wet.hiss > dry.hiss, 'wet ground throws more about  ['
+    + dry.hiss.toFixed(2) + ' → ' + wet.hiss.toFixed(2) + ']');
+  A(wet.hissFreq < dry.hissFreq * 0.8, 'and it is a heavier, lower sound  ['
+    + dry.hissFreq.toFixed(0) + ' → ' + wet.hissFreq.toFixed(0) + ' Hz]');
+}
+
+/* --- chain and suspension --------------------------------------------- */
+{
+  A(groundVoice(gs({ speed: 0 })).chain === 0, 'a stationary chain is silent');
+  A(groundVoice(gs({ speed: 30 })).chain > groundVoice(gs({ speed: 5 })).chain,
+    'and a fast one is louder than a slow one');
+  A(groundVoice(gs({ suspRate: 0 })).susp === 0, 'a still damper is silent');
+  const fast = groundVoice(gs({ suspRate: 2.5 })).susp;
+  const slow = groundVoice(gs({ suspRate: 0.3 })).susp;
+  A(fast > slow, 'and a fast one is louder  [' + slow.toFixed(2) + ' vs ' + fast.toFixed(2) + ']');
+  A(groundVoice(gs({ suspRate: -2.5 })).susp === fast, 'rebound sounds like compression');
+}
+
+/* --- nothing may ever hand the audio graph a bad number --------------- */
+{
+  let bad = 0, n = 0;
+  const keys = ['roll', 'rollFreq', 'hiss', 'hissFreq', 'wind', 'windFreq', 'chain', 'susp'];
+  for (const S of SURFACES.concat([null])) {
+    for (const speed of [-3, 0, 5, 18, 40, 80]) {
+      for (const slip of [0, 1, 6, 30]) {
+        for (const wet of [0, 0.5, 1]) {
+          for (const contact of [true, false]) {
+            const v = groundVoice({ surf: S, speed, slip, wet, contact, suspRate: -4 });
+            n++;
+            for (const k of keys) if (!isFinite(v[k]) || v[k] < 0) bad++;
+            if (v.roll > 1 || v.hiss > 1 || v.wind > 1 || v.chain > 1 || v.susp > 1) bad++;
+            if (v.hissFreq > 20000 || v.rollFreq > 20000 || v.windFreq > 20000) bad++;
+          }
+        }
+      }
+    }
+  }
+  info('swept', n, 'ground states across every surface');
+  A(bad === 0, 'every gain stays inside 0..1 and every frequency inside hearing  [' + n + ' states]');
+}
+
 report('sound');

@@ -4900,18 +4900,74 @@ const AUDIO = {
     return g;
   },
 
+  /* Tyres, wind, chain and suspension: four filtered noise voices. They
+     do not need pitch, only the right band and the right loudness, so
+     there is nothing to oscillate. */
+  makeWorld() {
+    const ctx = this.ctx, out = this.comp, w = {};
+    const voice = (type, f, q, rate) => {
+      const src = ctx.createBufferSource();
+      src.buffer = this.noise; src.loop = true;
+      if (rate) src.playbackRate.value = rate;
+      const bq = ctx.createBiquadFilter();
+      bq.type = type; bq.frequency.value = f; bq.Q.value = q;
+      const gn = ctx.createGain(); gn.gain.value = 0;
+      src.connect(bq); bq.connect(gn); gn.connect(out);
+      src.start(ctx.currentTime);
+      return { src, bq, gn };
+    };
+    w.roll = voice('bandpass', 90, 1.1, 0.7);
+    w.hiss = voice('bandpass', 1400, 0.55, 1.0);
+    w.wind = voice('lowpass', 320, 0.7, 0.55);
+    w.chain = voice('bandpass', 3300, 2.2, 1.3);
+    w.susp = voice('bandpass', 620, 1.4, 0.9);
+    return w;
+  },
+
+  /* A landing, or a damper hitting the stack. One node set per event: they
+     happen a few times a second at most, so scheduling them is cheap, and
+     a thump needs an envelope that a steady gain cannot give it. */
+  thud(energy, hardness) {
+    if (!this.ready || !this.ctx) return;
+    const ctx = this.ctx, t = ctx.currentTime;
+    const e = clamp(energy, 0, 1);
+    if (e < 0.02) return;
+    const src = ctx.createBufferSource();
+    src.buffer = this.noise; src.loop = false;
+    src.playbackRate.value = 0.5 + 0.6 * e;
+    const bq = ctx.createBiquadFilter();
+    bq.type = 'lowpass';
+    bq.frequency.value = 130 + 700 * clamp(hardness, 0, 1) + 500 * e;
+    bq.Q.value = 1.6;
+    const gn = ctx.createGain();
+    const dur = 0.10 + 0.22 * (1 - clamp(hardness, 0, 1)) + 0.10 * e;
+    gn.gain.setValueAtTime(0.0001, t);
+    gn.gain.exponentialRampToValueAtTime(Math.max(0.001, e * 0.55), t + 0.006);
+    gn.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(bq); bq.connect(gn); gn.connect(this.comp);
+    const off = Math.random() * 1.5;
+    src.start(t, off, dur + 0.05);
+    src.stop(t + dur + 0.05);
+  },
+
   /* Called when a track is loaded. */
   attach(cfg) {
     if (!this.ready) return;
     this.detach();
     this.eng = this.makeEngine(cfg);
+    this.world = this.makeWorld();
     this.cfg = cfg;
+    this.wasAir = false; this.wasBottom = 0;
   },
   detach() {
     if (!this.eng) return;
     const t = this.ctx.currentTime;
     for (const n of ['osc', 'osc2', 'mechSrc', 'inSrc']) {
       try { this.eng[n].stop(t + 0.05); } catch (e) {}
+    }
+    if (this.world) {
+      for (const k in this.world) { try { this.world[k].src.stop(t + 0.05); } catch (e) {} }
+      this.world = null;
     }
     this.eng = null;
   },
@@ -4924,9 +4980,9 @@ const AUDIO = {
     if (!this.ready || !this.eng || this.hushed) return;
     this.hushed = true;
     const t = this.ctx.currentTime, g = this.eng;
-    for (const p of [g.engGain.gain, g.mechGain.gain, g.inGain.gain]) {
-      p.setTargetAtTime(0, t, 0.05);
-    }
+    const ps = [g.engGain.gain, g.mechGain.gain, g.inGain.gain];
+    if (this.world) for (const k in this.world) ps.push(this.world[k].gn.gain);
+    for (const p of ps) p.setTargetAtTime(0, t, 0.05);
   },
 
   /* Render one steady engine state into a buffer, on a context of its
@@ -4969,6 +5025,41 @@ const AUDIO = {
       rpm: e.rpm, throttle: e.thr, load: (e.torque || 0) / peak,
       cut: e.cutT || 0, stalled: e.stalled, damage: b.dmg.engine,
     });
+
+    const speed = V.len(b.v);
+    const w = b.wr.contact ? b.wr : b.wf;
+    this.applyGround(groundVoice({
+      speed, slip: Math.max(b.wf.slipSpeed, b.wr.slipSpeed),
+      wet: w.wet || 0, contact: b.wf.contact || b.wr.contact,
+      suspRate: Math.abs(b.susp.f.xd) + Math.abs(b.susp.r.xd),
+      surf: w.surf,
+    }));
+
+    /* One-shots. A landing is heard once, when the wheels arrive; a
+       bottomed damper is heard once, when it hits the stack. Driving
+       either from a level would turn a bang into a hum. */
+    const hard = (w.surf ? w.surf.hardness : 0.7);
+    if (this.wasAir && !b.airborne) {
+      this.thud(clamp((b.peakG - 1.5) / 9, 0.05, 1), hard);
+    }
+    this.wasAir = !!b.airborne;
+    const bottom = b.susp.f.bottom + b.susp.r.bottom;
+    if (bottom > 0.002 && this.wasBottom <= 0.002) this.thud(clamp(bottom * 6, 0.1, 1), 0.95);
+    this.wasBottom = bottom;
+  },
+
+  applyGround(gv) {
+    if (!this.ready || !this.world) return;
+    const t = this.ctx.currentTime, w = this.world;
+    const at = (p, x, tc) => p.setTargetAtTime(x, t, tc);
+    at(w.roll.gn.gain, gv.roll * 0.16, 0.05);
+    at(w.roll.bq.frequency, gv.rollFreq, 0.06);
+    at(w.hiss.gn.gain, gv.hiss * 0.20, 0.04);
+    at(w.hiss.bq.frequency, gv.hissFreq, 0.05);
+    at(w.wind.gn.gain, gv.wind * 0.13, 0.08);
+    at(w.wind.bq.frequency, gv.windFreq, 0.10);
+    at(w.chain.gn.gain, gv.chain * 0.022, 0.06);
+    at(w.susp.gn.gain, gv.susp * 0.045, 0.03);
   },
 
   /* Engine state to audio parameters. Separate from update() so that the
@@ -5009,6 +5100,55 @@ const AUDIO = {
   },
 };
 
+
+/* Everything the bike makes that is not the engine. Same split as the
+   engine: a pure function works out what should be heard, the graph below
+   only applies it.
+
+   The surface table already carries what matters. `hardness` decides
+   whether a tyre rumbles or hisses -- concrete rumbles, sand hisses --
+   and `rough` decides how fast the texture goes past. */
+function groundVoice(st) {
+  const S = st.surf, v = Math.max(0, st.speed || 0);
+  const slip = clamp(st.slip || 0, 0, 12);
+  const wet = clamp(st.wet || 0, 0, 1);
+  const out = { roll: 0, rollFreq: 90, hiss: 0, hissFreq: 1200,
+                wind: 0, windFreq: 260, chain: 0, susp: 0 };
+
+  /* Wind does not care what is under the wheels, only how fast the rider
+     is pushing air. It goes as the cube of speed because that is what the
+     power to shove it aside does. */
+  const vn = v / 32;
+  out.wind = clamp(vn * vn * vn * 1.5, 0, 1);
+  out.windFreq = 240 + v * 24;
+
+  // the chain is there whenever the back wheel turns
+  out.chain = clamp(v / 22, 0, 1) * 0.9;
+  // damper swish: not the thud of bottoming, the sound of oil moving
+  out.susp = clamp(Math.abs(st.suspRate || 0) / 1.6, 0, 1);
+
+  if (!st.contact || !S) return out;
+
+  const hard = S.hardness;
+  /* Rolling: a carcass drumming on ground that pushes back. Loose ground
+     absorbs it, which is why sand is nearly silent underneath and hard
+     pack is a roar. */
+  out.roll = clamp((0.10 + v * 0.032) * hard, 0, 1);
+  out.rollFreq = 55 + v * (28 + S.rough * 900);
+
+  /* Hiss: material being moved. Loose surfaces do it just by being rolled
+     over; any surface does it once the tyre is sliding across it. */
+  const loose = 1 - hard;
+  out.hiss = clamp(v * 0.020 * loose + slip * 0.14 * (S.dust + S.spray) + slip * 0.030, 0, 1);
+  out.hissFreq = 700 + 2400 * loose + 900 * clamp(slip / 6, 0, 1);
+  // water on the ground turns a hiss into a heavier, lower splash
+  if (wet > 0.02) {
+    out.hiss = clamp(out.hiss * (1 + 0.5 * wet), 0, 1);
+    out.hissFreq *= 1 - 0.35 * wet;
+  }
+  return out;
+}
+
 /* __TAIL__ (new code is inserted above this line) */
 
 /* ---------------------------------------------------------- test hook ----
@@ -5023,7 +5163,7 @@ const T = {
   buildRiderMeshes, buildBikeMeshes,
   buildFlat, makeBike, resetBike, physStep, autoGearbox, riderThrottle, riderBrake,
   GAME, RACE, SCENE, CAM, SETTINGS, UI, HUD, GL, TR, RENDER, PARTICLES, WEATHER,
-  engineVoice, firingOrder, AUDIO, pulseWave, clipCurve,
+  engineVoice, firingOrder, groundVoice, AUDIO, pulseWave, clipCurve,
   steerPivotBody, swingPivotBody, axleInSteerFrame, peakPowerKW, M4, ik2, stepBike, makeInput, engineTorque,
   mfLong, mfLat, loadSens, strutAxes, designSag, suspForce, bikeInertia,
 };

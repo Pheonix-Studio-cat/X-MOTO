@@ -17,7 +17,11 @@ const A = (ok, msg, detail) => {
 (async () => {
   const browser = await chromium.launch({
     executablePath: CHROME,
-    args: ['--enable-unsafe-swiftshader', '--use-gl=swiftshader', '--no-sandbox'],
+    /* The autoplay flag is what lets a headless run hear anything: without
+       a click the audio context stays suspended, its clock never advances,
+       and every ramp sits at its starting value for ever. */
+    args: ['--enable-unsafe-swiftshader', '--use-gl=swiftshader', '--no-sandbox',
+           '--autoplay-policy=no-user-gesture-required'],
   });
   const page = await browser.newPage({ viewport: { width: 800, height: 600 } });
   const noise = [];
@@ -32,8 +36,19 @@ const A = (ok, msg, detail) => {
 
   await page.evaluate(() => T.UI.launch());
   await page.waitForTimeout(1800);          // the track has to be built first
+  const sndAt = () => page.evaluate(() => {
+    const A = window.T.AUDIO, b = window.T.GAME.hero;
+    if (!A.ready || !A.eng || !A.world) return null;
+    return { eng: A.eng.engGain.gain.value, freq: A.eng.osc.frequency.value,
+             roll: A.world.roll.gn.gain.value, hiss: A.world.hiss.gn.gain.value,
+             wind: A.world.wind.gn.gain.value, chain: A.world.chain.gn.gain.value,
+             layers: Object.keys(A.world).length,
+             kmh: Math.hypot(b.v[0], b.v[2]) * 3.6, rpm: b.eng.rpm };
+  });
+  const atRest = await sndAt();
   await page.keyboard.down('w');
   await page.waitForTimeout(3000);
+  const onGas = await sndAt();
   await page.keyboard.up('w');
   await page.waitForTimeout(300);
 
@@ -225,6 +240,36 @@ const A = (ok, msg, detail) => {
       snd.idleRms.toFixed(4) + ' vs ' + snd.pullRms.toFixed(4));
     A(snd.highRms > snd.idleRms, 'and 9000 rpm on the gas is the loudest of the four',
       snd.highRms.toFixed(4));
+  }
+
+  /* ---- the sound is actually wired to the bike ------------------------
+     groundVoice and engineVoice are measured in test_sound.js, the graph
+     offline above. This is the third thing that can be wrong: the numbers
+     are right, the synthesiser is right, and nothing connects them. So
+     this reads the live graph on a bike that is really being ridden —
+     injecting a state does not work, because the game loop writes the real
+     one back sixty times a second. */
+  if (!atRest || !onGas) {
+    console.log('    · sound not wired-checked: no audio context in this run');
+  } else {
+    const f = (o) => JSON.stringify(o, (k, v) => typeof v === 'number' ? +v.toFixed(4) : v);
+    console.log('    · at rest:      ' + f(atRest));
+    console.log('    · on the gas:   ' + f(onGas));
+    A(atRest.layers === 5, 'the bike has all five non-engine voices', atRest.layers + ' of 5');
+    A(onGas.rpm > atRest.rpm * 1.3 && onGas.freq > atRest.freq * 1.3,
+      'the exhaust note follows the rev counter',
+      atRest.freq.toFixed(1) + ' → ' + onGas.freq.toFixed(1) + ' Hz at '
+      + Math.round(atRest.rpm) + ' → ' + Math.round(onGas.rpm) + ' rpm');
+    A(onGas.eng > atRest.eng * 1.5, 'and gets louder with it',
+      atRest.eng.toFixed(4) + ' → ' + onGas.eng.toFixed(4));
+    A(atRest.wind < onGas.wind * 0.3 && onGas.wind > 0.001,
+      'the wind arrives with the speed',
+      atRest.wind.toFixed(5) + ' → ' + onGas.wind.toFixed(4) + ' at ' + onGas.kmh.toFixed(0) + ' km/h');
+    A(onGas.chain > atRest.chain, 'so does the chain',
+      atRest.chain.toFixed(5) + ' → ' + onGas.chain.toFixed(4));
+    A(onGas.roll > 0.0005 || onGas.hiss > 0.0005,
+      'and the tyres are heard on the ground',
+      'roll ' + onGas.roll.toFixed(4) + ', hiss ' + onGas.hiss.toFixed(4));
   }
 
   console.log('\n--- render: ' + pass + ' passed, ' + fail + ' failed');
