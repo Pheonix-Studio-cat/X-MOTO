@@ -3923,7 +3923,10 @@ const GAME = {
       RACE.update(this.hero, dt);
       SCENE.update(dt);
       PARTICLES.update(dt);
+      AUDIO.update(this.hero, dt);
       if (this.msgT > 0) this.msgT -= dt;
+    } else if (AUDIO.ready && AUDIO.eng) {
+      AUDIO.silence();                       // paused: the engine stops too
     }
   },
 };
@@ -4377,7 +4380,10 @@ const UI = {
       <div class="row"><div class="lab">Telemetry</div>
         ${seg('hud', [[1,'NORMAL'],[2,'FULL'],[0,'OFF']], SETTINGS.hud)}</div>
       <div class="row"><div class="lab">Units</div>
-        ${seg('units', [['metric','KM/H'],['imperial','MPH']], SETTINGS.units)}</div>`);
+        ${seg('units', [['metric','KM/H'],['imperial','MPH']], SETTINGS.units)}</div>
+      <div class="row"><div><div class="lab">Volume</div>
+        <div class="hint">Engine, tyres and impacts, synthesised live</div></div>
+        ${seg('sound', [[0,'OFF'],[0.35,'LOW'],[0.7,'NORMAL'],[1,'LOUD']], SETTINGS.sound)}</div>`);
     this.on('[data-back]', () => this.showMenu(), d);
     this.on('[data-set]', (el) => {
       const k = el.getAttribute('data-set');
@@ -4386,6 +4392,7 @@ const UI = {
       else if (!isNaN(parseFloat(v)) && k !== 'camera' && k !== 'units') v = parseFloat(v);
       SETTINGS[k] = v;
       if (k === 'camera') CAM.mode = v;
+      if (k === 'sound') AUDIO.setVolume(v);
       saveSettings();
       this.showSettings();
     }, d);
@@ -4448,6 +4455,10 @@ const UI = {
   },
 
   launch() {
+    /* The audio context has to be created inside the click that started
+       the race. Anywhere later — inside the timeout below, for instance —
+       and every browser refuses to let it make a sound. */
+    AUDIO.start();
     this.clear();
     const l = document.createElement('div');
     l.className = 'load';
@@ -4457,6 +4468,7 @@ const UI = {
       GAME.start(this.sel.track, this.sel.bike, { weather: this.sel.weather });
       const laps = this.sel.mode === 'race' || this.sel.mode === 'champ' ? this.sel.laps : 0;
       RACE.reset(this.sel.mode, laps);
+      AUDIO.attach(GAME.hero.cfg);
       this.clear();
       this.touchControls();
     }, 30);
@@ -4642,6 +4654,361 @@ Mesh.prototype.plate = function (spine, halfWidth, thick, curve, col, ref) {
   }
 };
 
+/* ================================================================== SOUND
+   An engine is not a recording. What you hear is a train of combustion
+   pulses down a pipe: the pitch is the firing rate, the timbre is what the
+   pipe does to each pulse, and both change with load, not only with speed.
+   A looped file gets the pitch right by resampling and everything else
+   wrong -- it cannot go from "on the gas" to "on the overrun" at the same
+   rpm, which is most of what a rider listens to.
+
+   So it is synthesised. The parameters are worked out by a pure function
+   that node can measure without an audio device; the graph below only
+   applies them.
+   ---------------------------------------------------------------------- */
+
+/* How many combustion events per crank revolution. A four-stroke single
+   fires once every second revolution; a two-stroke every revolution. */
+function firingOrder(cfg) { return cfg.strokes === 4 ? 0.5 : 1.0; }
+
+/* engineVoice: engine state in, synthesiser settings out. No audio here on
+   purpose -- this is the part worth measuring. */
+function engineVoice(cfg, st) {
+  const idle = cfg.idleRpm, lim = cfg.limitRpm;
+  const rpm = clamp(st.rpm || 0, 0, cfg.cutRpm * 1.1);
+  const thr = clamp(st.throttle || 0, 0, 1);
+  const rev = clamp((rpm - idle) / Math.max(1, lim - idle), 0, 1.2);
+  const fire = rpm / 60 * firingOrder(cfg);
+
+  if (st.stalled || rpm < 1) {
+    return { fire: 0, level: 0, drive: 0, bright: 400, mech: 0, intake: 0,
+             jitter: 0, edge: 0, pipe: 1, rev, overrun: 0 };
+  }
+
+  /* Load is what separates a bike pulling from a bike coasting at the same
+     rpm. `st.load` is the drive torque as a fraction of what this engine
+     can make; on the overrun it is negative. */
+  const load = clamp(st.load === undefined ? thr : st.load, -1, 1);
+  const overrun = clamp(-load * 1.6, 0, 1) * (1 - thr);
+
+  /* Loudness: mostly throttle, partly revs. An engine at 9000 rpm with the
+     throttle shut is much quieter than the same engine pulling. */
+  let level = 0.16 + 0.50 * thr + 0.26 * rev * rev + 0.22 * Math.max(0, load);
+  level *= 1 - 0.45 * overrun;
+  if (st.cut > 0) level *= 0.25;                 // rev limiter chopping
+  level *= 1 - 0.30 * clamp(st.damage || 0, 0, 1);
+  level = clamp(level, 0, 1.25);
+
+  /* Rasp. A loaded engine drives the pipe into nonlinearity; that hard
+     edge is the difference between a bark and a hum. */
+  const drive = clamp(0.16 + 0.72 * thr * (0.45 + 0.55 * rev) + 0.35 * Math.max(0, load), 0, 1);
+
+  /* Brightness. The first version added a throttle term to an rpm term,
+     and a measurement of the rendered signal showed why that is wrong: at
+     6000 rpm the note came out nearly as bright shut as open, which no
+     engine does. With the throttle closed there is almost nothing to burn,
+     the pressure pulses are soft, and the high harmonics are simply not
+     made. So the throttle gates the rpm term rather than adding to it. */
+  const bright = 420 + (700 + 4200 * rev) * (0.20 + 0.80 * thr) + 1200 * thr
+               - 260 * overrun + 1400 * clamp(st.damage || 0, 0, 1);
+
+  // mechanical clatter tracks crank speed whatever the throttle does
+  const mech = clamp(0.05 + 0.34 * rev + 0.10 * thr + 0.22 * overrun, 0, 1);
+  // intake roar only exists with the slide open
+  const intake = clamp(thr * (0.20 + 0.72 * rev), 0, 1);
+  // combustion is never perfectly even, and least even at low rpm
+  const jitter = clamp(0.055 - 0.040 * rev + 0.030 * (1 - thr), 0.008, 0.09);
+
+  /* The bark. Upper pipe modes are only excited when combustion is hard,
+     which is why a loaded engine has an edge to it and the same engine
+     coasting at the same rpm does not. Without this the note kept the same
+     spectral tilt on and off the throttle — measured, not guessed. */
+  const edge = clamp(thr * (0.22 + 0.78 * rev) * (0.35 + 0.65 * drive), 0, 1);
+
+  return { fire, level, drive, bright: clamp(bright, 300, 12000),
+           mech, intake, jitter, edge, pipe: cfg.strokes === 4 ? 1 : 0.72,
+           rev, overrun };
+}
+
+
+/* ---------------------------------------------------------------------
+   The graph. Everything above this line is arithmetic; everything below
+   is Web Audio nodes that the arithmetic steers.
+
+   The exhaust note is one oscillator whose waveform IS a pulse train:
+   a periodic wave with a full harmonic series at the firing rate. Push it
+   through a soft clip and three resonances and you have a pipe. The
+   alternative -- scheduling one envelope per combustion event -- needs a
+   new node every few milliseconds and falls apart above about 6000 rpm.
+   -------------------------------------------------------------------- */
+
+/* A pulse train as a periodic wave. `tilt` is how fast the harmonics fall
+   away: a small number is a sharp crack, a large one a soft thump. */
+function pulseWave(ctx, n, tilt, odd) {
+  const re = new Float32Array(n + 1), im = new Float32Array(n + 1);
+  for (let k = 1; k <= n; k++) {
+    let a = 1 / (1 + Math.pow(k / tilt, 1.55));
+    if (odd && k % 2 === 0) a *= 0.55;      // a two-stroke leans on odd harmonics
+    im[k] = a;
+  }
+  return ctx.createPeriodicWave(re, im, { disableNormalization: false });
+}
+
+/* tanh soft clip: the nonlinearity that turns a hum into a bark */
+function clipCurve(n) {
+  const c = new Float32Array(n);
+  for (let i = 0; i < n; i++) {
+    const x = (i / (n - 1)) * 2 - 1;
+    c[i] = Math.tanh(x * 2.2) / Math.tanh(2.2);
+  }
+  return c;
+}
+
+function noiseBuffer(ctx, seconds) {
+  const n = Math.floor(ctx.sampleRate * seconds);
+  const b = ctx.createBuffer(1, n, ctx.sampleRate);
+  const d = b.getChannelData(0);
+  const rnd = mulberry32(0x5eed);
+  for (let i = 0; i < n; i++) d[i] = rnd() * 2 - 1;
+  return b;
+}
+
+const AUDIO = {
+  ctx: null, master: null, comp: null, noise: null, eng: null,
+  ready: false, failed: '', muted: false, jit: 0,
+
+  /* Must be called from inside a real click or touch: every browser
+     refuses to start an audio context any other way. */
+  start() {
+    if (this.ctx) { if (this.ctx.state === 'suspended') this.ctx.resume(); return this.ready; }
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) { this.failed = 'no Web Audio'; return false; }
+    try {
+      this.ctx = new AC({ latencyHint: 'interactive' });
+      this.build();
+      this.ready = true;
+    } catch (e) {
+      this.failed = String(e && e.message || e);
+      this.ready = false;
+    }
+    if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+    return this.ready;
+  },
+
+  build() {
+    const ctx = this.ctx;
+    // a limiter on the way out: synthesis peaks are not predictable
+    this.comp = ctx.createDynamicsCompressor();
+    this.comp.threshold.value = -9;
+    this.comp.knee.value = 12;
+    this.comp.ratio.value = 7;
+    this.comp.attack.value = 0.004;
+    this.comp.release.value = 0.18;
+    this.master = ctx.createGain();
+    this.master.gain.value = clamp(SETTINGS.sound, 0, 1) * 0.85;
+    this.comp.connect(this.master);
+    this.master.connect(ctx.destination);
+    this.noise = noiseBuffer(ctx, 2.2);
+    this.curve = clipCurve(1024);
+    /* Seeded, like everything else that is allowed to look random here.
+       Math.random made the same engine state render differently every
+       time, and a measurement that moves cannot tell you anything. */
+    this.rnd = mulberry32(0xa77e);
+  },
+
+  /* One engine. Built when a bike is put on the track, because the
+     waveform depends on how the engine fires. */
+  makeEngine(cfg) {
+    const ctx = this.ctx, out = this.comp;
+    const two = cfg.strokes === 2;
+    const g = {};
+
+    g.wave = pulseWave(ctx, two ? 40 : 48, two ? 18 : 14, two);
+    g.osc = ctx.createOscillator();
+    g.osc.setPeriodicWave(g.wave);
+    g.osc.frequency.value = 40;
+
+    // the crank whirr, an octave up on a four-stroke's firing rate
+    g.osc2 = ctx.createOscillator();
+    g.osc2.type = 'sawtooth';
+    g.osc2.frequency.value = 80;
+    g.crankGain = ctx.createGain();
+    g.crankGain.gain.value = 0.10;
+
+    g.pre = ctx.createGain();                  // drives the soft clip
+    g.pre.gain.value = 1;
+    g.shape = ctx.createWaveShaper();
+    g.shape.curve = this.curve;
+    g.shape.oversample = '2x';
+
+    g.osc.connect(g.pre);
+    g.osc2.connect(g.crankGain); g.crankGain.connect(g.pre);
+    g.pre.connect(g.shape);
+
+    /* The pipe: three standing waves plus a dry path, so it resonates
+       without ringing like a bell. */
+    /* Three standing waves, but broad ones. Sharp resonances threw away
+       everything the soft clip had just created, and the note came out with
+       the same spectral tilt loaded as unloaded. */
+    const pipes = two ? [[250, 3.4, 1.0], [780, 2.9, 0.62], [2150, 2.4, 0.40]]
+                      : [[178, 3.4, 1.0], [530, 2.9, 0.55], [1380, 2.4, 0.34]];
+    g.tone = ctx.createBiquadFilter();
+    g.tone.type = 'lowpass';
+    g.tone.frequency.value = 1200;
+    g.tone.Q.value = 0.9;
+    g.bands = [];
+    for (const [f, q, amp] of pipes) {
+      const bp = ctx.createBiquadFilter();
+      bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = q;
+      const bg = ctx.createGain(); bg.gain.value = amp;
+      g.shape.connect(bp); bp.connect(bg); bg.connect(g.tone);
+      g.bands.push({ bp, bg, f0: f });
+    }
+    g.dry = ctx.createGain(); g.dry.gain.value = 0.55;
+    g.shape.connect(g.dry); g.dry.connect(g.tone);
+
+    // the bark: a high pipe mode fed straight off the clipped signal,
+    // opened only by load — this is what a bike sounds like pulling
+    g.edgeBP = ctx.createBiquadFilter();
+    g.edgeBP.type = 'bandpass';
+    g.edgeBP.frequency.value = two ? 3400 : 2600;
+    g.edgeBP.Q.value = 1.6;
+    g.edgeGain = ctx.createGain(); g.edgeGain.gain.value = 0;
+    g.shape.connect(g.edgeBP); g.edgeBP.connect(g.edgeGain); g.edgeGain.connect(g.tone);
+
+    g.engGain = ctx.createGain(); g.engGain.gain.value = 0;
+    g.tone.connect(g.engGain); g.engGain.connect(out);
+
+    // mechanical clatter: broadband, follows crank speed
+    g.mechSrc = ctx.createBufferSource();
+    g.mechSrc.buffer = this.noise; g.mechSrc.loop = true;
+    g.mechBP = ctx.createBiquadFilter();
+    g.mechBP.type = 'bandpass'; g.mechBP.frequency.value = 2100; g.mechBP.Q.value = 0.85;
+    g.mechGain = ctx.createGain(); g.mechGain.gain.value = 0;
+    g.mechSrc.connect(g.mechBP); g.mechBP.connect(g.mechGain); g.mechGain.connect(out);
+
+    // intake: a low roar that only exists with the slide open
+    g.inSrc = ctx.createBufferSource();
+    g.inSrc.buffer = this.noise; g.inSrc.loop = true; g.inSrc.playbackRate.value = 0.83;
+    g.inBP = ctx.createBiquadFilter();
+    g.inBP.type = 'bandpass'; g.inBP.frequency.value = 340; g.inBP.Q.value = 1.5;
+    g.inGain = ctx.createGain(); g.inGain.gain.value = 0;
+    g.inSrc.connect(g.inBP); g.inBP.connect(g.inGain); g.inGain.connect(out);
+
+    const t = ctx.currentTime;
+    g.osc.start(t); g.osc2.start(t); g.mechSrc.start(t); g.inSrc.start(t);
+    return g;
+  },
+
+  /* Called when a track is loaded. */
+  attach(cfg) {
+    if (!this.ready) return;
+    this.detach();
+    this.eng = this.makeEngine(cfg);
+    this.cfg = cfg;
+  },
+  detach() {
+    if (!this.eng) return;
+    const t = this.ctx.currentTime;
+    for (const n of ['osc', 'osc2', 'mechSrc', 'inSrc']) {
+      try { this.eng[n].stop(t + 0.05); } catch (e) {}
+    }
+    this.eng = null;
+  },
+
+  /* Fade everything out without tearing the graph down, so that
+     unpausing picks up where it left off. Scheduled once, not once per
+     frame: a fade re-armed sixty times a second never gets anywhere, and
+     it quietly overwrote everything else written to the same parameters. */
+  silence() {
+    if (!this.ready || !this.eng || this.hushed) return;
+    this.hushed = true;
+    const t = this.ctx.currentTime, g = this.eng;
+    for (const p of [g.engGain.gain, g.mechGain.gain, g.inGain.gain]) {
+      p.setTargetAtTime(0, t, 0.05);
+    }
+  },
+
+  /* Render one steady engine state into a buffer, on a context of its
+     own. Used by the tests: the only honest way to check a synthesiser is
+     to look at the samples it produces. */
+  renderOffline(cfg, state, seconds) {
+    const OAC = typeof window !== 'undefined' &&
+                (window.OfflineAudioContext || window.webkitOfflineAudioContext);
+    if (!OAC) return Promise.resolve(null);
+    const sr = 44100;
+    const oac = new OAC(1, Math.max(1, Math.round(sr * seconds)), sr);
+    const sub = Object.create(AUDIO);
+    sub.ctx = oac; sub.ready = true; sub.jit = 0; sub.hushed = false;
+    /* No combustion wobble: this renders one held state so that it can be
+       measured, and a note that is a few cents off is a note whose
+       harmonics cannot be averaged together. */
+    sub.steady = true;
+    sub.build();
+    sub.master.gain.value = 1;
+    sub.eng = sub.makeEngine(cfg);
+    sub.cfg = cfg;
+    sub.apply(state);
+    return oac.startRendering().then(buf => buf.getChannelData(0));
+  },
+
+  setVolume(v) {
+    SETTINGS.sound = clamp(v, 0, 1);
+    if (this.master) this.master.gain.value = SETTINGS.sound * 0.85;
+  },
+
+  /* Per frame. setTargetAtTime everywhere: stepping an AudioParam gives a
+     click on every frame, which at 60 fps is a 60 Hz buzz over the top of
+     the engine. */
+  update(b, dt) {
+    if (!this.ready || !this.eng || !b) return;
+    const e = b.eng;
+    const peak = this.cfg.torque.reduce((m, p) => Math.max(m, p[1]), 1);
+    this.hushed = false;
+    this.apply({
+      rpm: e.rpm, throttle: e.thr, load: (e.torque || 0) / peak,
+      cut: e.cutT || 0, stalled: e.stalled, damage: b.dmg.engine,
+    });
+  },
+
+  /* Engine state to audio parameters. Separate from update() so that the
+     same code can be rendered offline and measured. */
+  apply(state) {
+    if (!this.ready || !this.eng) return;
+    const g = this.eng, ctx = this.ctx, t = ctx.currentTime;
+    const v = engineVoice(this.cfg, state);
+    this.last = v;
+
+    // combustion is uneven; a random walk on the detune is what stops the
+    // note sounding like a synthesiser holding a chord
+    if (this.steady) this.jit = 0;                 // offline: one fixed state
+    else {
+      this.jit += (this.rnd() - 0.5) * 2 * v.jitter;
+      this.jit *= 0.86;
+    }
+    const f = Math.max(0.5, v.fire);
+    const at = (p, x, tc) => p.setTargetAtTime(x, t, tc);
+    at(g.osc.frequency, f, 0.012);
+    at(g.osc2.frequency, f * 2, 0.012);
+    g.osc.detune.setTargetAtTime(this.jit * 900, t, 0.010);
+    at(g.pre.gain, 1 + v.drive * 13, 0.030);
+    at(g.tone.frequency, v.bright, 0.030);
+    at(g.edgeGain.gain, v.edge * 0.85, 0.035);
+    at(g.edgeBP.frequency, (this.cfg.strokes === 2 ? 3400 : 2600) * (0.72 + 0.42 * v.rev), 0.050);
+    at(g.engGain.gain, v.level * 0.30, 0.020);
+    at(g.crankGain.gain, 0.05 + v.mech * 0.12, 0.040);
+    /* The clatter was set so low it was inaudible, which made an engine on
+       the overrun a quiet version of an engine pulling. On a real bike the
+       mechanical noise barely changes; it is the note that goes away. */
+    at(g.mechGain.gain, v.mech * 0.115, 0.040);
+    at(g.mechBP.frequency, 1500 + v.rev * 2600, 0.050);
+    at(g.inGain.gain, v.intake * 0.055, 0.030);
+    at(g.inBP.frequency, 280 + v.rev * 420, 0.050);
+    // the pipe stretches a little as it heats and as the gas speeds up
+    for (const bd of g.bands) at(bd.bp.frequency, bd.f0 * (1 + 0.10 * v.rev), 0.060);
+  },
+};
+
 /* __TAIL__ (new code is inserted above this line) */
 
 /* ---------------------------------------------------------- test hook ----
@@ -4656,6 +5023,7 @@ const T = {
   buildRiderMeshes, buildBikeMeshes,
   buildFlat, makeBike, resetBike, physStep, autoGearbox, riderThrottle, riderBrake,
   GAME, RACE, SCENE, CAM, SETTINGS, UI, HUD, GL, TR, RENDER, PARTICLES, WEATHER,
+  engineVoice, firingOrder, AUDIO, pulseWave, clipCurve,
   steerPivotBody, swingPivotBody, axleInSteerFrame, peakPowerKW, M4, ik2, stepBike, makeInput, engineTorque,
   mfLong, mfLat, loadSens, strutAxes, designSag, suspForce, bikeInertia,
 };

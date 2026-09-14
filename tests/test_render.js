@@ -99,6 +99,134 @@ const A = (ok, msg, detail) => {
   A(!st.crashed, 'a straight throttle run does not end on the floor');
   A(st.v > 15, 'and the throttle actually drives the bike forward', st.v + ' km/h');
 
+  /* ---- the engine, rendered offline and measured in the signal -------
+     engineVoice is checked in test_sound.js. This checks the other half:
+     that the graph actually produces a periodic signal at the firing rate,
+     and that pulling and coasting really do come out different. */
+  const snd = await page.evaluate(async () => {
+    const A = window.T.AUDIO, cfg = window.T.BIKE_BY_KEY['450f'];
+    const sec = 1.3, sr = 44100;
+    const st = (rpm, thr, torque) => ({ rpm, throttle: thr, load: torque / 51.2,
+                                        cut: 0, stalled: false, damage: 0 });
+    const one = await A.renderOffline(cfg, st(6000, 1, 48), 0.2);
+    if (!one) return { skip: 'no OfflineAudioContext' };
+
+    // last third only: by then every setTargetAtTime has settled
+    const tail = (d) => d.subarray(Math.floor(d.length * 0.62));
+    const rms = (d) => { let s = 0; for (let i = 0; i < d.length; i++) s += d[i] * d[i];
+                         return Math.sqrt(s / d.length); };
+    /* Goertzel: the energy at one exact frequency. Zero crossings were the
+       first thing tried and they measure noisiness, not brightness — on the
+       overrun the mechanical clatter crosses zero far more often than a
+       hard exhaust note does, so they said the quiet dull sound was the
+       bright one. Summing the firing harmonics ignores the noise floor and
+       looks only at the note. */
+    const goertzel = (d, f) => {
+      const w = 2 * Math.PI * f / sr, c = 2 * Math.cos(w);
+      let s1 = 0, s2 = 0;
+      for (let i = 0; i < d.length; i++) { const s0 = d[i] + c * s1 - s2; s2 = s1; s1 = s0; }
+      return Math.sqrt(Math.max(0, s1 * s1 + s2 * s2 - c * s1 * s2)) / d.length;
+    };
+    const harmonics = (d, f0, from, to) => {
+      let s = 0;
+      for (let k = from; k <= to; k++) s += goertzel(d, f0 * k);
+      return s;
+    };
+    const corrAt = (d, lag) => {
+      let a = 0, b = 0, c = 0;
+      for (let i = 0; i + lag < d.length; i++) { a += d[i] * d[i + lag]; b += d[i] * d[i]; c += d[i + lag] * d[i + lag]; }
+      return a / Math.max(1e-12, Math.sqrt(b * c));
+    };
+    /* Comb filter at one firing period: (x[i]+x[i+P])/2 keeps what repeats,
+       (x[i]-x[i+P])/2 keeps what does not. The second is the clatter. */
+    const aperiodicShare = (d, P) => {
+      let a = 0, b = 0;
+      for (let i = 0; i + P < d.length; i++) {
+        const sum = (d[i] + d[i + P]) * 0.5, dif = (d[i] - d[i + P]) * 0.5;
+        a += sum * sum; b += dif * dif;
+      }
+      return Math.sqrt(b / Math.max(1e-12, a + b));
+    };
+    /* Synchronous averaging: fold every firing period on top of the last.
+       What repeats survives, what does not falls as 1/sqrt(periods). This
+       is what lets the timbre of the note be measured through the clatter
+       — mixed together, the louder clatter on the overrun made the duller
+       note look like the brighter one. */
+    const noteOf = (d, P) => {
+      const n = Math.floor(d.length / P);
+      const acc = new Float32Array(P);          // fold onto ONE period
+      for (let i = 0; i < acc.length; i++) {
+        let s2 = 0, c = 0;
+        for (let k = 0; i + k * acc.length < d.length; k++) { s2 += d[i + k * acc.length]; c++; }
+        acc[i] = s2 / Math.max(1, c);
+      }
+      return acc;
+    };
+    const grab = async (s2) => tail(await A.renderOffline(cfg, s2, sec));
+
+    const pull = await grab(st(6000, 1, 48));
+    const coast = await grab(st(6000, 0, -12));
+    const idle = await grab(st(1900, 0, 0));
+    const high = await grab(st(9000, 1, 44));
+
+    const fire6 = 6000 / 60 * 0.5;                       // 50 Hz
+    const out = {
+      pullRms: rms(pull), coastRms: rms(coast), idleRms: rms(idle), highRms: rms(high),
+      periodic: corrAt(pull, Math.round(sr / fire6)),
+      pullNoise: aperiodicShare(pull, Math.round(sr / fire6)),
+      coastNoise: aperiodicShare(coast, Math.round(sr / fire6)),
+      offPeriod: corrAt(pull, Math.round(sr / (fire6 * 1.37))),
+      // how much of the note lives up in the harmonics, clatter averaged away
+      pullEdge: (() => { const n = noteOf(pull, Math.round(sr / fire6));
+        return harmonics(n, fire6, 20, 44) / Math.max(1e-9, harmonics(n, fire6, 1, 6)); })(),
+      coastEdge: (() => { const n = noteOf(coast, Math.round(sr / fire6));
+        return harmonics(n, fire6, 20, 44) / Math.max(1e-9, harmonics(n, fire6, 1, 6)); })(),
+      peak: 0, nan: 0,
+    };
+    for (let i = 0; i < pull.length; i++) {
+      if (!isFinite(pull[i])) out.nan++;
+      else if (Math.abs(pull[i]) > out.peak) out.peak = Math.abs(pull[i]);
+    }
+    return out;
+  });
+
+  if (snd.skip) {
+    console.log('    · engine sound not measured: ' + snd.skip);
+  } else {
+    console.log('    · rendered rms — idle ' + snd.idleRms.toFixed(4) +
+      ', coasting ' + snd.coastRms.toFixed(4) + ', pulling ' + snd.pullRms.toFixed(4) +
+      ', pulling at 9000 ' + snd.highRms.toFixed(4));
+    console.log('    · harmonics 1000-2200 Hz against 50-300 Hz — coasting ' +
+      snd.coastEdge.toFixed(3) + ', pulling ' + snd.pullEdge.toFixed(3));
+    console.log('    · share that is not the note — coasting ' + (snd.coastNoise * 100).toFixed(0) +
+      '%, pulling ' + (snd.pullNoise * 100).toFixed(0) + '%');
+    A(snd.nan === 0, 'the engine renders no non-finite sample', snd.nan + ' bad samples');
+    A(snd.pullRms > 0.01, 'the engine actually makes a sound', 'rms ' + snd.pullRms.toFixed(4));
+    A(snd.peak < 1.2, 'and does not clip the output', 'peak ' + snd.peak.toFixed(3));
+    A(snd.periodic > 0.55,
+      'the note is periodic at the firing rate, 50 Hz at 6000 rpm',
+      'correlation ' + snd.periodic.toFixed(2));
+    A(snd.periodic > snd.offPeriod + 0.15,
+      'and not at a rate that is not the firing rate',
+      snd.periodic.toFixed(2) + ' vs ' + snd.offPeriod.toFixed(2) + ' off-period');
+    A(snd.coastRms < snd.pullRms * 0.7,
+      'coasting at 6000 rpm is quieter than pulling at 6000 rpm',
+      snd.coastRms.toFixed(4) + ' vs ' + snd.pullRms.toFixed(4));
+    A(snd.coastEdge < snd.pullEdge * 0.7,
+      'and duller — the note keeps far less of its upper harmonics',
+      snd.coastEdge.toFixed(3) + ' vs ' + snd.pullEdge.toFixed(3));
+    /* Comb the signal against itself one firing period later: what
+       survives is the note, what cancels is everything else. The share
+       that cancels is how much of what you hear is mechanical. */
+    A(snd.coastNoise > snd.pullNoise * 1.4,
+      'and far more of what is left is mechanical clatter',
+      (snd.coastNoise * 100).toFixed(0) + '% of it against ' + (snd.pullNoise * 100).toFixed(0) + '%');
+    A(snd.idleRms < snd.pullRms * 0.6, 'idling is quieter than pulling',
+      snd.idleRms.toFixed(4) + ' vs ' + snd.pullRms.toFixed(4));
+    A(snd.highRms > snd.idleRms, 'and 9000 rpm on the gas is the loudest of the four',
+      snd.highRms.toFixed(4));
+  }
+
   console.log('\n--- render: ' + pass + ' passed, ' + fail + ' failed');
   await browser.close();
   process.exit(fail ? 1 : 0);
